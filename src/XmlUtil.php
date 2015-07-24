@@ -73,6 +73,12 @@ class XmlUtil
 	*/
 	public static function createXmlDocumentFromStr($xml, $docOptions = XMLUTIL_OPT_DONT_FIX_AMPERSAND)
 	{
+		set_error_handler(function($number, $error){
+			if (preg_match('/^DOMDocument::loadXML\(\): (.+)$/', $error, $m) === 1) {
+				throw new \InvalidArgumentException($m[1]);
+			}
+		});
+
 		$xmldoc = self::createXmlDocument($docOptions);
 
         $xml = XmlUtil::fixXmlHeader($xml);
@@ -83,6 +89,9 @@ class XmlUtil
         $xmldoc->loadXML($xml);
 
 		XmlUtil::extractNameSpaces($xmldoc);
+
+		restore_error_handler();
+
 		return $xmldoc;
 	}
 

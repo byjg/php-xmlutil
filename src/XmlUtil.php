@@ -131,6 +131,8 @@ class XmlUtil
 	*/
 	public static function fixXmlHeader($string)
 	{
+		$string = XmlUtil::removeBom($string);
+		
 		if(strpos($string, "<?xml") !== false)
 		{
 			$xmltagend = strpos($string, "?>");
@@ -138,6 +140,11 @@ class XmlUtil
 			{
 				$xmltagend += 2;
 				$xmlheader = substr($string, 0, $xmltagend);
+
+				if ($xmlheader == "<?xml?>")
+				{
+					$xmlheader = "<?xml ?>";
+				}
 			}
 			else
 			{
@@ -204,14 +211,16 @@ class XmlUtil
 	 */
 	public static function getFormattedDocument($xml)
 	{
+		$oldPreserveWhiteSpace = $xml->preserveWhiteSpace;
+		$oldFormatOutput = $xml->formatOutput;
+
+		$xml->preserveWhiteSpace = false;
+		$xml->formatOutput = true;
 		$document = $xml->saveXML();
-		$i = strpos($document, "&#");
-		while ($i!=0)
-		{
-			$char = substr($document, $i, 5);
-			$document = substr($document, 0, $i) . chr(hexdec($char)) . substr($document, $i+6);
-			$i = strpos($document, "&#");
-		}
+
+		$xml->preserveWhiteSpace = $oldPreserveWhiteSpace;
+		$xml->formatOutput = $oldFormatOutput;
+		
 		return $document;
 	}
 
@@ -697,4 +706,8 @@ class XmlUtil
 		}
 	}
 
+	public static function removeBom($xmlStr)
+	{
+		return preg_replace('/^\xEF\xBB\xBF/', '', $xmlStr);
+	}
 }

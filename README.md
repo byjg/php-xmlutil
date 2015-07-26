@@ -1,4 +1,5 @@
 # XmlUtil
+[![Build Status](https://travis-ci.org/byjg/xmlutil.svg?branch=master)](https://travis-ci.org/byjg/xmlutil)
 
 ## Description
 

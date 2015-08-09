@@ -74,19 +74,20 @@ class XmlUtil
 	public static function createXmlDocumentFromStr($xml, $docOptions = XMLUTIL_OPT_DONT_FIX_AMPERSAND)
 	{
 		set_error_handler(function($number, $error){
-			if (preg_match('/^DOMDocument::loadXML\(\): (.+)$/', $error, $m) === 1) {
-				throw new \InvalidArgumentException($m[1]);
+            $matches = [];
+			if (preg_match('/^DOMDocument::loadXML\(\): (.+)$/', $error, $matches) === 1) {
+				throw new \InvalidArgumentException("[Err #$number] " .  $matches[1]);
 			}
 		});
 
 		$xmldoc = self::createXmlDocument($docOptions);
 
-        $xml = XmlUtil::fixXmlHeader($xml);
+        $xmlFixed = XmlUtil::fixXmlHeader($xml);
 		if (($docOptions & XMLUTIL_OPT_DONT_FIX_AMPERSAND) != XMLUTIL_OPT_DONT_FIX_AMPERSAND) {
-            $xml = str_replace("&amp;", "&", $xml);
+            $xmlFixed = str_replace("&amp;", "&", $xmlFixed);
         }
 
-        $xmldoc->loadXML($xml);
+        $xmldoc->loadXML($xmlFixed);
 
 		XmlUtil::extractNameSpaces($xmldoc);
 
@@ -676,7 +677,7 @@ class XmlUtil
 			{
 				$tok = strtok($name, ":");
 				if ($tok != $name) {
-                    XmlUtil::$XMLNSPrefix[spl_object_hash($owner)][$xml2jsontok] = $uri;
+                    XmlUtil::$XMLNSPrefix[spl_object_hash($owner)][$tok] = $uri;
                 }
             }
 		}

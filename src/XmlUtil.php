@@ -219,14 +219,14 @@ class XmlUtil
     {
         $doc = XmlUtil::getOwnerDocument($nodeOrDoc);
 
-        if ($doc == null) {
+        if ($doc === null) {
             throw new XmlUtilException("Node or document is invalid.");
         }
 
         $hash = spl_object_hash($doc);
         $root = $doc->documentElement;
 
-        if ($root == null) {
+        if ($root === null) {
             throw new XmlUtilException("Node or document is invalid. Cannot retrieve 'documentElement'.");
         }
 
@@ -237,13 +237,13 @@ class XmlUtil
     /**
      * Add node to specific XmlNode from file existing on disk
      *
-     * @param DOMNode $rootNode XmlNode receives node
+     * @param mixed $rootNode XmlNode receives node
      * @param string $filename File to import node
      * @param string $nodetoadd Node to be added
      */
     public static function addNodeFromFile($rootNode, $filename, $nodetoadd)
     {
-        if ($rootNode == null) {
+        if ($rootNode === null) {
             return;
         }
         if (!file_exists($filename)) {
@@ -268,8 +268,8 @@ class XmlUtil
     /**
      * Attention: NODE MUST BE AN ELEMENT NODE!!!
      *
-     * @param DOMElement $source
-     * @param DOMElement $nodeToAdd
+     * @param mixed $source
+     * @param mixed $nodeToAdd
      */
     public static function addNodeFromNode($source, $nodeToAdd)
     {
@@ -287,7 +287,7 @@ class XmlUtil
     /**
      * Append child node from specific node and add text
      *
-     * @param DOMNode $rootNode Parent node
+     * @param mixed $rootNode Parent node
      * @param string $nodeName Node to add string
      * @param string $nodeText Text to add string
      * @return DOMElement
@@ -307,7 +307,7 @@ class XmlUtil
     /**
      * Create child node on the top from specific node and add text
      *
-     * @param DOMNode $rootNode Parent node
+     * @param mixed $rootNode Parent node
      * @param string $nodeName Node to add string
      * @param string $nodeText Text to add string
      * @return DOMElement
@@ -317,6 +317,13 @@ class XmlUtil
         return self::createChildBeforeNode($nodeName, $nodeText, $rootNode->childNodes->item($position));
     }
 
+    /**
+     *
+     * @param string $nodeName
+     * @param string $nodeText
+     * @param mixed $node
+     * @return DOMElement
+     */
     public static function createChildBeforeNode($nodeName, $nodeText, $node)
     {
         $rootNode = $node->parentNode;
@@ -329,7 +336,7 @@ class XmlUtil
     /**
      * Add text to node
      *
-     * @param DOMNode $rootNode Parent node
+     * @param mixed $rootNode Parent node
      * @param string $text Text to add String
      * @param bool $escapeChars (True create CData instead Text node)
      */
@@ -349,7 +356,7 @@ class XmlUtil
     /**
      * Add a attribute to specific node
      *
-     * @param DOMElement $rootNode Node to receive attribute
+     * @param mixed $rootNode Node to receive attribute
      * @param string $name Attribute name string
      * @param string $value Attribute value string
      * @return DOMElement
@@ -368,7 +375,7 @@ class XmlUtil
     /**
      * Returns a \DOMNodeList from a relative xPath from other \DOMNode
      *
-     * @param node $pNode
+     * @param mixed $pNode
      * @param string $xPath
      * @param array $arNamespace
      * @return DOMNodeList
@@ -390,8 +397,8 @@ class XmlUtil
     /**
      * Returns a \DOMElement from a relative xPath from other \DOMNode
      *
-     * @param DOMElement $pNode
-     * @param string $xPath - xPath string format
+     * @param mixed $pNode
+     * @param string $xPath xPath string format
      * @param array $arNamespace
      * @return DOMElement
      */
@@ -404,12 +411,12 @@ class XmlUtil
 
     /**
      *
-     * @param DOMXPath $xpath
+     * @param mixed $xpath
      * @param array $arNamespace
      */
     public static function registerNamespaceForFilter($xpath, $arNamespace)
     {
-        if (($arNamespace != null) && (is_array($arNamespace))) {
+        if (($arNamespace !== null) && (is_array($arNamespace))) {
             foreach ($arNamespace as $prefix => $uri) {
                 $xpath->registerNamespace($prefix, $uri);
             }
@@ -418,7 +425,7 @@ class XmlUtil
 
     /**
      * Concat a xml string in the node
-     * @param DOMNode $node
+     * @param mixed $node
      * @param string $xmlstring
      * @return DOMNode
      */
@@ -466,7 +473,7 @@ class XmlUtil
 
     /**
      * Return the tree nodes in a simple text
-     * @param DOMNode $node
+     * @param mixed $node
      * @return DOMNode
      */
     public static function innerText($node)
@@ -477,7 +484,7 @@ class XmlUtil
 
     /**
      * Return the tree nodes in a simple text
-     * @param DOMNode $node
+     * @param mixed $node
      * @return DOMNode
      */
     public static function copyChildNodesFromNodeToString($node)
@@ -501,7 +508,7 @@ class XmlUtil
 
     /**
      * Return the part node in xml document
-     * @param DOMNode $node
+     * @param mixed $node
      * @return string
      */
     public static function saveXmlNodeToString($node)
@@ -534,7 +541,7 @@ class XmlUtil
     /**
      * Remove a specific node
      *
-     * @param DOMNode $node
+     * @param mixed $node
      */
     public static function removeNode($node)
     {
@@ -545,7 +552,7 @@ class XmlUtil
     /**
      * Remove a node specified by your tag name. You must pass a \DOMDocument ($node->ownerDocument);
      *
-     * @param DOMDocument $domdocument
+     * @param mixed $domdocument
      * @param string $tagname
      * @return bool
      */
@@ -587,7 +594,7 @@ class XmlUtil
 
     /**
      *
-     * @param DOMNode $node
+     * @param mixed $node
      * @return DOMDocument
      * @throws XmlUtilException
      */
@@ -606,10 +613,10 @@ class XmlUtil
 
     /**
      *
-     * @param DOMNode $node
+     * @param mixed $node
      * @param string $name
      * @param string $uri
-     * @return type
+     * @return \DOMNode
      * @throws XmlUtilException
      */
     protected static function createChildNode($node, $name, $uri = "")
@@ -640,8 +647,8 @@ class XmlUtil
 
     /**
      *
-     * @param type $node
-     * @param type $name
+     * @param mixed $node
+     * @param string $name
      * @throws \Exception
      */
     protected static function checkIfPrefixWasDefined($node, $name)

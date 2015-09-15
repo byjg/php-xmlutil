@@ -101,7 +101,7 @@ class XmlUtil
      * @param DOMNode $node
      * @return DOMDocument
      */
-    public static function createDocumentFromNode($node, $docOptions = 0)
+    public static function createDocumentFromNode(\DOMNode $node, $docOptions = 0)
     {
         $xmldoc = self::createXmlDocument($docOptions);
         XmlUtil::$XMLNSPrefix[spl_object_hash($xmldoc)] = array();
@@ -237,11 +237,11 @@ class XmlUtil
     /**
      * Add node to specific XmlNode from file existing on disk
      *
-     * @param mixed $rootNode XmlNode receives node
+     * @param \DOMNode $rootNode XmlNode receives node
      * @param string $filename File to import node
      * @param string $nodetoadd Node to be added
      */
-    public static function addNodeFromFile($rootNode, $filename, $nodetoadd)
+    public static function addNodeFromFile(\DOMNode $rootNode, $filename, $nodetoadd)
     {
         if ($rootNode === null) {
             return;
@@ -268,10 +268,10 @@ class XmlUtil
     /**
      * Attention: NODE MUST BE AN ELEMENT NODE!!!
      *
-     * @param mixed $source
-     * @param mixed $nodeToAdd
+     * @param \DOMNode $source
+     * @param \DOMNode $nodeToAdd
      */
-    public static function addNodeFromNode($source, $nodeToAdd)
+    public static function addNodeFromNode(\DOMNode $source, \DOMNode $nodeToAdd)
     {
         if ($nodeToAdd->hasChildNodes()) {
             $nodeList = $nodeToAdd->childNodes; // It is necessary because Zend Core For Oracle didn't support
@@ -287,12 +287,12 @@ class XmlUtil
     /**
      * Append child node from specific node and add text
      *
-     * @param mixed $rootNode Parent node
+     * @param \DOMNode $rootNode Parent node
      * @param string $nodeName Node to add string
      * @param string $nodeText Text to add string
      * @return DOMElement
      */
-    public static function createChild($rootNode, $nodeName, $nodeText = "", $uri = "")
+    public static function createChild(\DOMNode $rootNode, $nodeName, $nodeText = "", $uri = "")
     {
         if (empty($nodeName)) {
             throw new XmlUtilException("Node name must be a string.");
@@ -307,12 +307,12 @@ class XmlUtil
     /**
      * Create child node on the top from specific node and add text
      *
-     * @param mixed $rootNode Parent node
+     * @param \DOMNode $rootNode Parent node
      * @param string $nodeName Node to add string
      * @param string $nodeText Text to add string
      * @return DOMElement
      */
-    public static function createChildBefore($rootNode, $nodeName, $nodeText, $position = 0)
+    public static function createChildBefore(\DOMNode $rootNode, $nodeName, $nodeText, $position = 0)
     {
         return self::createChildBeforeNode($nodeName, $nodeText, $rootNode->childNodes->item($position));
     }
@@ -321,10 +321,10 @@ class XmlUtil
      *
      * @param string $nodeName
      * @param string $nodeText
-     * @param mixed $node
+     * @param \DOMNode $node
      * @return DOMElement
      */
-    public static function createChildBeforeNode($nodeName, $nodeText, $node)
+    public static function createChildBeforeNode($nodeName, $nodeText, \DOMNode $node)
     {
         $rootNode = $node->parentNode;
         $nodeworking = XmlUtil::createChildNode($rootNode, $nodeName);
@@ -336,11 +336,11 @@ class XmlUtil
     /**
      * Add text to node
      *
-     * @param mixed $rootNode Parent node
+     * @param \DOMNode $rootNode Parent node
      * @param string $text Text to add String
      * @param bool $escapeChars (True create CData instead Text node)
      */
-    public static function addTextNode($rootNode, $text, $escapeChars = false)
+    public static function addTextNode(\DOMNode $rootNode, $text, $escapeChars = false)
     {
         if (!empty($text) || is_numeric($text)) {
             $owner = XmlUtil::getOwnerDocument($rootNode);
@@ -356,12 +356,12 @@ class XmlUtil
     /**
      * Add a attribute to specific node
      *
-     * @param mixed $rootNode Node to receive attribute
+     * @param \DOMNode $rootNode Node to receive attribute
      * @param string $name Attribute name string
      * @param string $value Attribute value string
      * @return DOMElement
      */
-    public static function addAttribute($rootNode, $name, $value)
+    public static function addAttribute(\DOMNode $rootNode, $name, $value)
     {
         XmlUtil::checkIfPrefixWasDefined($rootNode, $name);
 
@@ -375,12 +375,12 @@ class XmlUtil
     /**
      * Returns a \DOMNodeList from a relative xPath from other \DOMNode
      *
-     * @param mixed $pNode
+     * @param \DOMNode $pNode
      * @param string $xPath
      * @param array $arNamespace
      * @return DOMNodeList
      */
-    public static function selectNodes($pNode, $xPath, $arNamespace = null) // <- Retorna N&#65533;!
+    public static function selectNodes(\DOMNode $pNode, $xPath, $arNamespace = null) // <- Retorna N&#65533;!
     {
         if (preg_match('~^/[^/]~', $xPath)) {
             $xPath = substr($xPath, 1);
@@ -397,12 +397,12 @@ class XmlUtil
     /**
      * Returns a \DOMElement from a relative xPath from other \DOMNode
      *
-     * @param mixed $pNode
+     * @param \DOMNode $pNode
      * @param string $xPath xPath string format
      * @param array $arNamespace
      * @return DOMElement
      */
-    public static function selectSingleNode($pNode, $xPath, $arNamespace = null) // <- Retorna
+    public static function selectSingleNode(\DOMNode $pNode, $xPath, $arNamespace = null) // <- Retorna
     {
         $rNodeList = self::selectNodes($pNode, $xPath, $arNamespace);
 
@@ -411,10 +411,10 @@ class XmlUtil
 
     /**
      *
-     * @param mixed $xpath
+     * @param \DOMXPath $xpath
      * @param array $arNamespace
      */
-    public static function registerNamespaceForFilter($xpath, $arNamespace)
+    public static function registerNamespaceForFilter(\DOMXPath $xpath, $arNamespace)
     {
         if (($arNamespace !== null) && (is_array($arNamespace))) {
             foreach ($arNamespace as $prefix => $uri) {
@@ -425,11 +425,11 @@ class XmlUtil
 
     /**
      * Concat a xml string in the node
-     * @param mixed $node
+     * @param \DOMNode $node
      * @param string $xmlstring
-     * @return DOMNode
+     * @return \DOMNode
      */
-    public static function innerXML($node, $xmlstring)
+    public static function innerXML(\DOMNode $node, $xmlstring)
     {
         $xmlstring = str_replace("<br>", "<br/>", $xmlstring);
         $len = strlen($xmlstring);
@@ -473,10 +473,10 @@ class XmlUtil
 
     /**
      * Return the tree nodes in a simple text
-     * @param mixed $node
+     * @param \DOMNode $node
      * @return DOMNode
      */
-    public static function innerText($node)
+    public static function innerText(\DOMNode $node)
     {
         $doc = XmlUtil::createDocumentFromNode($node);
         return self::copyChildNodesFromNodeToString($doc);
@@ -484,10 +484,10 @@ class XmlUtil
 
     /**
      * Return the tree nodes in a simple text
-     * @param mixed $node
+     * @param \DOMNode $node
      * @return DOMNode
      */
-    public static function copyChildNodesFromNodeToString($node)
+    public static function copyChildNodesFromNodeToString(\DOMNode $node)
     {
         $xmlstring = "<rootxml></rootxml>";
         $doc = self::createXmlDocumentFromStr($xmlstring);
@@ -508,10 +508,10 @@ class XmlUtil
 
     /**
      * Return the part node in xml document
-     * @param mixed $node
+     * @param \DOMNode $node
      * @return string
      */
-    public static function saveXmlNodeToString($node)
+    public static function saveXmlNodeToString(\DOMNode $node)
     {
         $doc = XmlUtil::getOwnerDocument($node);
         $string = $doc->saveXML($node);
@@ -541,9 +541,9 @@ class XmlUtil
     /**
      * Remove a specific node
      *
-     * @param mixed $node
+     * @param \DOMNode $node
      */
-    public static function removeNode($node)
+    public static function removeNode(\DOMNode $node)
     {
         $nodeParent = $node->parentNode;
         $nodeParent->removeChild($node);
@@ -552,11 +552,11 @@ class XmlUtil
     /**
      * Remove a node specified by your tag name. You must pass a \DOMDocument ($node->ownerDocument);
      *
-     * @param mixed $domdocument
+     * @param \DOMDocument $domdocument
      * @param string $tagname
      * @return bool
      */
-    public static function removeTagName($domdocument, $tagname)
+    public static function removeTagName(\DOMDocument $domdocument, $tagname)
     {
         $nodeLista = $domdocument->getElementsByTagName($tagname);
         if ($nodeLista->length > 0) {
@@ -613,13 +613,13 @@ class XmlUtil
 
     /**
      *
-     * @param mixed $node
+     * @param \DOMNode $node
      * @param string $name
      * @param string $uri
      * @return \DOMNode
      * @throws XmlUtilException
      */
-    protected static function createChildNode($node, $name, $uri = "")
+    protected static function createChildNode(\DOMNode $node, $name, $uri = "")
     {
         if ($uri == "") {
             XmlUtil::checkIfPrefixWasDefined($node, $name);
@@ -647,11 +647,11 @@ class XmlUtil
 
     /**
      *
-     * @param mixed $node
+     * @param \DOMNode $node
      * @param string $name
      * @throws \Exception
      */
-    protected static function checkIfPrefixWasDefined($node, $name)
+    protected static function checkIfPrefixWasDefined(\DOMNode $node, $name)
     {
         $owner = self::getOwnerDocument($node);
         $hash = spl_object_hash($owner);

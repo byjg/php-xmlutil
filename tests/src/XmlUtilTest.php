@@ -301,26 +301,23 @@ class XmlUtilTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ByJG\Util\XmlUtil::selectNodes
-     * @todo   Implement testSelectNodes().
+     * @covers ByJG\Util\XmlUtil::selectSingleNode
      */
     public function testSelectNodes()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
+        $dom = XmlUtil::createXmlDocumentFromStr('<root><a><item arg="1"/><item arg="2"><b1/><b2/></item><item arg="3"/></a></root>');
 
-    /**
-     * @covers ByJG\Util\XmlUtil::selectSingleNode
-     * @todo   Implement testSelectSingleNode().
-     */
-    public function testSelectSingleNode()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
+        $nodeList = XmlUtil::selectNodes($dom->documentElement, 'a/item');
+        $this->assertEquals(3, $nodeList->length);
+        $this->assertEquals('item', $nodeList->item(0)->nodeName);
+        $this->assertEquals('1', $nodeList->item(0)->attributes->getNamedItem('arg')->nodeValue);
+        $this->assertEquals('item', $nodeList->item(1)->nodeName);
+        $this->assertEquals('2', $nodeList->item(1)->attributes->getNamedItem('arg')->nodeValue);
+        $this->assertEquals('item', $nodeList->item(2)->nodeName);
+        $this->assertEquals('3', $nodeList->item(2)->attributes->getNamedItem('arg')->nodeValue);
+
+        $node = XmlUtil::selectSingleNode($nodeList->item(1), 'b2');
+        $this->assertEquals('b2', $node->nodeName);
     }
 
     /**
@@ -336,22 +333,24 @@ class XmlUtilTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers ByJG\Util\XmlUtil::innerXML
-     * @todo   Implement testInnerXML().
-     */
-    public function testInnerXML()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
-
-    /**
      * @covers ByJG\Util\XmlUtil::innerText
      * @todo   Implement testInnerText().
      */
     public function testInnerText()
+    {
+        $dom = XmlUtil::createXmlDocumentFromStr('<root><a><item arg="1"/><item arg="2"><b1/><b2/></item><item arg="3"/></a></root>');
+
+        $node = XmlUtil::selectSingleNode($dom->documentElement, 'a/item[@arg="2"]');
+
+        $text = XmlUtil::innerText($node);
+        $this->assertEquals("\n<b1/><b2/>\n", $text);
+    }
+
+    /**
+     * @covers ByJG\Util\XmlUtil::innerXML
+     * @todo   Implement testInnerXML().
+     */
+    public function testInnerXML()
     {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
@@ -409,14 +408,24 @@ class XmlUtilTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ByJG\Util\XmlUtil::removeNode
-     * @todo   Implement testRemoveNode().
      */
     public function testRemoveNode()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
+        $dom = XmlUtil::createXmlDocumentFromStr('<root><subject>Text</subject><a/><b/></root>');
+
+        $node = XmlUtil::selectSingleNode($dom->documentElement, 'subject');
+        XmlUtil::removeNode($node);
+
+        $this->assertEquals(
+            self::XMLHEADER . "\n" .
+            '<root>'
+            . '<a/>'
+            . '<b/>'
+            . '</root>'
+            . "\n",
+            $dom->saveXML()
         );
+
     }
 
     /**

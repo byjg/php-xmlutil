@@ -8,409 +8,448 @@ namespace ByJG\Util;
 class XmlUtilTest extends \PHPUnit_Framework_TestCase
 {
 
-	const XMLHEADER = '<?xml version="1.0" encoding="utf-8"?>';
+    const XMLHEADER = '<?xml version="1.0" encoding="utf-8"?>';
 
-	/**
-	 * @var XmlUtil
-	 */
-	protected $object;
+    /**
+     * @var XmlUtil
+     */
+    protected $object;
 
-	/**
-	 * Sets up the fixture, for example, opens a network connection.
-	 * This method is called before a test is executed.
-	 */
-	protected function setUp()
-	{
-		
-	}
+    /**
+     * Sets up the fixture, for example, opens a network connection.
+     * This method is called before a test is executed.
+     */
+    protected function setUp()
+    {
 
-	/**
-	 * Tears down the fixture, for example, closes a network connection.
-	 * This method is called after a test is executed.
-	 */
-	protected function tearDown()
-	{
+    }
 
-	}
+    /**
+     * Tears down the fixture, for example, closes a network connection.
+     * This method is called after a test is executed.
+     */
+    protected function tearDown()
+    {
+        
+    }
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::createXmlDocument
-	 */
-	public function testCreateXmlDocument()
-	{
-		$xml = XmlUtil::createXmlDocument();
-		$this->assertEquals(self::XMLHEADER . "\n", $xml->saveXml());
-	}
+    /**
+     * @covers ByJG\Util\XmlUtil::createXmlDocument
+     */
+    public function testCreateXmlDocument()
+    {
+        $xml = XmlUtil::createXmlDocument();
+        $this->assertEquals(self::XMLHEADER . "\n", $xml->saveXml());
+    }
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::createXmlDocumentFromFile
-	 */
-	public function testCreateXmlDocumentFromFile()
-	{
-		$xml = XmlUtil::createXmlDocumentFromFile(__DIR__ . '/buggy.xml');
-		$this->assertEquals(self::XMLHEADER . "\n<root><node><subnode>value</subnode></node></root>\n", $xml->saveXML());
-	}
+    /**
+     * @covers ByJG\Util\XmlUtil::createXmlDocumentFromFile
+     */
+    public function testCreateXmlDocumentFromFile()
+    {
+        $xml = XmlUtil::createXmlDocumentFromFile(__DIR__ . '/buggy.xml');
+        $this->assertEquals(self::XMLHEADER . "\n<root><node><subnode>value</subnode></node></root>\n", $xml->saveXML());
+    }
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::createXmlDocumentFromStr
-	 */
-	public function testCreateXmlDocumentFromStr()
-	{
-		$xmlStr = '<root/>';
-		$xml = XmlUtil::createXmlDocumentFromStr($xmlStr);
-		$this->assertEquals(self::XMLHEADER . "\n<root/>\n", $xml->saveXML());
-	}
+    /**
+     * @covers ByJG\Util\XmlUtil::createXmlDocumentFromStr
+     */
+    public function testCreateXmlDocumentFromStr()
+    {
+        $xmlStr = '<root/>';
+        $xml = XmlUtil::createXmlDocumentFromStr($xmlStr);
+        $this->assertEquals(self::XMLHEADER . "\n<root/>\n", $xml->saveXML());
+    }
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::createDocumentFromNode
-	 */
-	public function testCreateDocumentFromNode()
-	{
-		$xml = XmlUtil::createXmlDocumentFromFile(__DIR__ . '/buggy.xml');
-		$node = XmlUtil::selectSingleNode($xml, '//subnode');
+    /**
+     * @covers ByJG\Util\XmlUtil::createDocumentFromNode
+     */
+    public function testCreateDocumentFromNode()
+    {
+        $xml = XmlUtil::createXmlDocumentFromFile(__DIR__ . '/buggy.xml');
+        $node = XmlUtil::selectSingleNode($xml, '//subnode');
 
 
-		$xmlFinal = XmlUtil::createDocumentFromNode($node);
-		$this->assertEquals(self::XMLHEADER . "\n<subnode>value</subnode>\n", $xmlFinal->saveXML());
+        $xmlFinal = XmlUtil::createDocumentFromNode($node);
+        $this->assertEquals(self::XMLHEADER . "\n<subnode>value</subnode>\n", $xmlFinal->saveXML());
+    }
 
-	}
+    /**
+     * @covers ByJG\Util\XmlUtil::fixXmlHeader
+     */
+    public function testFixXmlHeader1()
+    {
+        $xml = '<root/>';
+        $result = XmlUtil::fixXmlHeader($xml);
+        $this->assertEquals(self::XMLHEADER . '<root/>', $result);
+    }
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::fixXmlHeader
-	 */
-	public function testFixXmlHeader1()
-	{
-		$xml = '<root/>';
-		$result = XmlUtil::fixXmlHeader($xml);
-		$this->assertEquals(self::XMLHEADER . '<root/>', $result);
-	}
+    /**
+     * @covers ByJG\Util\XmlUtil::fixXmlHeader
+     */
+    public function testFixXmlHeader2()
+    {
+        $xml = '<?xml?><root/>';
+        $result = XmlUtil::fixXmlHeader($xml);
+        $this->assertEquals(self::XMLHEADER . '<root/>', $result);
+    }
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::fixXmlHeader
-	 */
-	public function testFixXmlHeader2()
-	{
-		$xml = '<?xml?><root/>';
-		$result = XmlUtil::fixXmlHeader($xml);
-		$this->assertEquals(self::XMLHEADER . '<root/>', $result);
-	}
+    /**
+     * @covers ByJG\Util\XmlUtil::fixXmlHeader
+     */
+    public function testFixXmlHeader3()
+    {
+        $xml = '<?xml version="1.0"?><root/>';
+        $result = XmlUtil::fixXmlHeader($xml);
+        $this->assertEquals(self::XMLHEADER . '<root/>', $result);
+    }
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::fixXmlHeader
-	 */
-	public function testFixXmlHeader3()
-	{
-		$xml = '<?xml version="1.0"?><root/>';
-		$result = XmlUtil::fixXmlHeader($xml);
-		$this->assertEquals(self::XMLHEADER . '<root/>', $result);
-	}
+    /**
+     * @covers ByJG\Util\XmlUtil::fixXmlHeader
+     */
+    public function testFixXmlHeader4()
+    {
+        $xml = '<?xml encoding="utf8"?><root/>';
+        $result = XmlUtil::fixXmlHeader($xml);
+        $this->assertEquals(self::XMLHEADER . '<root/>', $result);
+    }
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::fixXmlHeader
-	 */
-	public function testFixXmlHeader4()
-	{
-		$xml = '<?xml encoding="utf8"?><root/>';
-		$result = XmlUtil::fixXmlHeader($xml);
-		$this->assertEquals(self::XMLHEADER . '<root/>', $result);
-	}
+    /**
+     * @covers ByJG\Util\XmlUtil::fixXmlHeader
+     */
+    public function testFixXmlHeader5()
+    {
+        $xml = '<?xml encoding="ascii"?><root/>';
+        $result = XmlUtil::fixXmlHeader($xml);
+        $this->assertEquals(self::XMLHEADER . '<root/>', $result);
+    }
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::fixXmlHeader
-	 */
-	public function testFixXmlHeader5()
-	{
-		$xml = '<?xml encoding="ascii"?><root/>';
-		$result = XmlUtil::fixXmlHeader($xml);
-		$this->assertEquals(self::XMLHEADER . '<root/>', $result);
-	}
+    /**
+     * @covers ByJG\Util\XmlUtil::saveXmlDocument
+     */
+    public function testSaveXmlDocument()
+    {
+        $filename = sys_get_temp_dir() . '/save.xml';
+        $xml = XmlUtil::createXmlDocumentFromFile(__DIR__ . '/buggy.xml');
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::saveXmlDocument
-	 */
-	public function testSaveXmlDocument()
-	{
-		$filename = sys_get_temp_dir() . '/save.xml';
-		$xml = XmlUtil::createXmlDocumentFromFile(__DIR__ . '/buggy.xml');
+        if (file_exists($filename)) {
+            unlink($filename);
+        }
+        $this->assertFalse(file_exists($filename));
 
-		if (file_exists($filename))
-		{
-			unlink($filename);
-		}
-		$this->assertFalse(file_exists($filename));
+        XmlUtil::saveXmlDocument($xml, $filename);
+        $this->assertTrue(file_exists($filename));
 
-		XmlUtil::saveXmlDocument($xml, $filename);
-		$this->assertTrue(file_exists($filename));
+        $contents = file_get_contents($filename);
+        $this->assertEquals(self::XMLHEADER . "\n<root><node><subnode>value</subnode></node></root>\n", $contents);
 
-		$contents = file_get_contents($filename);
-		$this->assertEquals(self::XMLHEADER . "\n<root><node><subnode>value</subnode></node></root>\n", $contents);
+        unlink($filename);
+    }
 
-		unlink($filename);
-	}
+    /**
+     * @covers ByJG\Util\XmlUtil::getFormattedDocument
+     * @todo   Implement testGetFormattedDocument().
+     */
+    public function testGetFormattedDocument()
+    {
+        $xml = XmlUtil::createXmlDocumentFromFile(__DIR__ . '/buggy.xml');
+        $xml->preserveWhiteSpace = true;
+        $xml->formatOutput = false;
+        $formatted = XmlUtil::getFormattedDocument($xml);
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::getFormattedDocument
-	 * @todo   Implement testGetFormattedDocument().
-	 */
-	public function testGetFormattedDocument()
-	{
-		$xml = XmlUtil::createXmlDocumentFromFile(__DIR__ . '/buggy.xml');
-		$xml->preserveWhiteSpace = true;
-		$xml->formatOutput = false;
-		$formatted = XmlUtil::getFormattedDocument($xml);
+        $this->assertTrue($xml->preserveWhiteSpace);
+        $this->assertFalse($xml->formatOutput);
+        $this->assertEquals(self::XMLHEADER . "\n<root>\n  <node>\n    <subnode>value</subnode>\n  </node>\n</root>\n",
+            $formatted);
+    }
 
-		$this->assertTrue($xml->preserveWhiteSpace);
-		$this->assertFalse($xml->formatOutput);
-		$this->assertEquals(self::XMLHEADER . "\n<root>\n  <node>\n    <subnode>value</subnode>\n  </node>\n</root>\n", $formatted);
-	}
+    /**
+     * @covers ByJG\Util\XmlUtil::addNamespaceToDocument
+     * @todo   Implement testAddNamespaceToDocument().
+     */
+    public function testAddNamespaceToDocument()
+    {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+            'This test has not been implemented yet.'
+        );
+    }
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::addNamespaceToDocument
-	 * @todo   Implement testAddNamespaceToDocument().
-	 */
-	public function testAddNamespaceToDocument()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
-	}
+    /**
+     * @covers ByJG\Util\XmlUtil::addNodeFromFile
+     * @todo   Implement testAddNodeFromFile().
+     */
+    public function testAddNodeFromFile()
+    {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+            'This test has not been implemented yet.'
+        );
+    }
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::addNodeFromFile
-	 * @todo   Implement testAddNodeFromFile().
-	 */
-	public function testAddNodeFromFile()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
-	}
+    /**
+     * @covers ByJG\Util\XmlUtil::addNodeFromNode
+     * @todo   Implement testAddNodeFromNode().
+     */
+    public function testAddNodeFromNode()
+    {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+            'This test has not been implemented yet.'
+        );
+    }
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::addNodeFromNode
-	 * @todo   Implement testAddNodeFromNode().
-	 */
-	public function testAddNodeFromNode()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
-	}
+    /**
+     * @covers ByJG\Util\XmlUtil::createChild
+     * @covers ByJG\Util\XmlUtil::createChildBefore
+     * @covers ByJG\Util\XmlUtil::createChildBeforeNode
+     */
+    public function testCreateChild()
+    {
+        $dom = XmlUtil::createXmlDocumentFromStr('<root/>');
+        $node = XmlUtil::createChild($dom->documentElement, 'test1');
+        XmlUtil::createChild($node, 'test2', 'text2');
+        $node2 = XmlUtil::createChild($node, 'test3', 'text3', 'http://opensource.byjg.com');
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::createChild
-	 * @todo   Implement testCreateChild().
-	 */
-	public function testCreateChild()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
-	}
+        $this->assertEquals(
+            self::XMLHEADER . "\n" .
+            '<root>'
+            . '<test1>'
+            .   '<test2>text2</test2>'
+            .   '<test3 xmlns="http://opensource.byjg.com">text3</test3>'
+            . '</test1>'
+            . '</root>'
+            . "\n",
+            $dom->saveXML()
+        );
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::createChildBefore
-	 * @todo   Implement testCreateChildBefore().
-	 */
-	public function testCreateChildBefore()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
-	}
+        XmlUtil::createChildBeforeNode('test1_2', 'text1-2', $node2);
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::createChildBeforeNode
-	 * @todo   Implement testCreateChildBeforeNode().
-	 */
-	public function testCreateChildBeforeNode()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
-	}
+        $this->assertEquals(
+            self::XMLHEADER . "\n" .
+            '<root>'
+            . '<test1>'
+            .   '<test2>text2</test2>'
+            .   '<test1_2>text1-2</test1_2>'
+            .   '<test3 xmlns="http://opensource.byjg.com">text3</test3>'
+            . '</test1>'
+            . '</root>'
+            . "\n",
+            $dom->saveXML()
+        );
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::addTextNode
-	 * @todo   Implement testAddTextNode().
-	 */
-	public function testAddTextNode()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
-	}
+        XmlUtil::createChildBefore($node, 'testBefore', 'textBefore');
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::addAttribute
-	 * @todo   Implement testAddAttribute().
-	 */
-	public function testAddAttribute()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
-	}
+        $this->assertEquals(
+            self::XMLHEADER . "\n" .
+            '<root>'
+            . '<test1>'
+            .   '<testBefore>textBefore</testBefore>'
+            .   '<test2>text2</test2>'
+            .   '<test1_2>text1-2</test1_2>'
+            .   '<test3 xmlns="http://opensource.byjg.com">text3</test3>'
+            . '</test1>'
+            . '</root>'
+            . "\n",
+            $dom->saveXML()
+        );
+    }
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::selectNodes
-	 * @todo   Implement testSelectNodes().
-	 */
-	public function testSelectNodes()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
-	}
+    /**
+     * @covers ByJG\Util\XmlUtil::addTextNode
+     */
+    public function testAddTextNode()
+    {
+        $dom = XmlUtil::createXmlDocumentFromStr('<root><subject></subject></root>');
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::selectSingleNode
-	 * @todo   Implement testSelectSingleNode().
-	 */
-	public function testSelectSingleNode()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
-	}
+        $node = XmlUtil::selectSingleNode($dom->documentElement, 'subject');
+        XmlUtil::addTextNode($node, 'Text');
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::registerNamespaceForFilter
-	 * @todo   Implement testRegisterNamespaceForFilter().
-	 */
-	public function testRegisterNamespaceForFilter()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
-	}
+        $this->assertEquals(
+            self::XMLHEADER . "\n" .
+            '<root>'
+            . '<subject>'
+            .   'Text'
+            . '</subject>'
+            . '</root>'
+            . "\n",
+            $dom->saveXML()
+        );
+    }
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::innerXML
-	 * @todo   Implement testInnerXML().
-	 */
-	public function testInnerXML()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
-	}
+    /**
+     * @covers ByJG\Util\XmlUtil::addAttribute
+     */
+    public function testAddAttribute()
+    {
+        $dom = XmlUtil::createXmlDocumentFromStr('<root><subject>Text</subject></root>');
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::innerText
-	 * @todo   Implement testInnerText().
-	 */
-	public function testInnerText()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
-	}
+        $node = XmlUtil::selectSingleNode($dom->documentElement, 'subject');
+        XmlUtil::addAttribute($node, 'attr', 'value');
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::copyChildNodesFromNodeToString
-	 * @todo   Implement testCopyChildNodesFromNodeToString().
-	 */
-	public function testCopyChildNodesFromNodeToString()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
-	}
+        $this->assertEquals(
+            self::XMLHEADER . "\n" .
+            '<root>'
+            . '<subject attr="value">'
+            .   'Text'
+            . '</subject>'
+            . '</root>'
+            . "\n",
+            $dom->saveXML()
+        );
+    }
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::saveXmlNodeToString
-	 * @todo   Implement testSaveXmlNodeToString().
-	 */
-	public function testSaveXmlNodeToString()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
-	}
+    /**
+     * @covers ByJG\Util\XmlUtil::selectNodes
+     * @todo   Implement testSelectNodes().
+     */
+    public function testSelectNodes()
+    {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+            'This test has not been implemented yet.'
+        );
+    }
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::br2nl
-	 * @todo   Implement testBr2nl().
-	 */
-	public function testBr2nl()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
-	}
+    /**
+     * @covers ByJG\Util\XmlUtil::selectSingleNode
+     * @todo   Implement testSelectSingleNode().
+     */
+    public function testSelectSingleNode()
+    {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+            'This test has not been implemented yet.'
+        );
+    }
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::showXml
-	 * @todo   Implement testShowXml().
-	 */
-	public function testShowXml()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
-	}
+    /**
+     * @covers ByJG\Util\XmlUtil::registerNamespaceForFilter
+     * @todo   Implement testRegisterNamespaceForFilter().
+     */
+    public function testRegisterNamespaceForFilter()
+    {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+            'This test has not been implemented yet.'
+        );
+    }
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::removeNode
-	 * @todo   Implement testRemoveNode().
-	 */
-	public function testRemoveNode()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
-	}
+    /**
+     * @covers ByJG\Util\XmlUtil::innerXML
+     * @todo   Implement testInnerXML().
+     */
+    public function testInnerXML()
+    {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+            'This test has not been implemented yet.'
+        );
+    }
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::removeTagName
-	 * @todo   Implement testRemoveTagName().
-	 */
-	public function testRemoveTagName()
-	{
-		// Remove the following lines when you implement this test.
-		$this->markTestIncomplete(
-				'This test has not been implemented yet.'
-		);
-	}
+    /**
+     * @covers ByJG\Util\XmlUtil::innerText
+     * @todo   Implement testInnerText().
+     */
+    public function testInnerText()
+    {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+            'This test has not been implemented yet.'
+        );
+    }
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::xml2Array
-	 */
-	public function testXml2Array1()
-	{
-		$xml = XmlUtil::createXmlDocumentFromFile(__DIR__ . '/buggy.xml');
+    /**
+     * @covers ByJG\Util\XmlUtil::copyChildNodesFromNodeToString
+     * @todo   Implement testCopyChildNodesFromNodeToString().
+     */
+    public function testCopyChildNodesFromNodeToString()
+    {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+            'This test has not been implemented yet.'
+        );
+    }
 
-		$array = XmlUtil::xml2Array($xml);
-		$this->assertEquals([ "node" => [ "subnode" => "value"]], $array);
-	}
+    /**
+     * @covers ByJG\Util\XmlUtil::saveXmlNodeToString
+     * @todo   Implement testSaveXmlNodeToString().
+     */
+    public function testSaveXmlNodeToString()
+    {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+            'This test has not been implemented yet.'
+        );
+    }
 
-	/**
-	 * @covers ByJG\Util\XmlUtil::xml2Array
-	 */
-	public function testXml2Array2()
-	{
-		$xml = XmlUtil::createXmlDocumentFromStr('<root><node param="pval">value</node></root>');
+    /**
+     * @covers ByJG\Util\XmlUtil::br2nl
+     * @todo   Implement testBr2nl().
+     */
+    public function testBr2nl()
+    {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+            'This test has not been implemented yet.'
+        );
+    }
 
-		$array = XmlUtil::xml2Array($xml);
-		$this->assertEquals([ "node" => "value"], $array);
-	}
+    /**
+     * @covers ByJG\Util\XmlUtil::showXml
+     * @todo   Implement testShowXml().
+     */
+    public function testShowXml()
+    {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+            'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @covers ByJG\Util\XmlUtil::removeNode
+     * @todo   Implement testRemoveNode().
+     */
+    public function testRemoveNode()
+    {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+            'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @covers ByJG\Util\XmlUtil::removeTagName
+     * @todo   Implement testRemoveTagName().
+     */
+    public function testRemoveTagName()
+    {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+            'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @covers ByJG\Util\XmlUtil::xml2Array
+     */
+    public function testXml2Array1()
+    {
+        $xml = XmlUtil::createXmlDocumentFromFile(__DIR__ . '/buggy.xml');
+
+        $array = XmlUtil::xml2Array($xml);
+        $this->assertEquals([ "node" => [ "subnode" => "value"]], $array);
+    }
+
+    /**
+     * @covers ByJG\Util\XmlUtil::xml2Array
+     */
+    public function testXml2Array2()
+    {
+        $xml = XmlUtil::createXmlDocumentFromStr('<root><node param="pval">value</node></root>');
+
+        $array = XmlUtil::xml2Array($xml);
+        $this->assertEquals([ "node" => "value"], $array);
+    }
 }

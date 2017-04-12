@@ -80,6 +80,25 @@ Add a node with a namespace
 \ByJG\Util\XmlUtil::createChild($xml->documentElement, 'nodens', 'teste', 'http://www.example.com/mytest/');
 ```
 
+## Bonus - CleanDocument
+
+XmlUtil have a class for selectively specific marks (tags) from the document or remove all marks.
+
+The use is:
+
+```php
+<?php
+
+$document = new \ByJG\Util\CleanDocument($documentXmlOrHtml);
+
+$document
+    ->removeContentByTag('a', 'name')
+    ->removeContentByProperty('src')
+    ->stripTagsExcept(['img'])
+    ->get();
+
+```
+
 ## Install
 
 Just type: `composer require "byjg/xmlutil~1.0"`

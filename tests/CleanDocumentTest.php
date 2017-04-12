@@ -47,7 +47,7 @@ class CleanDocumentTest extends \PHPUnit\Framework\TestCase
 
     public function testStripTags()
     {
-        $this->object->stripTags(['img', 'link']);
+        $this->object->stripTagsExcept(['img', 'link']);
 
         $this->assertEquals(
             'START 3 Column Layout Generator ' .

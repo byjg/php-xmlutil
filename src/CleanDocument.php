@@ -25,7 +25,7 @@ class CleanDocument
      * @param array $allowedTags
      * @return $this
      */
-    public function stripTags(array $allowedTags)
+    public function stripTagsExcept(array $allowedTags)
     {
         $this->document = strip_tags($this->document, '<' . implode('><', $allowedTags) . '>');
         return $this;

@@ -138,4 +138,32 @@ class CleanDocumentTest extends \PHPUnit\Framework\TestCase
             $this->object->get()
         );
     }
+
+    public function testRemoveContentByTagWithoutProperty()
+    {
+        $this->object->removeContentByTagWithoutProperty('a', 'name');
+
+        $this->assertEquals(
+            '<span >START </span>' .
+            '<span >Middle <img src="/imagem.png" > and <img src="/imagem2.png" />' .
+            '<link rel="stylesheet" href="/some.css">' .
+            '<a name="aaa" href="http://www.pagecolumn.com/2_col_generator.htm">2 Column Layout Generator</a>' .
+            ' END</span>',
+            $this->object->get()
+        );
+    }
+
+    public function testRemoveContentByTagWithoutProperty2()
+    {
+        $this->object->removeContentByTagWithoutProperty('a', 'nofollow');
+
+        $this->assertEquals(
+            '<span >START <a href="http://www.pagecolumn.com/" nofollow>3 Column Layout Generator </a></span>' .
+            '<span >Middle <img src="/imagem.png" > and <img src="/imagem2.png" />' .
+            '<link rel="stylesheet" href="/some.css">' .
+            ' END</span>',
+            $this->object->get()
+        );
+    }
+
 }

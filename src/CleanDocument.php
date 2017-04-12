@@ -56,6 +56,18 @@ class CleanDocument
         return $this;
     }
 
+    /**
+     * @param $tag
+     * @param string $property
+     * @return $this
+     */
+    public function removeContentByTagWithoutProperty($tag, $property)
+    {
+        $pattern = '~<(' . $tag . ')\b\s(?![^>]*' . $property . '\s*?=?)[^>]*>.*?<\/\1>~';
+        $this->document = preg_replace($pattern, '', $this->document);
+        return $this;
+    }
+
     public function get()
     {
         return $this->document;

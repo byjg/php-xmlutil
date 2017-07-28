@@ -45,7 +45,7 @@ class XmlUtilTest extends \PHPUnit\Framework\TestCase
 
     public function testCreateXmlDocumentFromFile()
     {
-        $xml = XmlUtil::createXmlDocumentFromFile(__DIR__ . '/buggy.xml');
+        $xml = XmlUtil::createXmlDocumentFromFile(__DIR__ . '/buggy.xml', XMLUTIL_OPT_DONT_PRESERVE_WHITESPACE);
         $this->assertEquals(self::XMLHEADER . "\n<root><node><subnode>value</subnode></node></root>\n", $xml->saveXML());
     }
 
@@ -104,7 +104,7 @@ class XmlUtilTest extends \PHPUnit\Framework\TestCase
     public function testSaveXmlDocument()
     {
         $filename = sys_get_temp_dir() . '/save.xml';
-        $xml = XmlUtil::createXmlDocumentFromFile(__DIR__ . '/buggy.xml');
+        $xml = XmlUtil::createXmlDocumentFromFile(__DIR__ . '/buggy.xml', XMLUTIL_OPT_DONT_PRESERVE_WHITESPACE);
 
         if (file_exists($filename)) {
             unlink($filename);
@@ -130,7 +130,7 @@ class XmlUtilTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue($xml->preserveWhiteSpace);
         $this->assertFalse($xml->formatOutput);
         $this->assertEquals(
-            self::XMLHEADER . "\n<root>\n  <node>\n    <subnode>value</subnode>\n  </node>\n</root>\n" , $formatted
+            self::XMLHEADER . "\n<root>\n    <node>\n        <subnode>value</subnode>\n    </node>\n</root>\n" , $formatted
         );
     }
 
@@ -363,5 +363,20 @@ class XmlUtilTest extends \PHPUnit\Framework\TestCase
 
         $array = XmlUtil::xml2Array($xml);
         $this->assertEquals([ "node" => "value"], $array);
+    }
+
+    public function testSelectNodesNamespace()
+    {
+        $document = XmlUtil::createXmlDocumentFromFile(__DIR__ . '/feed-atom.txt');
+
+        $nodes = XmlUtil::selectNodes(
+            $document->documentElement,
+            'ns:entry',
+            [
+                "ns" => "http://www.w3.org/2005/Atom"
+            ]
+        );
+
+        $this->assertEquals(25, $nodes->length);
     }
 }

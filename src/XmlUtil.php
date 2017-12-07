@@ -43,6 +43,7 @@ class XmlUtil
     {
         $xmldoc = new DOMDocument(self::XML_VERSION, self::XML_ENCODING);
         $xmldoc->preserveWhiteSpace = ($docOptions & XMLUTIL_OPT_DONT_PRESERVE_WHITESPACE) != XMLUTIL_OPT_DONT_PRESERVE_WHITESPACE;
+        $xmldoc->formatOutput = false;
         if (($docOptions & XMLUTIL_OPT_FORMAT_OUTPUT) == XMLUTIL_OPT_FORMAT_OUTPUT) {
             $xmldoc->preserveWhiteSpace = false;
             $xmldoc->formatOutput = true;
@@ -62,7 +63,7 @@ class XmlUtil
             throw new XmlUtilException("Xml document $filename not found.", 250);
         }
         $xml = file_get_contents($filename);
-        $xmldoc = self::createXmlDocumentFromStr($xml, true, $docOptions);
+        $xmldoc = self::createXmlDocumentFromStr($xml, $docOptions);
         return $xmldoc;
     }
 
@@ -89,7 +90,7 @@ class XmlUtil
 
         $xmldoc->loadXML($xmlFixed);
 
-        XmlUtil::extractNameSpaces($xmldoc);
+        XmlUtil::extractNamespaces($xmldoc);
 
         restore_error_handler();
 
@@ -110,7 +111,7 @@ class XmlUtil
         return $xmldoc;
     }
 
-    protected static function extractNameSpaces($nodeOrDoc)
+    protected static function extractNamespaces($nodeOrDoc)
     {
         $doc = XmlUtil::getOwnerDocument($nodeOrDoc);
 

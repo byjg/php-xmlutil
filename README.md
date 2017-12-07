@@ -82,9 +82,10 @@ Add a node with a namespace
 
 ## Bonus - CleanDocument
 
-XmlUtil have a class for selectively specific marks (tags) from the document or remove all marks.
+XmlUtil have a class for selectively remove specific marks (tags) 
+from the document or remove all marks.
 
-The use is:
+Example:
 
 ```php
 <?php
@@ -101,5 +102,5 @@ $document
 
 ## Install
 
-Just type: `composer require "byjg/xmlutil~1.0"`
+Just type: `composer require "byjg/xmlutil=1.0.*"`
 

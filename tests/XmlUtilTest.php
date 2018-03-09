@@ -3,13 +3,9 @@
 namespace Tests;
 
 use ByJG\Util\XmlUtil;
+use PHPUnit\Framework\TestCase;
 
-// backward compatibility
-if (!class_exists('\PHPUnit\Framework\TestCase')) {
-    class_alias('\PHPUnit_Framework_TestCase', '\PHPUnit\Framework\TestCase');
-}
-
-class XmlUtilTest extends \PHPUnit\Framework\TestCase
+class XmlUtilTest extends TestCase
 {
 
     const XMLHEADER = '<?xml version="1.0" encoding="utf-8"?>';

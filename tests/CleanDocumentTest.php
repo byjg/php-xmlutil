@@ -1,20 +1,11 @@
 <?php
-/**
- * User: jg
- * Date: 12/04/17
- * Time: 12:14
- */
 
 namespace Tests;
 
 use ByJG\Util\CleanDocument;
+use PHPUnit\Framework\TestCase;
 
-// backward compatibility
-if (!class_exists('\PHPUnit\Framework\TestCase')) {
-    class_alias('\PHPUnit_Framework_TestCase', '\PHPUnit\Framework\TestCase');
-}
-
-class CleanDocumentTest extends \PHPUnit\Framework\TestCase
+class CleanDocumentTest extends TestCase
 {
     /**
      * @var CleanDocument

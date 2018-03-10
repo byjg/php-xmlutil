@@ -1,9 +1,4 @@
 <?php
-/**
- * User: jg
- * Date: 12/04/17
- * Time: 11:32
- */
 
 namespace ByJG\Util;
 

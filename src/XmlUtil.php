@@ -274,7 +274,7 @@ class XmlUtil
      * @param \DOMNode $rootNode XmlNode receives node
      * @param string $filename File to import node
      * @param string $nodetoadd Node to be added
-     * @throws \Exception
+     * @throws \ByJG\Util\Exception\XmlUtilException
      */
     public static function addNodeFromFile(\DOMNode $rootNode, $filename, $nodetoadd)
     {
@@ -285,18 +285,13 @@ class XmlUtil
             return;
         }
 
-        try {
-            // \DOMDocument
-            $source = XmlUtil::createXmlDocumentFromFile($filename);
+        $source = XmlUtil::createXmlDocumentFromFile($filename);
 
-            $nodes = $source->getElementsByTagName($nodetoadd)->item(0)->childNodes;
+        $nodes = $source->getElementsByTagName($nodetoadd)->item(0)->childNodes;
 
-            foreach ($nodes as $node) {
-                $newNode = $rootNode->ownerDocument->importNode($node, true);
-                $rootNode->appendChild($newNode);
-            }
-        } catch (\Exception $ex) {
-            throw $ex;
+        foreach ($nodes as $node) {
+            $newNode = $rootNode->ownerDocument->importNode($node, true);
+            $rootNode->appendChild($newNode);
         }
     }
 
@@ -329,7 +324,6 @@ class XmlUtil
      * @param string $uri
      * @return DOMNode
      * @throws \ByJG\Util\Exception\XmlUtilException
-     * @throws \Exception
      */
     public static function createChild(\DOMNode $rootNode, $nodeName, $nodeText = "", $uri = "")
     {
@@ -352,7 +346,6 @@ class XmlUtil
      * @param int $position
      * @return DOMNode
      * @throws \ByJG\Util\Exception\XmlUtilException
-     * @throws \Exception
      */
     public static function createChildBefore(\DOMNode $rootNode, $nodeName, $nodeText, $position = 0)
     {
@@ -365,7 +358,6 @@ class XmlUtil
      * @param \DOMNode $node
      * @return DOMNode
      * @throws \ByJG\Util\Exception\XmlUtilException
-     * @throws \Exception
      */
     public static function createChildBeforeNode($nodeName, $nodeText, \DOMNode $node)
     {
@@ -404,7 +396,6 @@ class XmlUtil
      * @param string $name Attribute name string
      * @param string $value Attribute value string
      * @return DOMNode
-     * @throws \Exception
      * @throws \ByJG\Util\Exception\XmlUtilException
      */
     public static function addAttribute(\DOMNode $rootNode, $name, $value)
@@ -477,8 +468,6 @@ class XmlUtil
      * @param \DOMNode $node
      * @param string $xmlstring
      * @return \DOMNode
-     * @throws \ByJG\Util\Exception\XmlUtilException
-     * @throws \ByJG\Util\Exception\XmlUtilException
      * @throws \ByJG\Util\Exception\XmlUtilException
      */
     public static function innerXML(\DOMNode $node, $xmlstring)
@@ -680,7 +669,6 @@ class XmlUtil
      * @param string $uri
      * @return \DOMNode
      * @throws XmlUtilException
-     * @throws \Exception
      */
     protected static function createChildNode(\DOMNode $node, $name, $uri = "")
     {
@@ -709,10 +697,9 @@ class XmlUtil
     }
 
     /**
-     *
      * @param \DOMNode $node
      * @param string $name
-     * @throws \Exception
+     * @throws \ByJG\Util\Exception\XmlUtilException
      */
     protected static function checkIfPrefixWasDefined(\DOMNode $node, $name)
     {

@@ -1,13 +1,10 @@
 # XmlUtil
 [![Build Status](https://travis-ci.org/byjg/xmlutil.svg?branch=master)](https://travis-ci.org/byjg/xmlutil)
 
-## Description
 
 A utility class to make easy work with XML in PHP 
 
-## Examples
-
-### Create a new XML Document and add nodes
+# Create a new XML Document and add nodes
 
 ```php
 $xml = \ByJG\Util\XmlUtil::createXmlDocumentFromStr('<root />');
@@ -32,26 +29,26 @@ will produce the follow xml
 </root>
 ```
 
-### Convert to array
+# Convert to array
 
 ```php
 $array = \ByJG\Util\XmlUtil::xml2Array($xml);
 ```
 
-### Select a single node based on XPath
+# Select a single node based on XPath
 
 ```php
 $node = \ByJG\Util\XmlUtil::selectSingleNode($xml, '//subnode');
 ```
 
-### Select all nodes based on XPath
+# Select all nodes based on XPath
 
 ```php
 $nodeList = \ByJG\Util\XmlUtil::selectNodes($myNode, '//subnode');
 ```
 
 
-### Working with xml namespaces
+# Working with xml namespaces
 
 Add a namespace to the document
 
@@ -80,7 +77,7 @@ Add a node with a namespace
 \ByJG\Util\XmlUtil::createChild($xml->documentElement, 'nodens', 'teste', 'http://www.example.com/mytest/');
 ```
 
-## Bonus - CleanDocument
+# Bonus - CleanDocument
 
 XmlUtil have a class for selectively remove specific marks (tags) 
 from the document or remove all marks.
@@ -100,7 +97,9 @@ $document
 
 ```
 
-## Install
+# Install
 
-Just type: `composer require "byjg/xmlutil=1.0.*"`
+```
+composer require "byjg/xmlutil=1.0.*"
+```
 

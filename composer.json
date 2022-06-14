@@ -1,12 +1,6 @@
 {
   "name": "byjg/xmlutil",
   "description": "A utility class to make easy work with XML in PHP.",
-  "authors": [
-    {
-      "name": "João Gilberto Magalhães",
-      "email": "joao@byjg.com.br"
-    }
-  ],
   "autoload": {
     "psr-4": {
       "ByJG\\Util\\": "src/"

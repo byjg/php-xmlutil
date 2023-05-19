@@ -1,19 +1,25 @@
 # XmlUtil
-[![Build Status](https://travis-ci.org/byjg/xmlutil.svg?branch=master)](https://travis-ci.org/byjg/xmlutil)
 
+[![Build Status](https://github.com/byjg/xmlutil/actions/workflows/phpunit.yml/badge.svg?branch=master)](https://github.com/byjg/xmlutil/actions/workflows/phpunit.yml)
+[![Opensource ByJG](https://img.shields.io/badge/opensource-byjg-success.svg)](http://opensource.byjg.com)
+[![GitHub source](https://img.shields.io/badge/Github-source-informational?logo=github)](https://github.com/byjg/xmlutil/)
+[![GitHub license](https://img.shields.io/github/license/byjg/xmlutil.svg)](https://opensource.byjg.com/opensource/licensing.html)
+[![GitHub release](https://img.shields.io/github/release/byjg/xmlutil.svg)](https://github.com/byjg/xmlutil/releases/)
 
-A utility class to make easy work with XML in PHP 
+A utility class to make easy work with XML in PHP
 
-# Create a new XML Document and add nodes
+## Create a new XML Document and add nodes
 
 ```php
-$xml = \ByJG\Util\XmlUtil::createXmlDocumentFromStr('<root />');
+use ByJG\Util\XmlUtil;
 
-$myNode = \ByJG\Util\XmlUtil::createChild($xml->documentElement, 'mynode');
-\ByJG\Util\XmlUtil::createChild($myNode, 'subnode', 'text');
-\ByJG\Util\XmlUtil::createChild($myNode, 'subnode', 'more text');
-$otherNode = \ByJG\Util\XmlUtil::createChild($myNode, 'othersubnode', 'other text');
-\ByJG\Util\XmlUtil::addAttribute($otherNode, 'attr', 'value');
+$xml = XmlUtil::createXmlDocumentFromStr('<root />');
+
+$myNode = XmlUtil::createChild($xml->documentElement, 'mynode');
+XmlUtil::createChild($myNode, 'subnode', 'text');
+XmlUtil::createChild($myNode, 'subnode', 'more text');
+$otherNode = XmlUtil::createChild($myNode, 'othersubnode', 'other text');
+XmlUtil::addAttribute($otherNode, 'attr', 'value');
 ```
 
 will produce the follow xml
@@ -29,31 +35,30 @@ will produce the follow xml
 </root>
 ```
 
-# Convert to array
+## Convert to array
 
 ```php
-$array = \ByJG\Util\XmlUtil::xml2Array($xml);
+$array = XmlUtil::xml2Array($xml);
 ```
 
-# Select a single node based on XPath
+## Select a single node based on XPath
 
 ```php
-$node = \ByJG\Util\XmlUtil::selectSingleNode($xml, '//subnode');
+$node = XmlUtil::selectSingleNode($xml, '//subnode');
 ```
 
-# Select all nodes based on XPath
+## Select all nodes based on XPath
 
 ```php
-$nodeList = \ByJG\Util\XmlUtil::selectNodes($myNode, '//subnode');
+$nodeList = XmlUtil::selectNodes($myNode, '//subnode');
 ```
 
-
-# Working with xml namespaces
+## Working with xml namespaces
 
 Add a namespace to the document
 
 ```php
-\ByJG\Util\XmlUtil::addNamespaceToDocument($xml, 'my', 'http://www.example.com/mytest/');
+XmlUtil::addNamespaceToDocument($xml, 'my', 'http://www.example.com/mytest/');
 ```
 
 will produce
@@ -68,18 +73,18 @@ will produce
 Add a node with a namespace prefix
 
 ```php
-\ByJG\Util\XmlUtil::createChild($xml->documentElement, 'my:othernodens', 'teste');
+XmlUtil::createChild($xml->documentElement, 'my:othernodens', 'teste');
 ```
 
 Add a node with a namespace
 
 ```php
-\ByJG\Util\XmlUtil::createChild($xml->documentElement, 'nodens', 'teste', 'http://www.example.com/mytest/');
+XmlUtil::createChild($xml->documentElement, 'nodens', 'teste', 'http://www.example.com/mytest/');
 ```
 
-# Bonus - CleanDocument
+## Bonus - CleanDocument
 
-XmlUtil have a class for selectively remove specific marks (tags) 
+XmlUtil have a class for selectively remove specific marks (tags)
 from the document or remove all marks.
 
 Example:
@@ -97,9 +102,17 @@ $document
 
 ```
 
-# Install
+## Install
 
-```
-composer require "byjg/xmlutil=1.0.*"
+```bash
+composer require "byjg/xmlutil=5.0.*"
 ```
 
+## Running the Tests
+
+```bash
+vendor/bin/phpunit
+```
+
+----
+[Open source ByJG](http://opensource.byjg.com)

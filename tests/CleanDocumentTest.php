@@ -12,7 +12,7 @@ class CleanDocumentTest extends TestCase
      */
     protected $object;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->object = new CleanDocument(
             '<span >START <a href="http://www.pagecolumn.com/" nofollow>3 Column Layout Generator </a></span>' .

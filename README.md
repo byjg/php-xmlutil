@@ -103,3 +103,19 @@ $document
 composer require "byjg/xmlutil=1.0.*"
 ```
 
+## Running the Tests
+
+```bash
+vendor/bin/phpunit
+```
+
+## Dependencies
+
+```mermaid
+flowchart TD
+    XmlUtil --> ext-xml
+```
+
+
+----
+[Open source ByJG](http://opensource.byjg.com)

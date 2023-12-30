@@ -113,7 +113,7 @@ vendor/bin/phpunit
 
 ```mermaid
 flowchart TD
-    XmlUtil --> ext-xml
+    byjg/xmlutil --> ext-xml
 ```
 
 

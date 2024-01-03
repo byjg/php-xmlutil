@@ -105,7 +105,7 @@ $document
 ## Install
 
 ```bash
-composer require "byjg/xmlutil=5.0.*"
+composer require "byjg/xmlutil"
 ```
 
 ## Running the Tests
@@ -113,6 +113,14 @@ composer require "byjg/xmlutil=5.0.*"
 ```bash
 vendor/bin/phpunit
 ```
+
+## Dependencies
+
+```mermaid
+flowchart TD
+    byjg/xmlutil --> ext-xml
+```
+
 
 ----
 [Open source ByJG](http://opensource.byjg.com)

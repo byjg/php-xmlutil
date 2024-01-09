@@ -118,7 +118,8 @@ vendor/bin/phpunit
 
 ```mermaid
 flowchart TD
-    byjg/xmlutil --> ext-xml
+    byjg/xmlutil --> ext-simplexml
+    byjg/xmlutil --> ext-dom
 ```
 
 

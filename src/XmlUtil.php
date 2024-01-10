@@ -9,14 +9,17 @@ define('XMLUTIL_OPT_DONT_FIX_AMPERSAND', 0x04);
 use ByJG\Util\Exception\XmlUtilException;
 use DOMDocument;
 use DOMElement;
+use DOMException;
 use DOMNode;
 use DOMNodeList;
 use DOMXPath;
+use Exception;
+use InvalidArgumentException;
 use SimpleXMLElement;
 
 /**
  * Generic functions to manipulate XML nodes.
- * Note: This classes didn't inherits from \DOMDocument or \DOMNode
+ * Note: This classes didn't inherit from \DOMDocument or \DOMNode
  */
 class XmlUtil
 {
@@ -32,7 +35,7 @@ class XmlUtil
      */
     const XML_ENCODING = "utf-8";
 
-    public static $xmlNsPrefix = array();
+    public static array $xmlNsPrefix = [];
 
     /**
      * Create an empty XmlDocument object with some default parameters
@@ -40,7 +43,7 @@ class XmlUtil
      * @param int $docOptions
      * @return DOMDocument object
      */
-    public static function createXmlDocument($docOptions = 0)
+    public static function createXmlDocument(int $docOptions = 0): DOMDocument
     {
         $xmldoc = new DOMDocument(self::XML_VERSION, self::XML_ENCODING);
         $xmldoc->preserveWhiteSpace =
@@ -61,16 +64,15 @@ class XmlUtil
      * @param string $filename
      * @param int $docOptions
      * @return DOMDocument
-     * @throws \ByJG\Util\Exception\XmlUtilException
+     * @throws XmlUtilException
      */
-    public static function createXmlDocumentFromFile($filename, $docOptions = XMLUTIL_OPT_DONT_FIX_AMPERSAND)
+    public static function createXmlDocumentFromFile(string $filename, int $docOptions = XMLUTIL_OPT_DONT_FIX_AMPERSAND): DOMDocument
     {
         if (!file_exists($filename)) {
             throw new XmlUtilException("Xml document $filename not found.", 250);
         }
         $xml = file_get_contents($filename);
-        $xmldoc = self::createXmlDocumentFromStr($xml, $docOptions);
-        return $xmldoc;
+        return self::createXmlDocumentFromStr($xml, $docOptions);
     }
 
     /**
@@ -79,14 +81,14 @@ class XmlUtil
      * @param string $xml - XML string document
      * @param int $docOptions
      * @return DOMDocument
-     * @throws \ByJG\Util\Exception\XmlUtilException
+     * @throws XmlUtilException
      */
-    public static function createXmlDocumentFromStr($xml, $docOptions = XMLUTIL_OPT_DONT_FIX_AMPERSAND)
+    public static function createXmlDocumentFromStr(string $xml, int $docOptions = XMLUTIL_OPT_DONT_FIX_AMPERSAND): DOMDocument
     {
         set_error_handler(function ($number, $error) {
             $matches = [];
             if (preg_match('/^DOMDocument::loadXML\(\): (.+)$/', $error, $matches) === 1) {
-                throw new \InvalidArgumentException("[Err #$number] ".$matches[1]);
+                throw new InvalidArgumentException("[Err #$number] ".$matches[1]);
             }
         });
 
@@ -113,7 +115,7 @@ class XmlUtil
      * @param int $docOptions
      * @return DOMDocument
      */
-    public static function createDocumentFromNode(\DOMNode $node, $docOptions = 0)
+    public static function createDocumentFromNode(DOMNode $node, int $docOptions = 0): DOMDocument
     {
         $xmldoc = self::createXmlDocument($docOptions);
         XmlUtil::$xmlNsPrefix[spl_object_hash($xmldoc)] = array();
@@ -123,10 +125,9 @@ class XmlUtil
     }
 
     /**
-     * @param $nodeOrDoc
-     * @throws \ByJG\Util\Exception\XmlUtilException
+     * @param DOMNode $nodeOrDoc
      */
-    protected static function extractNamespaces($nodeOrDoc)
+    protected static function extractNamespaces(DOMNode $nodeOrDoc): void
     {
         $doc = XmlUtil::getOwnerDocument($nodeOrDoc);
 
@@ -145,13 +146,13 @@ class XmlUtil
      *
      * @param string $string - XML string document
      * @return string - Return the string converted
-     * @throws \ByJG\Util\Exception\XmlUtilException
+     * @throws XmlUtilException
      */
-    public static function fixXmlHeader($string)
+    public static function fixXmlHeader(string $string): string
     {
         $string = XmlUtil::removeBom($string);
 
-        if (strpos($string, "<?xml") !== false) {
+        if (str_contains($string, "<?xml")) {
             $xmltagend = strpos($string, "?>");
             if ($xmltagend !== false) {
                 $xmltagend += 2;
@@ -167,7 +168,7 @@ class XmlUtil
             // Complete header elements
             $count = 0;
             $xmlheader = preg_replace(
-                "/version=([\"'][\w\d\-\.]+[\"'])/",
+                "/version=([\"'][\w\-.]+[\"'])/",
                 "version=\"".self::XML_VERSION."\"",
                 $xmlheader,
                 1,
@@ -178,7 +179,7 @@ class XmlUtil
             }
             $count = 0;
             $xmlheader = preg_replace(
-                "/encoding=([\"'][\w\d\-\.]+[\"'])/",
+                "/encoding=([\"'][\w\-.]+[\"'])/",
                 "encoding=\"".self::XML_ENCODING."\"",
                 $xmlheader,
                 1,
@@ -190,7 +191,7 @@ class XmlUtil
 
             // Fix header position (first version, after encoding)
             $xmlheader = preg_replace(
-                "/<\?([\w\W]*)\s+(encoding=([\"'][\w\d\-\.]+[\"']))\s+(version=([\"'][\w\d\-\.]+[\"']))\s*\?>/",
+                "/<\?([\w\W]*)\s+(encoding=([\"'][\w\-.]+[\"']))\s+(version=([\"'][\w\-.]+[\"']))\s*\?>/",
                 "<?\\1 \\4 \\2?>",
                 $xmlheader,
                 1,
@@ -210,15 +211,11 @@ class XmlUtil
      * @param string $filename
      * @throws XmlUtilException
      */
-    public static function saveXmlDocument($document, $filename)
+    public static function saveXmlDocument(DOMDocument $document, string $filename): void
     {
-        if (!($document instanceof DOMDocument)) {
-            throw new XmlUtilException("Object isn't a \DOMDocument.", 255); // Document não é um documento XML
-        } else {
-            $ret = $document->save($filename);
-            if ($ret === false) {
-                throw new XmlUtilException("Cannot save XML Document in $filename.", 256);
-            }
+        $ret = $document->save($filename);
+        if ($ret === false) {
+            throw new XmlUtilException("Cannot save XML Document in $filename.", 256);
         }
     }
 
@@ -228,7 +225,7 @@ class XmlUtil
      * @param DOMDocument $xml
      * @return string
      */
-    public static function getFormattedDocument($xml)
+    public static function getFormattedDocument(DOMDocument $xml): string
     {
         $oldValue = $xml->preserveWhiteSpace;
         $oldFormatOutput = $xml->formatOutput;
@@ -245,17 +242,13 @@ class XmlUtil
 
     /**
      * @param DOMNode $nodeOrDoc
-     * @param $prefix
-     * @param $uri
-     * @throws \ByJG\Util\Exception\XmlUtilException
+     * @param string $prefix
+     * @param string $uri
+     * @throws XmlUtilException
      */
-    public static function addNamespaceToDocument($nodeOrDoc, $prefix, $uri)
+    public static function addNamespaceToDocument(DOMNode $nodeOrDoc, string $prefix, string $uri): void
     {
         $doc = XmlUtil::getOwnerDocument($nodeOrDoc);
-
-        if ($doc === null) {
-            throw new XmlUtilException("Node or document is invalid.");
-        }
 
         $hash = spl_object_hash($doc);
         $root = $doc->documentElement;
@@ -271,18 +264,16 @@ class XmlUtil
     /**
      * Add node to specific XmlNode from file existing on disk
      *
-     * @param \DOMNode $rootNode XmlNode receives node
+     * @param DOMNode $rootNode XmlNode receives node
      * @param string $filename File to import node
      * @param string $nodetoadd Node to be added
-     * @throws \ByJG\Util\Exception\XmlUtilException
+     * @throws XmlUtilException
+     * @throws Exception
      */
-    public static function addNodeFromFile(\DOMNode $rootNode, $filename, $nodetoadd)
+    public static function addNodeFromFile(DOMNode $rootNode, string $filename, string $nodetoadd): void
     {
-        if ($rootNode === null) {
-            return;
-        }
         if (!file_exists($filename)) {
-            return;
+            throw new Exception("File $filename not found");
         }
 
         $source = XmlUtil::createXmlDocumentFromFile($filename);
@@ -298,11 +289,10 @@ class XmlUtil
     /**
      * Attention: NODE MUST BE AN ELEMENT NODE!!!
      *
-     * @param \DOMNode $source
-     * @param \DOMNode $nodeToAdd
-     * @throws \ByJG\Util\Exception\XmlUtilException
+     * @param DOMNode $source
+     * @param DOMNode $nodeToAdd
      */
-    public static function addNodeFromNode(\DOMNode $source, \DOMNode $nodeToAdd)
+    public static function addNodeFromNode(DOMNode $source, DOMNode $nodeToAdd): void
     {
         if ($nodeToAdd->hasChildNodes()) {
             $nodeList = $nodeToAdd->childNodes; // It is necessary because Zend Core For Oracle didn't support
@@ -318,14 +308,15 @@ class XmlUtil
     /**
      * Append child node from specific node and add text
      *
-     * @param \DOMNode $rootNode Parent node
+     * @param DOMNode $rootNode Parent node
      * @param string $nodeName Node to add string
      * @param string $nodeText Text to add string
      * @param string $uri
      * @return DOMNode
-     * @throws \ByJG\Util\Exception\XmlUtilException
+     * @throws DOMException
+     * @throws XmlUtilException
      */
-    public static function createChild(\DOMNode $rootNode, $nodeName, $nodeText = "", $uri = "")
+    public static function createChild(DOMNode $rootNode, string $nodeName, string $nodeText = "", string $uri = ""): DOMNode
     {
         if (empty($nodeName)) {
             throw new XmlUtilException("Node name must be a string.");
@@ -340,14 +331,15 @@ class XmlUtil
     /**
      * Create child node on the top from specific node and add text
      *
-     * @param \DOMNode $rootNode Parent node
+     * @param DOMNode $rootNode Parent node
      * @param string $nodeName Node to add string
      * @param string $nodeText Text to add string
      * @param int $position
      * @return DOMNode
-     * @throws \ByJG\Util\Exception\XmlUtilException
+     * @throws DOMException
+     * @throws XmlUtilException
      */
-    public static function createChildBefore(\DOMNode $rootNode, $nodeName, $nodeText, $position = 0)
+    public static function createChildBefore(DOMNode $rootNode, string $nodeName, string $nodeText, int $position = 0): DOMNode
     {
         return self::createChildBeforeNode($nodeName, $nodeText, $rootNode->childNodes->item($position));
     }
@@ -355,11 +347,12 @@ class XmlUtil
     /**
      * @param string $nodeName
      * @param string $nodeText
-     * @param \DOMNode $node
+     * @param DOMNode $node
      * @return DOMNode
-     * @throws \ByJG\Util\Exception\XmlUtilException
+     * @throws DOMException
+     * @throws XmlUtilException
      */
-    public static function createChildBeforeNode($nodeName, $nodeText, \DOMNode $node)
+    public static function createChildBeforeNode(string $nodeName, string $nodeText, DOMNode $node): DOMNode
     {
         $rootNode = $node->parentNode;
         $nodeworking = XmlUtil::createChildNode($rootNode, $nodeName);
@@ -371,12 +364,11 @@ class XmlUtil
     /**
      * Add text to node
      *
-     * @param \DOMNode $rootNode Parent node
+     * @param DOMNode $rootNode Parent node
      * @param string $text Text to add String
      * @param bool $escapeChars (True create CData instead Text node)
-     * @throws \ByJG\Util\Exception\XmlUtilException
      */
-    public static function addTextNode(\DOMNode $rootNode, $text, $escapeChars = false)
+    public static function addTextNode(DOMNode $rootNode, string $text, bool $escapeChars = false): void
     {
         if (!empty($text) || is_numeric($text)) {
             $owner = XmlUtil::getOwnerDocument($rootNode);
@@ -392,13 +384,14 @@ class XmlUtil
     /**
      * Add a attribute to specific node
      *
-     * @param \DOMNode $rootNode Node to receive attribute
+     * @param DOMElement $rootNode Node to receive attribute
      * @param string $name Attribute name string
      * @param string $value Attribute value string
      * @return DOMNode
-     * @throws \ByJG\Util\Exception\XmlUtilException
+     * @throws DOMException
+     * @throws XmlUtilException
      */
-    public static function addAttribute(\DOMNode $rootNode, $name, $value)
+    public static function addAttribute(DOMElement $rootNode, string $name, string $value): DOMNode
     {
         XmlUtil::checkIfPrefixWasDefined($rootNode, $name);
 
@@ -412,13 +405,12 @@ class XmlUtil
     /**
      * Returns a \DOMNodeList from a relative xPath from other \DOMNode
      *
-     * @param \DOMNode $pNode
+     * @param DOMNode $pNode
      * @param string $xPath
      * @param array $arNamespace
      * @return DOMNodeList
-     * @throws \ByJG\Util\Exception\XmlUtilException
      */
-    public static function selectNodes(\DOMNode $pNode, $xPath, $arNamespace = null) // <- Retorna N&#65533;!
+    public static function selectNodes(DOMNode $pNode, string $xPath, array $arNamespace = []): DOMNodeList
     {
         if (preg_match('~^/[^/]~', $xPath)) {
             $xPath = substr($xPath, 1);
@@ -427,21 +419,18 @@ class XmlUtil
         $owner = XmlUtil::getOwnerDocument($pNode);
         $xpath = new DOMXPath($owner);
         XmlUtil::registerNamespaceForFilter($xpath, $arNamespace);
-        $rNodeList = $xpath->query($xPath, $pNode);
-
-        return $rNodeList;
+        return $xpath->query($xPath, $pNode);
     }
 
     /**
      * Returns a \DOMElement from a relative xPath from other \DOMNode
      *
-     * @param \DOMNode $pNode
+     * @param DOMNode $pNode
      * @param string $xPath xPath string format
      * @param array $arNamespace
      * @return DOMElement
-     * @throws \ByJG\Util\Exception\XmlUtilException
      */
-    public static function selectSingleNode(\DOMNode $pNode, $xPath, $arNamespace = null) // <- Retorna
+    public static function selectSingleNode(DOMNode $pNode, string $xPath, array $arNamespace = []): DOMNode
     {
         $rNodeList = self::selectNodes($pNode, $xPath, $arNamespace);
 
@@ -450,27 +439,25 @@ class XmlUtil
 
     /**
      *
-     * @param \DOMXPath $xpath
+     * @param DOMXPath $xpath
      * @param array $arNamespace
      */
-    public static function registerNamespaceForFilter(\DOMXPath $xpath, $arNamespace)
+    public static function registerNamespaceForFilter(DOMXPath $xpath, array $arNamespace = []): void
     {
-        if (($arNamespace !== null) && (is_array($arNamespace))) {
-            foreach ($arNamespace as $prefix => $uri) {
-                $xpath->registerNamespace($prefix, $uri);
-            }
+        foreach ($arNamespace as $prefix => $uri) {
+            $xpath->registerNamespace($prefix, $uri);
         }
     }
 
     /**
      * Concat a xml string in the node
      *
-     * @param \DOMNode $node
+     * @param DOMNode $node
      * @param string $xmlstring
-     * @return \DOMNode
-     * @throws \ByJG\Util\Exception\XmlUtilException
+     * @return DOMNode
+     * @throws XmlUtilException
      */
-    public static function innerXML(\DOMNode $node, $xmlstring)
+    public static function innerXML(DOMNode $node, string $xmlstring): DOMNode
     {
         $xmlstring = str_replace("<br>", "<br/>", $xmlstring);
         $len = strlen($xmlstring);
@@ -496,9 +483,6 @@ class XmlUtil
                 throw new XmlUtilException("Cannot load XML string.", 252);
             }
             $domSimpleXml = dom_import_simplexml($sxe);
-            if (!$domSimpleXml) {
-                throw new XmlUtilException("XML Parsing error.", 253);
-            }
             $domSimpleXml = $dom->importNode($domSimpleXml, true);
             $childs = $domSimpleXml->childNodes->length;
             for ($i = 0; $i < $childs; $i++) {
@@ -515,11 +499,11 @@ class XmlUtil
     /**
      * Return the tree nodes in a simple text
      *
-     * @param \DOMNode $node
-     * @return DOMNode
-     * @throws \ByJG\Util\Exception\XmlUtilException
+     * @param DOMNode $node
+     * @return string
+     * @throws XmlUtilException
      */
-    public static function innerText(\DOMNode $node)
+    public static function innerText(DOMNode $node): string
     {
         $doc = XmlUtil::createDocumentFromNode($node);
         return self::copyChildNodesFromNodeToString($doc);
@@ -528,11 +512,11 @@ class XmlUtil
     /**
      * Return the tree nodes in a simple text
      *
-     * @param \DOMNode $node
-     * @return DOMNode
-     * @throws \ByJG\Util\Exception\XmlUtilException
+     * @param DOMNode $node
+     * @return string
+     * @throws XmlUtilException
      */
-    public static function copyChildNodesFromNodeToString(\DOMNode $node)
+    public static function copyChildNodesFromNodeToString(DOMNode $node): string
     {
         $xmlstring = "<rootxml></rootxml>";
         $doc = self::createXmlDocumentFromStr($xmlstring);
@@ -547,22 +531,19 @@ class XmlUtil
         $string = $doc->saveXML();
         $string = str_replace('<?xml version="'.self::XML_VERSION.'" encoding="'.self::XML_ENCODING.'"?>', '', $string);
         $string = str_replace('<rootxml>', '', $string);
-        $string = str_replace('</rootxml>', '', $string);
-        return $string;
+        return str_replace('</rootxml>', '', $string);
     }
 
     /**
      * Return the part node in xml document
      *
-     * @param \DOMNode $node
+     * @param DOMNode $node
      * @return string
-     * @throws \ByJG\Util\Exception\XmlUtilException
      */
-    public static function saveXmlNodeToString(\DOMNode $node)
+    public static function saveXmlNodeToString(DOMNode $node): string
     {
         $doc = XmlUtil::getOwnerDocument($node);
-        $string = $doc->saveXML($node);
-        return $string;
+        return $doc->saveXML($node);
     }
 
     /**
@@ -571,7 +552,7 @@ class XmlUtil
      * @param string $str
      * @return mixed
      */
-    public static function br2nl($str)
+    public static function br2nl(string $str): string
     {
         return str_replace("<br />", "\n", $str);
     }
@@ -580,18 +561,19 @@ class XmlUtil
      * Assist you to Debug XMLs string documents. Echo in out buffer.
      *
      * @param string $val
+     * @return string
      */
-    public static function showXml($val)
+    public static function showXml(string $val): string
     {
-        print "<pre>".htmlentities($val)."</pre>";
+        return "<pre>".htmlentities($val)."</pre>";
     }
 
     /**
      * Remove a specific node
      *
-     * @param \DOMNode $node
+     * @param DOMNode $node
      */
-    public static function removeNode(\DOMNode $node)
+    public static function removeNode(DOMNode $node): void
     {
         $nodeParent = $node->parentNode;
         $nodeParent->removeChild($node);
@@ -600,11 +582,11 @@ class XmlUtil
     /**
      * Remove a node specified by your tag name. You must pass a \DOMDocument ($node->ownerDocument);
      *
-     * @param \DOMDocument $domdocument
+     * @param DOMDocument $domdocument
      * @param string $tagname
      * @return bool
      */
-    public static function removeTagName(\DOMDocument $domdocument, $tagname)
+    public static function removeTagName(DOMDocument $domdocument, string $tagname): bool
     {
         $nodeLista = $domdocument->getElementsByTagName($tagname);
         if ($nodeLista->length > 0) {
@@ -616,13 +598,13 @@ class XmlUtil
         }
     }
 
-    public static function xml2Array($arr, $func = "")
+    public static function xml2Array(SimpleXMLElement|DOMNode|array $arr, string $func = ""): array
     {
         if ($arr instanceof SimpleXMLElement) {
             return XmlUtil::xml2Array((array) $arr, $func);
         }
 
-        if (($arr instanceof DOMElement) || ($arr instanceof DOMDocument)) {
+        if ($arr instanceof DOMNode) {
             return XmlUtil::xml2Array((array) simplexml_import_dom($arr), $func);
         }
 
@@ -632,8 +614,7 @@ class XmlUtil
                 $newArr[$key] =
                     (
                         is_array($value)
-                        || ($value instanceof DOMElement)
-                        || ($value instanceof DOMDocument)
+                        || ($value instanceof DOMNode)
                         || ($value instanceof SimpleXMLElement)
                         ? XmlUtil::xml2Array($value, $func)
                         : (!empty($func) ? $func($value) : $value)
@@ -648,14 +629,9 @@ class XmlUtil
      *
      * @param mixed $node
      * @return DOMDocument
-     * @throws XmlUtilException
      */
-    protected static function getOwnerDocument($node)
+    protected static function getOwnerDocument(DOMNode $node): DOMDocument
     {
-        if (!($node instanceof DOMNode)) {
-            throw new XmlUtilException("Object isn't a \DOMNode. Found object class type: ".get_class($node), 257);
-        }
-
         if ($node instanceof DOMDocument) {
             return $node;
         } else {
@@ -664,13 +640,13 @@ class XmlUtil
     }
 
     /**
-     * @param \DOMNode $node
+     * @param DOMNode $node
      * @param string $name
      * @param string $uri
-     * @return \DOMNode
-     * @throws XmlUtilException
+     * @return DOMNode
+     * @throws XmlUtilException|DOMException
      */
-    protected static function createChildNode(\DOMNode $node, $name, $uri = "")
+    protected static function createChildNode(DOMNode $node, string $name, string $uri = ""): DOMNode
     {
         if ($uri == "") {
             XmlUtil::checkIfPrefixWasDefined($node, $name);
@@ -682,7 +658,7 @@ class XmlUtil
             $newnode = $owner->createElement(preg_replace('/[^\w:]/', '_', $name));
         } else {
             $newnode = $owner->createElementNS($uri, $name);
-            if ($owner == $node) {
+            if ($owner === $node) {
                 $tok = strtok($name, ":");
                 if ($tok != $name) {
                     XmlUtil::$xmlNsPrefix[spl_object_hash($owner)][$tok] = $uri;
@@ -697,11 +673,11 @@ class XmlUtil
     }
 
     /**
-     * @param \DOMNode $node
+     * @param DOMNode $node
      * @param string $name
-     * @throws \ByJG\Util\Exception\XmlUtilException
+     * @throws XmlUtilException
      */
-    protected static function checkIfPrefixWasDefined(\DOMNode $node, $name)
+    protected static function checkIfPrefixWasDefined(DOMNode $node, string $name): void
     {
         $owner = self::getOwnerDocument($node);
         $hash = spl_object_hash($owner);
@@ -715,7 +691,7 @@ class XmlUtil
         }
     }
 
-    public static function removeBom($xmlStr)
+    public static function removeBom(string $xmlStr): string
     {
         return preg_replace('/^\xEF\xBB\xBF/', '', $xmlStr);
     }

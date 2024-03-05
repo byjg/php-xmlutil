@@ -229,6 +229,15 @@ class XmlUtilTest extends TestCase
     {
         $dom = XmlUtil::createXmlDocumentFromStr('<root><a><item arg="1"/><item arg="2"><b1/><b2/></item><item arg="3"/></a></root>');
 
+        $nodeList = XmlUtil::selectNodes($dom->documentElement, '/a/item');
+        $this->assertEquals(3, $nodeList->length);
+        $this->assertEquals('item', $nodeList->item(0)->nodeName);
+        $this->assertEquals('1', $nodeList->item(0)->attributes->getNamedItem('arg')->nodeValue);
+        $this->assertEquals('item', $nodeList->item(1)->nodeName);
+        $this->assertEquals('2', $nodeList->item(1)->attributes->getNamedItem('arg')->nodeValue);
+        $this->assertEquals('item', $nodeList->item(2)->nodeName);
+        $this->assertEquals('3', $nodeList->item(2)->attributes->getNamedItem('arg')->nodeValue);
+
         $nodeList = XmlUtil::selectNodes($dom->documentElement, 'a/item');
         $this->assertEquals(3, $nodeList->length);
         $this->assertEquals('item', $nodeList->item(0)->nodeName);

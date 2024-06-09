@@ -13,7 +13,7 @@ class XmlUtilTest extends TestCase
     /**
      * @var \ByJG\Util\XmlUtil
      */
-    protected $object;
+    protected XmlUtil $object;
 
     public function testCreateXmlDocument()
     {

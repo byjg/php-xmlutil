@@ -52,7 +52,7 @@ class CleanDocument
     }
 
     /**
-     * @param $tag
+     * @param string $tag
      * @param string $property
      * @return $this
      */

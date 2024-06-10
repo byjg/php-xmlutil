@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 class FileTest extends TestCase
 {
-    public function testFileInvalid()
+    public function testFileInvalid(): void
     {
         $this->expectException(XmlUtilException::class);
         $this->expectExceptionMessage('File not found');
@@ -17,7 +17,7 @@ class FileTest extends TestCase
         new File('/a/a');
     }
 
-    public function testFile()
+    public function testFile(): void
     {
         $file = new File(__DIR__ . '/buggy.xml');
 

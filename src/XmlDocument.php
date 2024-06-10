@@ -5,8 +5,6 @@ namespace ByJG\Util;
 use ByJG\Util\Exception\XmlUtilException;
 use DOMDocument;
 use DOMNode;
-use DOMXPath;
-use InvalidArgumentException;
 
 class XmlDocument extends XmlNode
 {
@@ -26,7 +24,7 @@ class XmlDocument extends XmlNode
     /**
      * @throws XmlUtilException
      */
-    public function __construct(string|\DOMNode|File|XmlNode|null $source = null, $preserveWhiteSpace = false, $formatOutput = false, $fixAmpersand = false)
+    public function __construct(string|DOMNode|File|XmlNode|null $source = null, bool $preserveWhiteSpace = false, bool $formatOutput = false, bool $fixAmpersand = false)
     {
         $xmlDoc = new DOMDocument(self::XML_VERSION, self::XML_ENCODING);
         $xmlDoc->preserveWhiteSpace = $preserveWhiteSpace;

@@ -4,6 +4,8 @@ namespace ByJG\Util;
 
 use ByJG\Util\Exception\XmlUtilException;
 use DOMDocument;
+use DOMElement;
+use DOMException;
 use DOMNode;
 use DOMNodeList;
 use DOMXPath;
@@ -24,11 +26,11 @@ class XmlNode
     }
 
     /**
-     * @param DOMNode $node
      * @param string $name
      * @param string $uri
-     * @return DOMNode
-     * @throws XmlUtilException|DOMException
+     * @return XmlNode
+     * @throws XmlUtilException
+     * @throws DOMException
      */
     protected function createChildNode(string $name, string $uri = ""): XmlNode
     {
@@ -51,11 +53,10 @@ class XmlNode
     /**
      * Append child node from specific node and add text
      *
-     * @param DOMNode $rootNode Parent node
      * @param string $nodeName Node to add string
      * @param string $nodeText Text to add string
      * @param string $uri
-     * @return DOMNode
+     * @return XmlNode
      * @throws DOMException
      * @throws XmlUtilException
      */
@@ -71,11 +72,10 @@ class XmlNode
     /**
      * Create child node on the top from specific node and add text
      *
-     * @param DOMNode $rootNode Parent node
      * @param string $nodeName Node to add string
      * @param string $nodeText Text to add string
      * @param int $position
-     * @return DOMNode
+     * @return XmlNode
      * @throws DOMException
      * @throws XmlUtilException
      */
@@ -91,9 +91,9 @@ class XmlNode
     /**
      * Add text to node
      *
-     * @param DOMNode $rootNode Parent node
      * @param string $text Text to add String
      * @param bool $escapeChars (True create CData instead Text node)
+     * @return XmlNode
      */
     public function addText(string $text, bool $escapeChars = false): XmlNode
     {
@@ -116,12 +116,10 @@ class XmlNode
     /**
      * Add a attribute to specific node
      *
-     * @param DOMElement $rootNode Node to receive attribute
      * @param string $name Attribute name string
      * @param string $value Attribute value string
-     * @return DOMNode
+     * @return XmlNode
      * @throws DOMException
-     * @throws XmlUtilException
      */
     public function addAttribute(string $name, string $value): XmlNode
     {
@@ -131,7 +129,10 @@ class XmlNode
 
         $attrNode = $owner->createAttribute($name);
         $attrNode->value = $value;
-        $this->DOMNode()->setAttributeNode($attrNode);
+
+        /** @var DOMElement $node */
+        $node = $this->DOMNode();
+        $node->setAttributeNode($attrNode);
 
         return $this;
     }
@@ -139,10 +140,10 @@ class XmlNode
     /**
      * Returns a \DOMNodeList from a relative xPath from other \DOMNode
      *
-     * @param DOMNode $pNode
      * @param string $xPath
      * @param array $arNamespace
      * @return DOMNodeList
+     * @throws XmlUtilException
      */
     public function selectNodes(string $xPath, array $arNamespace = []): DOMNodeList
     {
@@ -167,10 +168,10 @@ class XmlNode
     /**
      * Returns a \DOMElement from a relative xPath from other \DOMNode
      *
-     * @param DOMNode $pNode
      * @param string $xPath xPath string format
      * @param array $arNamespace
-     * @return DOMNode
+     * @return XmlNode
+     * @throws XmlUtilException
      */
     public function selectSingleNode(string $xPath, array $arNamespace = []): XmlNode
     {
@@ -182,9 +183,7 @@ class XmlNode
     /**
      * Return the tree nodes in a simple text
      *
-     * @param DOMNode $node
      * @return string
-     * @throws XmlUtilException
      */
     public function innerText(): string
     {
@@ -201,7 +200,7 @@ class XmlNode
     /**
      * Remove a specific node
      *
-     * @param DOMNode $node
+     * @return XmlNode
      */
     public function removeNode(): XmlNode
     {
@@ -214,7 +213,6 @@ class XmlNode
     /**
      * Remove a node specified by your tag name. You must pass a \DOMDocument ($node->ownerDocument);
      *
-     * @param DOMDocument $dom
      * @param string $tagName
      * @return bool
      */
@@ -271,7 +269,7 @@ class XmlNode
         $this->DOMDocument()->documentElement->setAttributeNS('http://www.w3.org/2000/xmlns/', "xmlns:$prefix", $uri);
     }
 
-    public function importNodes(DOMNode|File $source, string $nodeToAdd)
+    public function importNodes(DOMNode|File $source, string $nodeToAdd): void
     {
         $sourceDoc = new XmlDocument($source);
 
@@ -333,7 +331,7 @@ class XmlNode
         return $str;
     }
 
-    protected function errorHandler()
+    protected function errorHandler(): void
     {
         set_error_handler(function ($number, $error) {
             throw new XmlUtilException($error);

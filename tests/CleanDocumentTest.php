@@ -7,10 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 class CleanDocumentTest extends TestCase
 {
-    /**
-     * @var CleanDocument
-     */
-    protected $object;
+    protected CleanDocument $object;
 
     public function setUp(): void
     {
@@ -23,7 +20,7 @@ class CleanDocumentTest extends TestCase
         );
     }
 
-    public function testStripAllTags()
+    public function testStripAllTags(): void
     {
         $result = $this->object->stripAllTags();
 
@@ -36,7 +33,7 @@ class CleanDocumentTest extends TestCase
         );
     }
 
-    public function testStripTags()
+    public function testStripTags(): void
     {
         $this->object->stripTagsExcept(['img', 'link']);
 
@@ -50,7 +47,7 @@ class CleanDocumentTest extends TestCase
         );
     }
 
-    public function testRemoveContentByTag()
+    public function testRemoveContentByTag(): void
     {
         $this->object->removeContentByTag('a');
 
@@ -63,7 +60,7 @@ class CleanDocumentTest extends TestCase
         );
     }
 
-    public function testRemoveContentByTag2()
+    public function testRemoveContentByTag2(): void
     {
         $this->object->removeContentByTag('a', 'name');
 
@@ -76,7 +73,7 @@ class CleanDocumentTest extends TestCase
         );
     }
 
-    public function testRemoveContentByTag3()
+    public function testRemoveContentByTag3(): void
     {
         $this->object->removeContentByTag('a', 'href');
 
@@ -89,7 +86,7 @@ class CleanDocumentTest extends TestCase
         );
     }
 
-    public function testRemoveContentByTag4()
+    public function testRemoveContentByTag4(): void
     {
         $this->object->removeContentByTag('a', 'nofollow');
 
@@ -103,7 +100,7 @@ class CleanDocumentTest extends TestCase
         );
     }
 
-    public function testRemoveContentByProperty()
+    public function testRemoveContentByProperty(): void
     {
         $this->object->removeContentByProperty('name');
 
@@ -116,7 +113,7 @@ class CleanDocumentTest extends TestCase
         );
     }
 
-    public function testRemoveContentByProperty2()
+    public function testRemoveContentByProperty2(): void
     {
         $this->object->removeContentByProperty('nofollow');
 
@@ -130,7 +127,7 @@ class CleanDocumentTest extends TestCase
         );
     }
 
-    public function testRemoveContentByTagWithoutProperty()
+    public function testRemoveContentByTagWithoutProperty(): void
     {
         $this->object->removeContentByTagWithoutProperty('a', 'name');
 
@@ -144,7 +141,7 @@ class CleanDocumentTest extends TestCase
         );
     }
 
-    public function testRemoveContentByTagWithoutProperty2()
+    public function testRemoveContentByTagWithoutProperty2(): void
     {
         $this->object->removeContentByTagWithoutProperty('a', 'nofollow');
 

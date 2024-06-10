@@ -15,32 +15,27 @@ class XmlUtilTest extends TestCase
 
     const XML_HEADER = '<?xml version="1.0" encoding="utf-8"?>';
 
-    /**
-     * @var \ByJG\Util\XmlUtil
-     */
-    protected XmlUtil $object;
-
-    public function testCreateXmlDocument()
+    public function testCreateXmlDocument(): void
     {
         $xml = new XmlDocument();
         $this->assertEquals(self::XML_HEADER . "\n", $xml->toString());
     }
 
-    public function testCreateXmlDocumentFromFile()
+    public function testCreateXmlDocumentFromFile(): void
     {
         $file = new File(__DIR__ . '/buggy.xml');
         $xml = new XmlDocument($file, preserveWhiteSpace: false);
         $this->assertEquals(self::XML_HEADER . "\n<root><node><subnode>value</subnode></node></root>\n", $xml->toString());
     }
 
-    public function testCreateXmlDocumentFromStr()
+    public function testCreateXmlDocumentFromStr(): void
     {
         $xmlStr = '<root/>';
         $xml = new XmlDocument($xmlStr);
         $this->assertEquals(self::XML_HEADER . "\n<root/>\n", $xml->toString());
     }
 
-    public function testCreateXmlDocumentFromStr2()
+    public function testCreateXmlDocumentFromStr2(): void
     {
         $xmlStr = '<?xml?><root/>';
         $xml = new XmlDocument($xmlStr);
@@ -48,28 +43,28 @@ class XmlUtilTest extends TestCase
     }
 
 
-    public function testCreateXmlDocumentFromStr3()
+    public function testCreateXmlDocumentFromStr3(): void
     {
         $xmlStr = '<?xml version="1.0"?><root/>';
         $xml = new XmlDocument($xmlStr);
         $this->assertEquals(self::XML_HEADER . "\n<root/>\n", $xml->toString());
     }
 
-    public function testCreateXmlDocumentFromStr4()
+    public function testCreateXmlDocumentFromStr4(): void
     {
         $xmlStr = '<?xml encoding="utf8"?><root/>';
         $xml = new XmlDocument($xmlStr);
         $this->assertEquals(self::XML_HEADER . "\n<root/>\n", $xml->toString());
     }
 
-    public function testCreateXmlDocumentFromStr5()
+    public function testCreateXmlDocumentFromStr5(): void
     {
         $xmlStr = '<?xml encoding="ascii"?><root/>';
         $xml = new XmlDocument($xmlStr);
         $this->assertEquals(self::XML_HEADER . "\n<root/>\n", $xml->toString());
     }
 
-    public function testCreateDocumentFromNode()
+    public function testCreateDocumentFromNode(): void
     {
         $file = new File(__DIR__ . '/buggy.xml');
         $xml = new XmlDocument($file, preserveWhiteSpace: false);
@@ -80,14 +75,14 @@ class XmlUtilTest extends TestCase
         $this->assertEquals(self::XML_HEADER . "\n<subnode>value</subnode>\n", $xmlFinal->toString());
     }
 
-    public function testCreateFailed()
+    public function testCreateFailed(): void
     {
         $this->expectException(XmlUtilException::class);
         $this->expectExceptionMessage('DOMDocument::loadXML()');
         new XmlDocument('<a>1');
     }
 
-    public function testSaveXmlDocument()
+    public function testSaveXmlDocument(): void
     {
         $file = new File(__DIR__ . '/buggy.xml');
         $xml = new XmlDocument($file, preserveWhiteSpace: false);
@@ -107,7 +102,7 @@ class XmlUtilTest extends TestCase
         unlink($filename);
     }
 
-    public function testGetFormattedDocument()
+    public function testGetFormattedDocument(): void
     {
         $file = new File(__DIR__ . '/buggy.xml');
         $xml = new XmlDocument($file);
@@ -119,7 +114,7 @@ class XmlUtilTest extends TestCase
         );
     }
 //
-//    public function testAddNamespaceToDocument()
+//    public function testAddNamespaceToDocument(): void
 //    {
 //        // Remove the following lines when you implement this test.
 //        $this->markTestIncomplete(
@@ -127,7 +122,7 @@ class XmlUtilTest extends TestCase
 //        );
 //    }
 //
-//    public function testAddNodeFromFile()
+//    public function testAddNodeFromFile(): void
 //    {
 //        // Remove the following lines when you implement this test.
 //        $this->markTestIncomplete(
@@ -135,7 +130,7 @@ class XmlUtilTest extends TestCase
 //        );
 //    }
 //
-//    public function testAddNodeFromNode()
+//    public function testAddNodeFromNode(): void
 //    {
 //        // Remove the following lines when you implement this test.
 //        $this->markTestIncomplete(
@@ -143,7 +138,7 @@ class XmlUtilTest extends TestCase
 //        );
 //    }
 //
-    public function testCreateChild()
+    public function testCreateChild(): void
     {
         $dom = new XmlDocument('<root/>');
         $node = $dom->appendChild('test1');
@@ -213,7 +208,7 @@ class XmlUtilTest extends TestCase
         );
     }
 
-    public function testAddTextNode()
+    public function testAddTextNode(): void
     {
         $dom = new XmlDocument('<root><subject></subject></root>');
 
@@ -232,7 +227,7 @@ class XmlUtilTest extends TestCase
         );
     }
 
-    public function testAddAttribute()
+    public function testAddAttribute(): void
     {
         $dom = new XmlDocument('<root><subject>Text</subject></root>');
 
@@ -251,7 +246,7 @@ class XmlUtilTest extends TestCase
         );
     }
 
-    public function testSelectNodes()
+    public function testSelectNodes(): void
     {
         $dom = new XmlDocument('<root><a><item arg="1"/><item arg="2"><b1/><b2/></item><item arg="3"/></a></root>');
 
@@ -268,7 +263,7 @@ class XmlUtilTest extends TestCase
         $this->assertEquals('b2', $node->DOMNode()->nodeName);
     }
 
-    public function testInnerText()
+    public function testInnerText(): void
     {
         $dom = new XmlDocument('<root><a><item arg="1"/><item arg="2"><b1/><b2/></item><item arg="3"/></a></root>');
 
@@ -281,7 +276,7 @@ class XmlUtilTest extends TestCase
         $this->assertEquals("<b1/><b2/>", $text);
     }
 
-    public function testRemoveNode()
+    public function testRemoveNode(): void
     {
         $dom = new XmlDocument('<root><subject>Text</subject><a/><b/></root>');
 
@@ -299,7 +294,7 @@ class XmlUtilTest extends TestCase
 
     }
 
-    public function testXml2Array1()
+    public function testXml2Array1(): void
     {
         $file = new File(__DIR__ . '/buggy.xml');
         $xml = new XmlDocument($file, preserveWhiteSpace: false);
@@ -308,7 +303,7 @@ class XmlUtilTest extends TestCase
         $this->assertEquals([ "node" => [ "subnode" => "value"]], $array);
     }
 
-    public function testXml2Array2()
+    public function testXml2Array2(): void
     {
         $xml = new XmlDocument('<root><node param="pval">value</node></root>');
 
@@ -316,7 +311,7 @@ class XmlUtilTest extends TestCase
         $this->assertEquals([ "node" => "value"], $array);
     }
 
-    public function testSelectNodesNamespace()
+    public function testSelectNodesNamespace(): void
     {
         $file = new File(__DIR__ . '/feed-atom.txt');
         $document = new XmlDocument($file);
@@ -331,7 +326,7 @@ class XmlUtilTest extends TestCase
         $this->assertEquals(25, $nodes->length);
     }
 
-    public function testSelectNodesNamespaceError()
+    public function testSelectNodesNamespaceError(): void
     {
         $file = new File(__DIR__ . '/feed-atom.txt');
         $document = new XmlDocument($file);
@@ -344,7 +339,7 @@ class XmlUtilTest extends TestCase
         );
     }
 
-    public function testAddNamespace()
+    public function testAddNamespace(): void
     {
         $xmlStr = '<root/>';
         $xml = new XmlDocument($xmlStr);

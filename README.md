@@ -6,20 +6,25 @@
 [![GitHub license](https://img.shields.io/github/license/byjg/php-xmlutil.svg)](https://opensource.byjg.com/opensource/licensing.html)
 [![GitHub release](https://img.shields.io/github/release/byjg/php-xmlutil.svg)](https://github.com/byjg/php-xmlutil/releases/)
 
-A utility class to make easy work with XML in PHP
+A utility class to make it easy work with XML in PHP
 
-## Create a new XML Document and add nodes
+## Examples
+
+### Create a new XML Document and add nodes
 
 ```php
-use ByJG\Util\XmlUtil;
+<?php
+use ByJG\Util\XmlDocument;
 
-$xml = XmlUtil::createXmlDocumentFromStr('<root />');
+$xml = new XmlDocument('<root />');
 
-$myNode = XmlUtil::createChild($xml->documentElement, 'mynode');
-XmlUtil::createChild($myNode, 'subnode', 'text');
-XmlUtil::createChild($myNode, 'subnode', 'more text');
-$otherNode = XmlUtil::createChild($myNode, 'othersubnode', 'other text');
-XmlUtil::addAttribute($otherNode, 'attr', 'value');
+$myNode = $xml->appendChild('mynode');
+$myNode->appendChild('subnode', 'text');
+$myNode->appendChild('subnode', 'more text');
+$otherNode = $myNode->appendChild('othersubnode', 'other text');
+$otherNode->addAttribute('attr', 'value');
+
+echo $xml->toString(format: true);
 ```
 
 will produce the follow xml
@@ -27,38 +32,38 @@ will produce the follow xml
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-    <mynode>
-        <subnode>text</subnode>
-        <subnode>more text</subnode>
-        <othersubnode attr="value">other text</othersubnode>
-    </mynode>
+  <mynode>
+    <subnode>text</subnode>
+    <subnode>more text</subnode>
+    <othersubnode attr="value">other text</othersubnode>
+  </mynode>
 </root>
 ```
 
-## Convert to array
+### Convert to array
 
 ```php
-$array = XmlUtil::xml2Array($xml);
+$array = $xml->toArray();
 ```
 
-## Select a single node based on XPath
+### Select a single node based on XPath
 
 ```php
-$node = XmlUtil::selectSingleNode($xml, '//subnode');
+$node = $xml->selectSingleNode('//subnode');
 ```
 
-## Select all nodes based on XPath
+### Select all nodes based on XPath
 
 ```php
-$nodeList = XmlUtil::selectNodes($myNode, '//subnode');
+$nodeList = $xml->selectNodes($myNode, '//subnode');
 ```
 
-## Working with xml namespaces
+### Working with xml namespaces
 
 Add a namespace to the document
 
 ```php
-XmlUtil::addNamespaceToDocument($xml, 'my', 'http://www.example.com/mytest/');
+$xml->addNamespace('my', 'http://www.example.com/mytest/');
 ```
 
 will produce
@@ -73,13 +78,43 @@ will produce
 Add a node with a namespace prefix
 
 ```php
-XmlUtil::createChild($xml->documentElement, 'my:othernodens', 'teste');
+$xml->appendChild('my:othernodens', 'teste');
 ```
 
 Add a node with a namespace
 
 ```php
-XmlUtil::createChild($xml->documentElement, 'nodens', 'teste', 'http://www.example.com/mytest/');
+$xml->appendChild('nodens', 'teste', 'http://www.example.com/mytest/');
+```
+
+## Diagram
+
+```mermaid
+classDiagram
+    XmlNode <|-- XmlDocument
+
+    class XmlNode{
+        appendChild()
+        insertBefore()
+        addText()
+        addAttribute()
+        selectNodes()
+        selectSingleNode()
+        innerText()
+        removeNode()
+        removeTagName()
+        toArray()
+        addNamespace()
+        importNodes()
+        DOMNode()
+        DOMDocument()
+        toString()
+    }
+    class XmlDocument{
+        save()
+        getRootNode()
+    }
+
 ```
 
 ## Bonus - CleanDocument

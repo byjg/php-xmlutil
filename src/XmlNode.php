@@ -59,10 +59,10 @@ class XmlNode
      * @throws DOMException
      * @throws XmlUtilException
      */
-    public function createChild(string $nodeName, string $nodeText = "", string $uri = ""): XmlNode
+    public function appendChild(string $nodeName, string $nodeText = "", string $uri = ""): XmlNode
     {
         $nodeWorking = $this->createChildNode($nodeName, $uri);
-        $nodeWorking->addTextNode($nodeText);
+        $nodeWorking->addText($nodeText);
         $this->DOMNode()->appendChild($nodeWorking->DOMNode());
         return $nodeWorking;
     }
@@ -79,10 +79,10 @@ class XmlNode
      * @throws DOMException
      * @throws XmlUtilException
      */
-    public function createChildBefore(string $nodeName, string $nodeText, int $position = 0): XmlNode
+    public function insertBefore(string $nodeName, string $nodeText, int $position = 0): XmlNode
     {
         $nodeWorking = $this->createChildNode($nodeName);
-        $nodeWorking->addTextNode($nodeText);
+        $nodeWorking->addText($nodeText);
         $rootNode = $this->DOMNode()->parentNode;
         $rootNode->insertBefore($nodeWorking->DOMNode(), $this->DOMNode());
         return $nodeWorking;
@@ -95,7 +95,7 @@ class XmlNode
      * @param string $text Text to add String
      * @param bool $escapeChars (True create CData instead Text node)
      */
-    public function addTextNode(string $text, bool $escapeChars = false): XmlNode
+    public function addText(string $text, bool $escapeChars = false): XmlNode
     {
         if (empty($text)) {
             return $this;
@@ -177,54 +177,6 @@ class XmlNode
         $rNodeList = $this->selectNodes($xPath, $arNamespace);
 
         return new XmlNode($rNodeList->item(0));
-    }
-
-    /**
-     * Concat a xml string in the node
-     *
-     * @param DOMNode $node
-     * @param string $xmlString
-     * @return DOMNode
-     * @throws XmlUtilException
-     */
-    public function innerXML(string $xmlString): XmlNode
-    {
-        $xmlString = str_replace("<br>", "<br/>", $xmlString);
-        $len = strlen($xmlString);
-        $endText = "";
-        $close = strrpos($xmlString, '>');
-        if ($close !== false && $close < $len - 1) {
-            $endText = substr($xmlString, $close + 1);
-            $xmlString = substr($xmlString, 0, $close + 1);
-        }
-        $open = strpos($xmlString, '<');
-        if ($open === false) {
-            $this->DOMNode()->nodeValue .= $xmlString;
-        } else {
-            if ($open > 0) {
-                $text = substr($xmlString, 0, $open);
-                $xmlString = substr($xmlString, $open);
-                $this->DOMNode()->nodeValue .= $text;
-            }
-            $dom = $this->DOMDocument();
-            $xmlString = "<rootxml>$xmlString</rootxml>";
-            $sxe = @simplexml_load_string($xmlString);
-            if ($sxe === false) {
-                throw new XmlUtilException("Cannot load XML string.", 252);
-            }
-            $domSimpleXml = dom_import_simplexml($sxe);
-            $domSimpleXml = $dom->importNode($domSimpleXml, true);
-            $children = $domSimpleXml->childNodes->length;
-            for ($i = 0; $i < $children; $i++) {
-                $this->DOMNode()->appendChild($domSimpleXml->childNodes->item($i)->cloneNode(true));
-            }
-
-            if (!empty($endText) && $endText != "") {
-                $textNode = $dom->createTextNode($endText);
-                $this->DOMNode()->appendChild($textNode);
-            }
-        }
-        return new XmlNode($this->DOMNode()->firstChild);
     }
 
     /**

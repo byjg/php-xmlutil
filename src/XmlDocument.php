@@ -130,11 +130,6 @@ class XmlDocument extends XmlNode
         return preg_replace('/^\xEF\xBB\xBF/', '', $xmlStr);
     }
 
-    public function getRootNode(): DOMNode
-    {
-        return $this->document->documentElement;
-    }
-
     /**
      *
      * @param string $filename
@@ -147,5 +142,4 @@ class XmlDocument extends XmlNode
             throw new XmlUtilException("Cannot save XML Document in $filename.", 256);
         }
     }
-
 }

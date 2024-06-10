@@ -146,7 +146,7 @@ class XmlUtilTest extends TestCase
     public function testCreateChild()
     {
         $dom = new XmlDocument('<root/>');
-        $node = $dom->createChild('test1');
+        $node = $dom->appendChild('test1');
         $this->assertEquals(
             self::XML_HEADER . "\n" .
             '<root>'
@@ -156,7 +156,7 @@ class XmlUtilTest extends TestCase
             $dom->toString()
         );
 
-        $node2 = $node->createChild('test2', 'text2');
+        $node2 = $node->appendChild('test2', 'text2');
         $this->assertEquals(
             self::XML_HEADER . "\n" .
             '<root>'
@@ -168,7 +168,7 @@ class XmlUtilTest extends TestCase
             $dom->toString()
         );
 
-        $node3 = $node->createChild('test3', 'text3', 'http://opensource.byjg.com');
+        $node3 = $node->appendChild('test3', 'text3', 'http://opensource.byjg.com');
         $this->assertEquals(
             self::XML_HEADER . "\n" .
             '<root>'
@@ -181,7 +181,7 @@ class XmlUtilTest extends TestCase
             $dom->toString()
         );
 
-        $node3->createChildBefore('test1_2', 'text1-2');
+        $node3->insertBefore('test1_2', 'text1-2');
 
         $this->assertEquals(
             self::XML_HEADER . "\n" .
@@ -196,7 +196,7 @@ class XmlUtilTest extends TestCase
             $dom->toString()
         );
 
-        $node2->createChildBefore('testBefore', 'textBefore');
+        $node2->insertBefore('testBefore', 'textBefore');
 
         $this->assertEquals(
             self::XML_HEADER . "\n" .
@@ -218,7 +218,7 @@ class XmlUtilTest extends TestCase
         $dom = new XmlDocument('<root><subject></subject></root>');
 
         $node = $dom->selectSingleNode('subject');
-        $node->addTextNode( 'Text');
+        $node->addText( 'Text');
 
         $this->assertEquals(
             self::XML_HEADER . "\n" .
@@ -342,5 +342,24 @@ class XmlUtilTest extends TestCase
         $nodes = $document->selectNodes(
             'ns:entry'
         );
+    }
+
+    public function testAddNamespace()
+    {
+        $xmlStr = '<root/>';
+        $xml = new XmlDocument($xmlStr);
+        $this->assertEquals(self::XML_HEADER . "\n<root/>\n", $xml->toString());
+
+        $xml->addNamespace('my', 'http://www.example.com/mytest/');
+        $this->assertEquals(self::XML_HEADER . "\n<root xmlns:my=\"http://www.example.com/mytest/\"/>\n", $xml->toString());
+
+        $xml->appendChild('my:othernodens', 'teste');
+        $this->assertEquals(self::XML_HEADER . "\n<root xmlns:my=\"http://www.example.com/mytest/\"><my:othernodens>teste</my:othernodens></root>\n", $xml->toString());
+
+        $xml->appendChild('nodens', 'teste', 'http://www.example.com/mytest/');
+        $this->assertEquals(self::XML_HEADER . "\n<root xmlns:my=\"http://www.example.com/mytest/\"><my:othernodens>teste</my:othernodens><my:nodens>teste</my:nodens></root>\n", $xml->toString());
+
+        $xml->appendChild('other', 'text', 'http://www.example.org/x/');
+        $this->assertEquals(self::XML_HEADER . "\n<root xmlns:my=\"http://www.example.com/mytest/\"><my:othernodens>teste</my:othernodens><my:nodens>teste</my:nodens><other xmlns=\"http://www.example.org/x/\">text</other></root>\n", $xml->toString());
     }
 }

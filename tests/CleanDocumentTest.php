@@ -2,7 +2,7 @@
 
 namespace Tests;
 
-use ByJG\Util\CleanDocument;
+use ByJG\XmlUtil\CleanDocument;
 use PHPUnit\Framework\TestCase;
 
 class CleanDocumentTest extends TestCase

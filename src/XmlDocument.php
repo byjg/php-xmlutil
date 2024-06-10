@@ -1,8 +1,8 @@
 <?php
 
-namespace ByJG\Util;
+namespace ByJG\XmlUtil;
 
-use ByJG\Util\Exception\XmlUtilException;
+use ByJG\XmlUtil\Exception\XmlUtilException;
 use DOMDocument;
 use DOMNode;
 

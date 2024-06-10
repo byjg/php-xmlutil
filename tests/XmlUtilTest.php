@@ -2,13 +2,11 @@
 
 namespace Tests;
 
-use ByJG\Util\Exception\XmlUtilException;
-use ByJG\Util\File;
-use ByJG\Util\XmlDocument;
-use ByJG\Util\XmlNode;
-use ByJG\Util\XmlUtil;
+use ByJG\XmlUtil\Exception\XmlUtilException;
+use ByJG\XmlUtil\File;
+use ByJG\XmlUtil\XmlDocument;
+use ByJG\XmlUtil\XmlNode;
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Util\Xml;
 
 class XmlUtilTest extends TestCase
 {

@@ -14,7 +14,7 @@ A utility class to make it easy work with XML in PHP
 
 ```php
 <?php
-use ByJG\Util\XmlDocument;
+use ByJG\XmlUtil\XmlDocument;
 
 $xml = new XmlDocument('<root />');
 
@@ -127,7 +127,7 @@ Example:
 ```php
 <?php
 
-$document = new \ByJG\Util\CleanDocument($documentXmlOrHtml);
+$document = new \ByJG\XmlUtil\CleanDocument($documentXmlOrHtml);
 
 $document
     ->removeContentByTag('a', 'name')

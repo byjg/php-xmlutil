@@ -2,8 +2,8 @@
 
 namespace Tests;
 
-use ByJG\Util\Exception\XmlUtilException;
-use ByJG\Util\File;
+use ByJG\XmlUtil\Exception\XmlUtilException;
+use ByJG\XmlUtil\File;
 use Exception;
 use PHPUnit\Framework\TestCase;
 

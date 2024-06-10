@@ -4,7 +4,7 @@ tasks:
       composer install
 
 image:
-  file: .gitpod.Dockerfile
+  file: .gitpod/Dockerfile
 
 jetbrains:
   phpstorm:

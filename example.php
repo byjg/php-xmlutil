@@ -1,34 +1,36 @@
 <?php
 
+use ByJG\XmlUtil\XmlDocument;
+
 require "vendor/autoload.php";
 
-$xml = \ByJG\Util\XmlUtil::createXmlDocumentFromStr('<root />');
+$xml = new XmlDocument('<root />');
 
-$myNode = \ByJG\Util\XmlUtil::createChild($xml->documentElement, 'mynode');
-\ByJG\Util\XmlUtil::createChild($myNode, 'subnode', 'text');
-\ByJG\Util\XmlUtil::createChild($myNode, 'subnode', 'more text');
-$otherNode = \ByJG\Util\XmlUtil::createChild($myNode, 'othersubnode', 'other text');
-\ByJG\Util\XmlUtil::addAttribute($otherNode, 'attr', 'value');
+$myNode = $xml->appendChild('mynode');
+$xml->appendChild('subnode', 'text');
+$xml->appendChild('subnode', 'more text');
+$otherNode = $xml->appendChild('othersubnode', 'other text');
+$otherNode->addAttribute('attr', 'value');
 
-echo $xml->saveXML();
+echo $xml->toString(true);
 
-print_r(\ByJG\Util\XmlUtil::xml2Array($xml));
-
-
-$node = \ByJG\Util\XmlUtil::selectSingleNode($xml, '//subnode');
-echo $node->nodeValue . "\n";
-$node = \ByJG\Util\XmlUtil::selectSingleNode($myNode, '//subnode');
-echo $node->nodeValue . "\n";
+print_r($xml->toArray());
 
 
-$nodeList = \ByJG\Util\XmlUtil::selectNodes($xml, '//subnode');
+$node = $xml->selectSingleNode('//subnode');
+echo $node->DOMNode()->nodeValue . "\n";
+$node = $myNode->selectSingleNode('//subnode');
+echo $node->DOMNode()->nodeValue . "\n";
+
+
+$nodeList = $xml->selectNodes('//subnode');
 foreach ($nodeList as $node)
 {
     echo $node->nodeName;
 }
 echo "\n";
 
-$nodeList = \ByJG\Util\XmlUtil::selectNodes($myNode, '//subnode');
+$nodeList = $myNode->selectNodes('//subnode');
 foreach ($nodeList as $node)
 {
     echo $node->nodeName;
@@ -36,14 +38,14 @@ foreach ($nodeList as $node)
 echo "\n";
 
 
-\ByJG\Util\XmlUtil::addNamespaceToDocument($xml, 'my', 'http://www.example.com/mytest/');
-echo $xml->saveXML() . "\n";
+$xml->addNamespace('my', 'http://www.example.com/mytest/');
+echo $xml->toString(true) . "\n";
 
-\ByJG\Util\XmlUtil::createChild($xml->documentElement, 'nodens', 'teste', 'http://www.example.com/mytest/');
-\ByJG\Util\XmlUtil::createChild($xml->documentElement, 'my:othernodens', 'teste');
-echo $xml->saveXML() . "\n";
+$xml->appendChild('nodens', 'teste', 'http://www.example.com/mytest/');
+$xml->appendChild('my:othernodens', 'teste');
+echo $xml->toString(true) . "\n";
 
-$nodeList = \ByJG\Util\XmlUtil::selectNodes($xml, '//my:othernodens', [ 'my' => 'http://www.example.com/mytest/' ] );
+$nodeList = $xml->selectNodes('//my:othernodens', [ 'my' => 'http://www.example.com/mytest/' ] );
 foreach ($nodeList as $node)
 {
     echo 'A' . $node->nodeName;

@@ -2,149 +2,168 @@
 
 namespace Tests;
 
-use ByJG\Util\XmlUtil;
+use ByJG\XmlUtil\Exception\XmlUtilException;
+use ByJG\XmlUtil\File;
+use ByJG\XmlUtil\XmlDocument;
+use ByJG\XmlUtil\XmlNode;
 use PHPUnit\Framework\TestCase;
 
 class XmlUtilTest extends TestCase
 {
 
-    const XMLHEADER = '<?xml version="1.0" encoding="utf-8"?>';
+    const XML_HEADER = '<?xml version="1.0" encoding="utf-8"?>';
 
-    /**
-     * @var \ByJG\Util\XmlUtil
-     */
-    protected $object;
-
-    public function testCreateXmlDocument()
+    public function testCreateXmlDocument(): void
     {
-        $xml = XmlUtil::createXmlDocument();
-        $this->assertEquals(self::XMLHEADER . "\n", $xml->saveXml());
+        $xml = new XmlDocument();
+        $this->assertEquals(self::XML_HEADER . "\n", $xml->toString());
     }
 
-    public function testCreateXmlDocumentFromFile()
+    public function testCreateXmlDocumentFromFile(): void
     {
-        $xml = XmlUtil::createXmlDocumentFromFile(__DIR__ . '/buggy.xml', XMLUTIL_OPT_DONT_PRESERVE_WHITESPACE);
-        $this->assertEquals(self::XMLHEADER . "\n<root><node><subnode>value</subnode></node></root>\n", $xml->saveXML());
+        $file = new File(__DIR__ . '/buggy.xml');
+        $xml = new XmlDocument($file, preserveWhiteSpace: false);
+        $this->assertEquals(self::XML_HEADER . "\n<root><node><subnode>value</subnode></node></root>\n", $xml->toString());
     }
 
-    public function testCreateXmlDocumentFromStr()
+    public function testCreateXmlDocumentFromStr(): void
     {
         $xmlStr = '<root/>';
-        $xml = XmlUtil::createXmlDocumentFromStr($xmlStr);
-        $this->assertEquals(self::XMLHEADER . "\n<root/>\n", $xml->saveXML());
+        $xml = new XmlDocument($xmlStr);
+        $this->assertEquals(self::XML_HEADER . "\n<root/>\n", $xml->toString());
     }
 
-    public function testCreateDocumentFromNode()
+    public function testCreateXmlDocumentFromStr2(): void
     {
-        $xml = XmlUtil::createXmlDocumentFromFile(__DIR__ . '/buggy.xml');
-        $node = XmlUtil::selectSingleNode($xml, '//subnode');
-
-
-        $xmlFinal = XmlUtil::createDocumentFromNode($node);
-        $this->assertEquals(self::XMLHEADER . "\n<subnode>value</subnode>\n", $xmlFinal->saveXML());
+        $xmlStr = '<?xml?><root/>';
+        $xml = new XmlDocument($xmlStr);
+        $this->assertEquals(self::XML_HEADER . "\n<root/>\n", $xml->toString());
     }
 
-    public function testFixXmlHeader1()
+
+    public function testCreateXmlDocumentFromStr3(): void
     {
-        $xml = '<root/>';
-        $result = XmlUtil::fixXmlHeader($xml);
-        $this->assertEquals(self::XMLHEADER . '<root/>', $result);
+        $xmlStr = '<?xml version="1.0"?><root/>';
+        $xml = new XmlDocument($xmlStr);
+        $this->assertEquals(self::XML_HEADER . "\n<root/>\n", $xml->toString());
     }
 
-    public function testFixXmlHeader2()
+    public function testCreateXmlDocumentFromStr4(): void
     {
-        $xml = '<?xml?><root/>';
-        $result = XmlUtil::fixXmlHeader($xml);
-        $this->assertEquals(self::XMLHEADER . '<root/>', $result);
+        $xmlStr = '<?xml encoding="utf8"?><root/>';
+        $xml = new XmlDocument($xmlStr);
+        $this->assertEquals(self::XML_HEADER . "\n<root/>\n", $xml->toString());
     }
 
-    public function testFixXmlHeader3()
+    public function testCreateXmlDocumentFromStr5(): void
     {
-        $xml = '<?xml version="1.0"?><root/>';
-        $result = XmlUtil::fixXmlHeader($xml);
-        $this->assertEquals(self::XMLHEADER . '<root/>', $result);
+        $xmlStr = '<?xml encoding="ascii"?><root/>';
+        $xml = new XmlDocument($xmlStr);
+        $this->assertEquals(self::XML_HEADER . "\n<root/>\n", $xml->toString());
     }
 
-    public function testFixXmlHeader4()
+    public function testCreateDocumentFromNode(): void
     {
-        $xml = '<?xml encoding="utf8"?><root/>';
-        $result = XmlUtil::fixXmlHeader($xml);
-        $this->assertEquals(self::XMLHEADER . '<root/>', $result);
+        $file = new File(__DIR__ . '/buggy.xml');
+        $xml = new XmlDocument($file, preserveWhiteSpace: false);
+
+        $node = $xml->selectSingleNode( '//subnode');
+
+        $xmlFinal = new XmlDocument($node);
+        $this->assertEquals(self::XML_HEADER . "\n<subnode>value</subnode>\n", $xmlFinal->toString());
     }
 
-    public function testFixXmlHeader5()
+    public function testCreateFailed(): void
     {
-        $xml = '<?xml encoding="ascii"?><root/>';
-        $result = XmlUtil::fixXmlHeader($xml);
-        $this->assertEquals(self::XMLHEADER . '<root/>', $result);
+        $this->expectException(XmlUtilException::class);
+        $this->expectExceptionMessage('DOMDocument::loadXML()');
+        new XmlDocument('<a>1');
     }
 
-    public function testSaveXmlDocument()
+    public function testSaveXmlDocument(): void
     {
+        $file = new File(__DIR__ . '/buggy.xml');
+        $xml = new XmlDocument($file, preserveWhiteSpace: false);
+
         $filename = sys_get_temp_dir() . '/save.xml';
-        $xml = XmlUtil::createXmlDocumentFromFile(__DIR__ . '/buggy.xml', XMLUTIL_OPT_DONT_PRESERVE_WHITESPACE);
-
         if (file_exists($filename)) {
             unlink($filename);
         }
         $this->assertFalse(file_exists($filename));
 
-        XmlUtil::saveXmlDocument($xml, $filename);
+        $xml->save($filename);
         $this->assertTrue(file_exists($filename));
 
         $contents = file_get_contents($filename);
-        $this->assertEquals(self::XMLHEADER . "\n<root><node><subnode>value</subnode></node></root>\n", $contents);
+        $this->assertEquals(self::XML_HEADER . "\n<root><node><subnode>value</subnode></node></root>\n", $contents);
 
         unlink($filename);
     }
 
-    public function testGetFormattedDocument()
+    public function testGetFormattedDocument(): void
     {
-        $xml = XmlUtil::createXmlDocumentFromFile(__DIR__ . '/buggy.xml');
-        $xml->preserveWhiteSpace = true;
-        $xml->formatOutput = false;
-        $formatted = XmlUtil::getFormattedDocument($xml);
+        $file = new File(__DIR__ . '/buggy.xml');
+        $xml = new XmlDocument($file);
 
-        $this->assertTrue($xml->preserveWhiteSpace);
-        $this->assertFalse($xml->formatOutput);
-        $this->assertEquals(
-            self::XMLHEADER . "\n<root>\n    <node>\n        <subnode>value</subnode>\n    </node>\n</root>\n" , $formatted
-        );
-    }
-
-    public function testAddNamespaceToDocument()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
-
-    public function testAddNodeFromFile()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
-
-    public function testAddNodeFromNode()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
-
-    public function testCreateChild()
-    {
-        $dom = XmlUtil::createXmlDocumentFromStr('<root/>');
-        $node = XmlUtil::createChild($dom->documentElement, 'test1');
-        XmlUtil::createChild($node, 'test2', 'text2');
-        $node2 = XmlUtil::createChild($node, 'test3', 'text3', 'http://opensource.byjg.com');
+        $formatted = $xml->toString(true);
 
         $this->assertEquals(
-            self::XMLHEADER . "\n" .
+            self::XML_HEADER . "\n<root>\n  <node>\n    <subnode>value</subnode>\n  </node>\n</root>\n" , $formatted
+        );
+    }
+//
+//    public function testAddNamespaceToDocument(): void
+//    {
+//        // Remove the following lines when you implement this test.
+//        $this->markTestIncomplete(
+//            'This test has not been implemented yet.'
+//        );
+//    }
+//
+//    public function testAddNodeFromFile(): void
+//    {
+//        // Remove the following lines when you implement this test.
+//        $this->markTestIncomplete(
+//            'This test has not been implemented yet.'
+//        );
+//    }
+//
+//    public function testAddNodeFromNode(): void
+//    {
+//        // Remove the following lines when you implement this test.
+//        $this->markTestIncomplete(
+//            'This test has not been implemented yet.'
+//        );
+//    }
+//
+    public function testCreateChild(): void
+    {
+        $dom = new XmlDocument('<root/>');
+        $node = $dom->appendChild('test1');
+        $this->assertEquals(
+            self::XML_HEADER . "\n" .
+            '<root>'
+            . '<test1/>'
+            . '</root>'
+            . "\n",
+            $dom->toString()
+        );
+
+        $node2 = $node->appendChild('test2', 'text2');
+        $this->assertEquals(
+            self::XML_HEADER . "\n" .
+            '<root>'
+            . '<test1>'
+            .   '<test2>text2</test2>'
+            . '</test1>'
+            . '</root>'
+            . "\n",
+            $dom->toString()
+        );
+
+        $node3 = $node->appendChild('test3', 'text3', 'http://opensource.byjg.com');
+        $this->assertEquals(
+            self::XML_HEADER . "\n" .
             '<root>'
             . '<test1>'
             .   '<test2>text2</test2>'
@@ -152,13 +171,13 @@ class XmlUtilTest extends TestCase
             . '</test1>'
             . '</root>'
             . "\n",
-            $dom->saveXML()
+            $dom->toString()
         );
 
-        XmlUtil::createChildBeforeNode('test1_2', 'text1-2', $node2);
+        $node3->insertBefore('test1_2', 'text1-2');
 
         $this->assertEquals(
-            self::XMLHEADER . "\n" .
+            self::XML_HEADER . "\n" .
             '<root>'
             . '<test1>'
             .   '<test2>text2</test2>'
@@ -167,13 +186,13 @@ class XmlUtilTest extends TestCase
             . '</test1>'
             . '</root>'
             . "\n",
-            $dom->saveXML()
+            $dom->toString()
         );
 
-        XmlUtil::createChildBefore($node, 'testBefore', 'textBefore');
+        $node2->insertBefore('testBefore', 'textBefore');
 
         $this->assertEquals(
-            self::XMLHEADER . "\n" .
+            self::XML_HEADER . "\n" .
             '<root>'
             . '<test1>'
             .   '<testBefore>textBefore</testBefore>'
@@ -183,53 +202,53 @@ class XmlUtilTest extends TestCase
             . '</test1>'
             . '</root>'
             . "\n",
-            $dom->saveXML()
+            $dom->toString()
         );
     }
 
-    public function testAddTextNode()
+    public function testAddTextNode(): void
     {
-        $dom = XmlUtil::createXmlDocumentFromStr('<root><subject></subject></root>');
+        $dom = new XmlDocument('<root><subject></subject></root>');
 
-        $node = XmlUtil::selectSingleNode($dom->documentElement, 'subject');
-        XmlUtil::addTextNode($node, 'Text');
+        $node = $dom->selectSingleNode('subject');
+        $node->addText( 'Text');
 
         $this->assertEquals(
-            self::XMLHEADER . "\n" .
+            self::XML_HEADER . "\n" .
             '<root>'
             . '<subject>'
             .   'Text'
             . '</subject>'
             . '</root>'
             . "\n",
-            $dom->saveXML()
+            $dom->toString()
         );
     }
 
-    public function testAddAttribute()
+    public function testAddAttribute(): void
     {
-        $dom = XmlUtil::createXmlDocumentFromStr('<root><subject>Text</subject></root>');
+        $dom = new XmlDocument('<root><subject>Text</subject></root>');
 
-        $node = XmlUtil::selectSingleNode($dom->documentElement, 'subject');
-        XmlUtil::addAttribute($node, 'attr', 'value');
+        $node = $dom->selectSingleNode('subject');
+        $node->addAttribute('attr', 'value');
 
         $this->assertEquals(
-            self::XMLHEADER . "\n" .
+            self::XML_HEADER . "\n" .
             '<root>'
             . '<subject attr="value">'
             .   'Text'
             . '</subject>'
             . '</root>'
             . "\n",
-            $dom->saveXML()
+            $dom->toString()
         );
     }
 
-    public function testSelectNodes()
+    public function testSelectNodes(): void
     {
-        $dom = XmlUtil::createXmlDocumentFromStr('<root><a><item arg="1"/><item arg="2"><b1/><b2/></item><item arg="3"/></a></root>');
+        $dom = new XmlDocument('<root><a><item arg="1"/><item arg="2"><b1/><b2/></item><item arg="3"/></a></root>');
 
-        $nodeList = XmlUtil::selectNodes($dom->documentElement, '/a/item');
+        $nodeList = $dom->selectNodes('a/item');
         $this->assertEquals(3, $nodeList->length);
         $this->assertEquals('item', $nodeList->item(0)->nodeName);
         $this->assertEquals('1', $nodeList->item(0)->attributes->getNamedItem('arg')->nodeValue);
@@ -238,126 +257,64 @@ class XmlUtilTest extends TestCase
         $this->assertEquals('item', $nodeList->item(2)->nodeName);
         $this->assertEquals('3', $nodeList->item(2)->attributes->getNamedItem('arg')->nodeValue);
 
-        $nodeList = XmlUtil::selectNodes($dom->documentElement, 'a/item');
-        $this->assertEquals(3, $nodeList->length);
-        $this->assertEquals('item', $nodeList->item(0)->nodeName);
-        $this->assertEquals('1', $nodeList->item(0)->attributes->getNamedItem('arg')->nodeValue);
-        $this->assertEquals('item', $nodeList->item(1)->nodeName);
-        $this->assertEquals('2', $nodeList->item(1)->attributes->getNamedItem('arg')->nodeValue);
-        $this->assertEquals('item', $nodeList->item(2)->nodeName);
-        $this->assertEquals('3', $nodeList->item(2)->attributes->getNamedItem('arg')->nodeValue);
-
-        $node = XmlUtil::selectSingleNode($nodeList->item(1), 'b2');
-        $this->assertEquals('b2', $node->nodeName);
+        $node = XmlNode::instance($nodeList->item(1))->selectSingleNode( 'b2');
+        $this->assertEquals('b2', $node->DOMNode()->nodeName);
     }
 
-    public function testRegisterNamespaceForFilter()
+    public function testInnerText(): void
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
+        $dom = new XmlDocument('<root><a><item arg="1"/><item arg="2"><b1/><b2/></item><item arg="3"/></a></root>');
+
+        $node = $dom->selectSingleNode('a/item[@arg="2"]');
+
+        $text = $node->toString();
+        $this->assertEquals('<item arg="2"><b1/><b2/></item>', $text);
+
+        $text = $node->innerText();
+        $this->assertEquals("<b1/><b2/>", $text);
     }
 
-    public function testInnerText()
+    public function testRemoveNode(): void
     {
-        $dom = XmlUtil::createXmlDocumentFromStr('<root><a><item arg="1"/><item arg="2"><b1/><b2/></item><item arg="3"/></a></root>');
+        $dom = new XmlDocument('<root><subject>Text</subject><a/><b/></root>');
 
-        $node = XmlUtil::selectSingleNode($dom->documentElement, 'a/item[@arg="2"]');
-
-        $text = XmlUtil::innerText($node);
-        $this->assertEquals("\n<b1/><b2/>\n", $text);
-    }
-
-    public function testInnerXML()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
-
-    public function testCopyChildNodesFromNodeToString()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
-
-    public function testSaveXmlNodeToString()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
-
-    public function testBr2nl()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
-
-    public function testShowXml()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
-
-    public function testRemoveNode()
-    {
-        $dom = XmlUtil::createXmlDocumentFromStr('<root><subject>Text</subject><a/><b/></root>');
-
-        $node = XmlUtil::selectSingleNode($dom->documentElement, 'subject');
-        XmlUtil::removeNode($node);
+        $dom->selectSingleNode( 'subject')->removeNode();
 
         $this->assertEquals(
-            self::XMLHEADER . "\n" .
+            self::XML_HEADER . "\n" .
             '<root>'
             . '<a/>'
             . '<b/>'
             . '</root>'
             . "\n",
-            $dom->saveXML()
+            $dom->toString()
         );
 
     }
 
-    public function testRemoveTagName()
+    public function testXml2Array1(): void
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-            'This test has not been implemented yet.'
-        );
-    }
+        $file = new File(__DIR__ . '/buggy.xml');
+        $xml = new XmlDocument($file, preserveWhiteSpace: false);
 
-    public function testXml2Array1()
-    {
-        $xml = XmlUtil::createXmlDocumentFromFile(__DIR__ . '/buggy.xml');
-
-        $array = XmlUtil::xml2Array($xml);
+        $array = $xml->toArray();
         $this->assertEquals([ "node" => [ "subnode" => "value"]], $array);
     }
 
-    public function testXml2Array2()
+    public function testXml2Array2(): void
     {
-        $xml = XmlUtil::createXmlDocumentFromStr('<root><node param="pval">value</node></root>');
+        $xml = new XmlDocument('<root><node param="pval">value</node></root>');
 
-        $array = XmlUtil::xml2Array($xml);
+        $array = $xml->toArray();
         $this->assertEquals([ "node" => "value"], $array);
     }
 
-    public function testSelectNodesNamespace()
+    public function testSelectNodesNamespace(): void
     {
-        $document = XmlUtil::createXmlDocumentFromFile(__DIR__ . '/feed-atom.txt');
+        $file = new File(__DIR__ . '/feed-atom.txt');
+        $document = new XmlDocument($file);
 
-        $nodes = XmlUtil::selectNodes(
-            $document->documentElement,
+        $nodes = $document->selectNodes(
             'ns:entry',
             [
                 "ns" => "http://www.w3.org/2005/Atom"
@@ -365,5 +322,37 @@ class XmlUtilTest extends TestCase
         );
 
         $this->assertEquals(25, $nodes->length);
+    }
+
+    public function testSelectNodesNamespaceError(): void
+    {
+        $file = new File(__DIR__ . '/feed-atom.txt');
+        $document = new XmlDocument($file);
+
+        $this->expectException(XmlUtilException::class);
+        $this->expectExceptionMessage('DOMXPath::query()');
+
+        $nodes = $document->selectNodes(
+            'ns:entry'
+        );
+    }
+
+    public function testAddNamespace(): void
+    {
+        $xmlStr = '<root/>';
+        $xml = new XmlDocument($xmlStr);
+        $this->assertEquals(self::XML_HEADER . "\n<root/>\n", $xml->toString());
+
+        $xml->addNamespace('my', 'http://www.example.com/mytest/');
+        $this->assertEquals(self::XML_HEADER . "\n<root xmlns:my=\"http://www.example.com/mytest/\"/>\n", $xml->toString());
+
+        $xml->appendChild('my:othernodens', 'teste');
+        $this->assertEquals(self::XML_HEADER . "\n<root xmlns:my=\"http://www.example.com/mytest/\"><my:othernodens>teste</my:othernodens></root>\n", $xml->toString());
+
+        $xml->appendChild('nodens', 'teste', 'http://www.example.com/mytest/');
+        $this->assertEquals(self::XML_HEADER . "\n<root xmlns:my=\"http://www.example.com/mytest/\"><my:othernodens>teste</my:othernodens><my:nodens>teste</my:nodens></root>\n", $xml->toString());
+
+        $xml->appendChild('other', 'text', 'http://www.example.org/x/');
+        $this->assertEquals(self::XML_HEADER . "\n<root xmlns:my=\"http://www.example.com/mytest/\"><my:othernodens>teste</my:othernodens><my:nodens>teste</my:nodens><other xmlns=\"http://www.example.org/x/\">text</other></root>\n", $xml->toString());
     }
 }

@@ -10,132 +10,19 @@ A utility class to make it easy work with XML in PHP
 
 ## Examples
 
-### Create a new XML Document and add nodes
+- [Create a new XML Document using the API](docs/using-api.md)
+- [Working with namespaces](docs/namespaces.md)
+- [Query a XMLDocument](docs/query-document.md)
+- [Convert any model to XML](docs/convert-model-xml.md)
+- [Use Attributes to help in the conversion](docs/convert-model-xml-withattributes.md)
+- [Clean an XML document removing specific tags](docs/clean-document.md)
 
-```php
-<?php
-use ByJG\XmlUtil\XmlDocument;
 
-$xml = new XmlDocument('<root />');
 
-$myNode = $xml->appendChild('mynode');
-$myNode->appendChild('subnode', 'text');
-$myNode->appendChild('subnode', 'more text');
-$otherNode = $myNode->appendChild('othersubnode', 'other text');
-$otherNode->addAttribute('attr', 'value');
 
-echo $xml->toString(format: true);
-```
 
-will produce the follow xml
 
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<root>
-  <mynode>
-    <subnode>text</subnode>
-    <subnode>more text</subnode>
-    <othersubnode attr="value">other text</othersubnode>
-  </mynode>
-</root>
-```
 
-### Convert to array
-
-```php
-$array = $xml->toArray();
-```
-
-### Select a single node based on XPath
-
-```php
-$node = $xml->selectSingleNode('//subnode');
-```
-
-### Select all nodes based on XPath
-
-```php
-$nodeList = $xml->selectNodes($myNode, '//subnode');
-```
-
-### Working with xml namespaces
-
-Add a namespace to the document
-
-```php
-$xml->addNamespace('my', 'http://www.example.com/mytest/');
-```
-
-will produce
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<root xmlns:my="http://www.example.com/mytest/"> 
-    ...
-</root>
-``````
-
-Add a node with a namespace prefix
-
-```php
-$xml->appendChild('my:othernodens', 'teste');
-```
-
-Add a node with a namespace
-
-```php
-$xml->appendChild('nodens', 'teste', 'http://www.example.com/mytest/');
-```
-
-## Diagram
-
-```mermaid
-classDiagram
-    XmlNode <|-- XmlDocument
-
-    class XmlNode{
-        appendChild()
-        insertBefore()
-        addText()
-        addAttribute()
-        selectNodes()
-        selectSingleNode()
-        innerText()
-        removeNode()
-        removeTagName()
-        toArray()
-        addNamespace()
-        importNodes()
-        DOMNode()
-        DOMDocument()
-        toString()
-    }
-    class XmlDocument{
-        save()
-        getRootNode()
-    }
-
-```
-
-## Bonus - CleanDocument
-
-XmlUtil have a class for selectively remove specific marks (tags)
-from the document or remove all marks.
-
-Example:
-
-```php
-<?php
-
-$document = new \ByJG\XmlUtil\CleanDocument($documentXmlOrHtml);
-
-$document
-    ->removeContentByTag('a', 'name')
-    ->removeContentByProperty('src')
-    ->stripTagsExcept(['img'])
-    ->get();
-
-```
 
 ## Install
 
@@ -154,6 +41,7 @@ vendor/bin/phpunit
 ```mermaid
 flowchart TD
     byjg/xmlutil --> ext-simplexml
+    byjg/xmlutil --> byjg/serializer
     byjg/xmlutil --> ext-dom
 ```
 

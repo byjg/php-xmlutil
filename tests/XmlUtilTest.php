@@ -7,6 +7,7 @@ use ByJG\XmlUtil\File;
 use ByJG\XmlUtil\XmlDocument;
 use ByJG\XmlUtil\XmlNode;
 use PHPUnit\Framework\TestCase;
+use Tests\Fixture\ClassSample1;
 
 class XmlUtilTest extends TestCase
 {
@@ -354,5 +355,39 @@ class XmlUtilTest extends TestCase
 
         $xml->appendChild('other', 'text', 'http://www.example.org/x/');
         $this->assertEquals(self::XML_HEADER . "\n<root xmlns:my=\"http://www.example.com/mytest/\"><my:othernodens>teste</my:othernodens><my:nodens>teste</my:nodens><other xmlns=\"http://www.example.org/x/\">text</other></root>\n", $xml->toString());
+    }
+
+    public function testAppendObject(): void
+    {
+        $xmlStr = '<root/>';
+        $xml = new XmlDocument($xmlStr);
+
+        $xml->appendChild('test', 'value');
+        $node = $xml->appendChild('test2', 'value2');
+
+        $class = new ClassSample1();
+        $class->setName('John');
+        $class->setAge(30);
+        $class->setAddress((object)['street' => 'Main St', 'number' => 123]);
+
+        $node->appendObject($class);
+
+        $this->assertEquals(
+            self::XML_HEADER . "\n" .
+            '<root>'
+            . '<test>value</test>'
+            . '<test2>value2'
+            .   '<name>John</name>'
+            .   '<age>30</age>'
+            .   '<address>'
+            .     '<street>Main St</street>'
+            .     '<number>123</number>'
+            .   '</address>'
+            . '</test2>'
+            . '</root>'
+            . "\n",
+            $xml->toString()
+        );
+
     }
 }

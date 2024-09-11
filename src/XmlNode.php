@@ -68,6 +68,12 @@ class XmlNode
         return $nodeWorking;
     }
 
+    public function appendObject(array|object $object): void
+    {
+        $parser = new EntityParser();
+        $parser->arrayToXml($object, $this);
+    }
+
 
     /**
      * Create child node on the top from specific node and add text

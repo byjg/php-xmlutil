@@ -8,6 +8,11 @@ class File
 {
     protected string $filename;
 
+    /**
+     * @param string $filename
+     * @param bool $allowNotFound
+     * @throws XmlUtilException
+     */
     public function __construct(string $filename, bool $allowNotFound = false)
     {
         if (!file_exists($filename) && !$allowNotFound) {
@@ -21,6 +26,10 @@ class File
         return $this->filename;
     }
 
+    /**
+     * @return string
+     * @throws XmlUtilException
+     */
     public function getContents(): string
     {
         if (!file_exists($this->filename)) {

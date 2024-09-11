@@ -139,6 +139,12 @@ class XmlDocument extends XmlNode
         }
     }
 
+    /**
+     * @param string $xsdFilename
+     * @param bool $throwError
+     * @return bool
+     * @throws XmlUtilException
+     */
     public function validate(string $xsdFilename, bool $throwError = true): bool
     {
         return $this->executeLibXmlCommand(

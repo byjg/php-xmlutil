@@ -2,12 +2,13 @@
 
 namespace ByJG\XmlUtil;
 
-use ByJG\Serializer\Serialize;
 use ByJG\XmlUtil\Attributes\XmlEntity;
 use ByJG\XmlUtil\Attributes\XmlProperty;
 use ByJG\XmlUtil\Exception\XmlUtilException;
 use DOMException;
 use ReflectionAttribute;
+use ReflectionClass;
+use stdClass;
 use function Symfony\Component\String\s;
 
 class EntityParser
@@ -36,18 +37,23 @@ class EntityParser
         return $xml->toString();
     }
 
+    /**
+     * @param array|object $object
+     * @return array
+     * @throws XmlUtilException
+     */
     protected function getReflectionClassMeta(array|object $object): array
     {
         $meta = [];
 
-        if (is_array($object) || $object instanceof \stdClass) {
+        if (is_array($object) || $object instanceof stdClass) {
             $meta['name'] = 'root';
             $meta['header'] = true;
             $meta['namespace'] = [];
             return $meta;
         }
 
-        $reflection = new \ReflectionClass($object);
+        $reflection = new ReflectionClass($object);
         $attributes = $reflection->getAttributes(XmlEntity::class, ReflectionAttribute::IS_INSTANCEOF);
         if (count($attributes) > 1) {
             throw new XmlUtilException("Entity '{$reflection->getName()}' has more than one TableAttribute", 258);
@@ -69,7 +75,7 @@ class EntityParser
 
     protected function parseProperties(object $object): ?array
     {
-        if ($object instanceof \stdClass) {
+        if ($object instanceof stdClass) {
             return null;
         }
 
@@ -79,7 +85,7 @@ class EntityParser
 
         $this->properties[get_class($object)] = [];
 
-        $reflection = new \ReflectionClass($object);
+        $reflection = new ReflectionClass($object);
         if ($reflection->isAnonymous()) {
             return null;
         }
@@ -107,7 +113,16 @@ class EntityParser
         $properties = null;
         if (is_object($array)) {
             $properties = $this->parseProperties($array);
-            $array = Serialize::from($array)->withStopAtFirstLevel()->toArray();
+            $array = (array)$array;
+            foreach ($array as $key => $value) {
+                $keyParts = explode("\0", $key);
+                $keyNew = end($keyParts);
+                if ($keyNew == $key) {
+                    continue;
+                }
+                $array[$keyNew] = $value;
+                unset($array[$key]);
+            }
         }
 
         foreach ($array as $key => $value) {
@@ -118,11 +133,10 @@ class EntityParser
             if (is_array($value)) {
                 if (!is_numeric($key)) {
                     $subnode = $xml->appendChild("$name");
-                    $this->arrayToXml($value, $subnode);
                 } else {
                     $subnode = $xml->appendChild("item"  . $name);
-                    $this->arrayToXml($value, $subnode);
                 }
+                $this->arrayToXml($value, $subnode);
             } elseif (is_object($value)) {
                 $subnode = $xml->appendChild("$name");
                 $this->arrayToXml($value, $subnode);

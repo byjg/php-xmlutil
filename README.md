@@ -17,13 +17,6 @@ A utility class to make it easy work with XML in PHP
 - [Use Attributes to help in the conversion](docs/convert-model-xml-withattributes.md)
 - [Clean an XML document removing specific tags](docs/clean-document.md)
 
-
-
-
-
-
-
-
 ## Install
 
 ```bash
@@ -41,7 +34,6 @@ vendor/bin/phpunit
 ```mermaid
 flowchart TD
     byjg/xmlutil --> ext-simplexml
-    byjg/xmlutil --> byjg/serializer
     byjg/xmlutil --> ext-dom
 ```
 

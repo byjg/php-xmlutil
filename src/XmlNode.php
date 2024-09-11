@@ -3,6 +3,7 @@
 namespace ByJG\XmlUtil;
 
 use ByJG\XmlUtil\Exception\XmlUtilException;
+use Closure;
 use DOMDocument;
 use DOMElement;
 use DOMException;
@@ -68,6 +69,11 @@ class XmlNode
         return $nodeWorking;
     }
 
+    /**
+     * @param array|object $object
+     * @throws DOMException
+     * @throws XmlUtilException
+     */
     public function appendObject(array|object $object): void
     {
         $parser = new EntityParser();
@@ -233,12 +239,12 @@ class XmlNode
     }
 
 
-    public function toArray(\Closure $func = null): array
+    public function toArray(Closure $func = null): array
     {
         return $this->_toArray($this->DOMNode(), $func);
     }
 
-    protected function _toArray(SimpleXMLElement|DOMNode|array $arr, \Closure|null $func): array
+    protected function _toArray(SimpleXMLElement|DOMNode|array $arr, Closure|null $func): array
     {
         if ($arr instanceof SimpleXMLElement) {
             return $this->_toArray((array) $arr, $func);
@@ -274,6 +280,11 @@ class XmlNode
         $this->DOMDocument()->documentElement->setAttributeNS('http://www.w3.org/2000/xmlns/', "xmlns:$prefix", $uri);
     }
 
+    /**
+     * @param DOMNode|File $source
+     * @param string $nodeToAdd
+     * @throws XmlUtilException
+     */
     public function importNodes(DOMNode|File $source, string $nodeToAdd): void
     {
         $sourceDoc = new XmlDocument($source);
@@ -336,7 +347,14 @@ class XmlNode
         return $str;
     }
 
-    protected function executeLibXmlCommand(string $errorMessage, \Closure $function, bool $throwError = true): bool
+    /**
+     * @param string $errorMessage
+     * @param Closure $function
+     * @param bool $throwError
+     * @return bool
+     * @throws XmlUtilException
+     */
+    protected function executeLibXmlCommand(string $errorMessage, Closure $function, bool $throwError = true): bool
     {
         $restore = libxml_use_internal_errors(true);
 

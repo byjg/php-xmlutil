@@ -21,6 +21,7 @@ class XmlDocument extends XmlNode
     const XML_ENCODING = "utf-8";
 
     protected DOMDocument $document;
+
     /**
      * @throws XmlUtilException
      */
@@ -31,20 +32,17 @@ class XmlDocument extends XmlNode
         $xmlDoc->formatOutput = $formatOutput;
 
         if ($source instanceof File || is_string($source)) {
-            $this->errorHandler();
-            try {
-                $contents = $source;
-                if (!is_string($contents)) {
-                    $contents = $source->getContents();
-                }
-                $xmlFixed = $this->fixXmlHeader($contents);
-                if ($fixAmpersand) {
-                    $xmlFixed = str_replace("&amp;", "&", $xmlFixed);
-                }
-                $xmlDoc->loadXML($xmlFixed);
-            } finally {
-                restore_error_handler();
+            $contents = $source;
+            if (!is_string($contents)) {
+                $contents = $source->getContents();
             }
+            $xmlFixed = $this->fixXmlHeader($contents);
+            if ($fixAmpersand) {
+                $xmlFixed = str_replace("&amp;", "&", $xmlFixed);
+            }
+            $this->executeLibXmlCommand("Error loading XML Document.", function () use ($xmlDoc, $xmlFixed) {
+                $xmlDoc->loadXML($xmlFixed);
+            });
         } else if ($source instanceof XmlNode) {
             $root = $xmlDoc->importNode($source->DOMNode(), true);
             $xmlDoc->appendChild($root);
@@ -139,5 +137,16 @@ class XmlDocument extends XmlNode
         if ($ret === false) {
             throw new XmlUtilException("Cannot save XML Document in $filename.", 256);
         }
+    }
+
+    public function validate(string $xsdFilename, bool $throwError = true): bool
+    {
+        return $this->executeLibXmlCommand(
+            "XML Document is not valid according to $xsdFilename.",
+            function() use ($xsdFilename) {
+                $this->document->schemaValidate($xsdFilename);
+            },
+            $throwError
+        );
     }
 }

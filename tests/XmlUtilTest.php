@@ -77,7 +77,7 @@ class XmlUtilTest extends TestCase
     public function testCreateFailed(): void
     {
         $this->expectException(XmlUtilException::class);
-        $this->expectExceptionMessage('DOMDocument::loadXML()');
+        $this->expectExceptionMessage('Error loading XML Document');
         new XmlDocument('<a>1');
     }
 
@@ -331,7 +331,7 @@ class XmlUtilTest extends TestCase
         $document = new XmlDocument($file);
 
         $this->expectException(XmlUtilException::class);
-        $this->expectExceptionMessage('DOMXPath::query()');
+        $this->expectExceptionMessage('Error selecting nodes');
 
         $nodes = $document->selectNodes(
             'ns:entry'
@@ -389,5 +389,44 @@ class XmlUtilTest extends TestCase
             $xml->toString()
         );
 
+    }
+
+    public function testValidateXmlError(): void
+    {
+        $this->expectException(XmlUtilException::class);
+        $this->expectExceptionMessage('XML Document is not valid according to');
+
+        $xml = new XmlDocument(
+            self::XML_HEADER . "\n" .
+            '<example>' .
+              '<child_string>This is an example.</child_string>' .
+              '<child_integer>Error condition.</child_integer>' .
+            '</example>'
+        );
+        $xml->validate(__DIR__ . '/example.xsd');
+    }
+
+    public function testValidateXmlError2(): void
+    {
+        $xml = new XmlDocument(
+            self::XML_HEADER . "\n" .
+            '<example>' .
+              '<child_string>This is an example.</child_string>' .
+              '<child_integer>Error condition.</child_integer>' .
+            '</example>'
+        );
+        $this->assertFalse($xml->validate(__DIR__ . '/example.xsd', throwError: false));
+    }
+
+    public function testValidateXml(): void
+    {
+        $xml = new XmlDocument(
+            self::XML_HEADER . "\n" .
+            '<example>' .
+            '<child_string>This is an example.</child_string>' .
+            '<child_integer>10</child_integer>' .
+            '</example>'
+        );
+        $this->assertTrue($xml->validate(__DIR__ . '/example.xsd'));
     }
 }

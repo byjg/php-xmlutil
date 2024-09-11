@@ -146,15 +146,15 @@ class XmlNode
     /**
      * Returns a \DOMNodeList from a relative xPath from other \DOMNode
      *
-     * @param string $xPath
+     * @param string $path
      * @param array $arNamespace
      * @return DOMNodeList
      * @throws XmlUtilException
      */
-    public function selectNodes(string $xPath, array $arNamespace = []): DOMNodeList
+    public function selectNodes(string $path, array $arNamespace = []): DOMNodeList
     {
-        if (preg_match('~^/[^/]~', $xPath)) {
-            $xPath = substr($xPath, 1);
+        if (preg_match('~^/[^/]~', $path)) {
+            $path = substr($path, 1);
         }
 
         $owner = $this->DOMDocument();
@@ -163,12 +163,11 @@ class XmlNode
             $xpath->registerNamespace($prefix, $uri);
         }
 
-        $this->errorHandler();
-        try {
-            return $xpath->query($xPath, $this->DOMNode());
-        } finally {
-            restore_error_handler();
-        }
+        $response = false;
+        $this->executeLibXmlCommand("Error selecting nodes.", function () use ($xpath, $path, &$response) {
+            $response = $xpath->query($path, $this->DOMNode());
+        });
+        return $response;
     }
 
     /**
@@ -337,12 +336,28 @@ class XmlNode
         return $str;
     }
 
-    protected function errorHandler(): void
+    protected function executeLibXmlCommand(string $errorMessage, \Closure $function, bool $throwError = true): bool
     {
-        set_error_handler(function ($number, $error) {
-            throw new XmlUtilException($error);
-        });
+        $restore = libxml_use_internal_errors(true);
 
+        $function();
+
+        $errorList = [];
+        $errors = libxml_get_errors();
+        foreach ($errors as $error) {
+            $errorList[] = $error->message;
+        }
+        libxml_clear_errors();
+        libxml_use_internal_errors($restore);
+
+        if (empty($errorList)) {
+            return true;
+        }
+
+        if ($throwError) {
+            throw new XmlUtilException("$errorMessage\n - " . implode("\n - ", $errorList), 257);
+        }
+
+        return false;
     }
-
 }

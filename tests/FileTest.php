@@ -2,16 +2,15 @@
 
 namespace Tests;
 
-use ByJG\XmlUtil\Exception\XmlUtilException;
+use ByJG\XmlUtil\Exception\FileException;
 use ByJG\XmlUtil\File;
-use Exception;
 use PHPUnit\Framework\TestCase;
 
 class FileTest extends TestCase
 {
     public function testFileInvalid(): void
     {
-        $this->expectException(XmlUtilException::class);
+        $this->expectException(FileException::class);
         $this->expectExceptionMessage('File not found');
 
         new File('/a/a');

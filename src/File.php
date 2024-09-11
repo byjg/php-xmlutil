@@ -2,7 +2,7 @@
 
 namespace ByJG\XmlUtil;
 
-use ByJG\XmlUtil\Exception\XmlUtilException;
+use ByJG\XmlUtil\Exception\FileException;
 
 class File
 {
@@ -11,12 +11,12 @@ class File
     /**
      * @param string $filename
      * @param bool $allowNotFound
-     * @throws XmlUtilException
+     * @throws FileException
      */
     public function __construct(string $filename, bool $allowNotFound = false)
     {
         if (!file_exists($filename) && !$allowNotFound) {
-            throw new XmlUtilException('File not found');
+            throw new FileException('File not found');
         }
         $this->filename = $filename;
     }
@@ -28,12 +28,12 @@ class File
 
     /**
      * @return string
-     * @throws XmlUtilException
+     * @throws FileException
      */
     public function getContents(): string
     {
         if (!file_exists($this->filename)) {
-            throw new XmlUtilException('File not found');
+            throw new FileException('File not found');
         }
         return file_get_contents($this->filename);
     }

@@ -6,6 +6,8 @@ Example:
 ```php
 <?php
 
+use ByJG\XmlUtil\EntityParser;
+
 class MyModel
 {
     public $name;
@@ -28,10 +30,11 @@ $model->name = 'John Doe';
 $model->age = 30;
 $model->setYear(1990);
 
-$entityParser = new \ByJG\XmlUtil\EntityParser();
+// This will convert the model to XML
+$entityParser = new EntityParser();
 $xml = $entityParser->parse($model);
 
-echo $xml->toString();
+echo $xml->toString(format: true);
 ```
 
 The output will be:
@@ -62,5 +65,6 @@ $class->name = 'John Doe';
 $class->age = 30;
 $class->setYear(1990);
 
+// This will add the object to the XML node `mynode`
 $myNode->appendObject($class);
 ```

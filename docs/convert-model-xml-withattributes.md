@@ -6,22 +6,26 @@ Example:
 ```php
 <?php
 
+use ByJG\XmlUtil\EntityParser;
+use ByJG\XmlUtil\XmlMapping\XmlEntity;
+use ByJG\XmlUtil\XmlMapping\XmlProperty;
+
 #[XmlEntity(
     rootElementName: 'Person',
 )]
 class MyModel
 {
-    #[XmlElement(
+    #[XmlProperty(
         elementName: 'Name',
     )]
     public $name;
     
-    #[XmlElement(
+    #[XmlProperty(
         elementName: 'Age',
     )]
     public $age;
     
-    #[XmlElement(
+    #[XmlProperty(
         elementName: 'Year',
     )]
     private $year;
@@ -42,10 +46,11 @@ $model->name = 'John Doe';
 $model->age = 30;
 $model->setYear(1990);
 
-$entityParser = new \ByJG\XmlUtil\EntityParser();
+// This will convert the model to XML following the attributes rules
+$entityParser = new EntityParser();
 $xml = $entityParser->parse($model);
 
-echo $xml->toString();
+echo $xml->toString(format: true);
 ```
 
 The output will be:
@@ -67,7 +72,7 @@ Properties:
 - `namespace`: The namespace of the element. Need to an associative array with prefix as key and namespace as value. Default is empty.
 - `xmlDeclaration`: Add the XML declaration. Default is true.
 
-## The XmlElement Attribute
+## The XmlProperty Attribute
 
 Properties:
 

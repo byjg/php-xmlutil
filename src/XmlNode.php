@@ -272,12 +272,20 @@ class XmlNode
     }
 
     /**
-     * @param string $prefix
+     * @param string|null $prefix
      * @param string $uri
      */
-    public function addNamespace(string $prefix, string $uri): void
+    public function addNamespace(?string $prefix, string $uri): void
     {
-        $this->DOMDocument()->documentElement->setAttributeNS('http://www.w3.org/2000/xmlns/', "xmlns:$prefix", $uri);
+        if (empty($prefix)) {
+            $prefix = "xmlns";
+        } elseif (is_numeric($prefix)) {
+            throw new XmlUtilException("The prefix must be a string or a null element", 256);
+        } else {
+            $prefix = "xmlns:$prefix";
+        }
+
+        $this->DOMDocument()->documentElement->setAttributeNS('http://www.w3.org/2000/xmlns/', $prefix, $uri);
     }
 
     /**
@@ -295,6 +303,28 @@ class XmlNode
             $this->DOMNode()->appendChild($newNode);
         }
     }
+
+    /**
+     * @return XmlNode
+     * @throws DOMException
+     */
+    public function renameNode(string $newName): XmlNode
+    {
+        $newNode = $this->node->ownerDocument->createElement($newName);
+        if ($this->node->attributes->length) {
+            foreach ($this->node->attributes as $attribute) {
+                $newNode->setAttribute($attribute->nodeName, $attribute->nodeValue);
+            }
+        }
+        while ($this->node->firstChild) {
+            $newNode->appendChild($this->node->firstChild);
+        }
+        $this->node->parentNode->replaceChild($newNode, $this->node);
+
+        $this->node = $newNode;
+        return $this;
+    }
+
 
     public function DOMNode(): DOMNode
     {

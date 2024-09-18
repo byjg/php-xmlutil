@@ -5,12 +5,33 @@ namespace Tests\Fixture;
 use ByJG\XmlUtil\Attributes\XmlEntity;
 use ByJG\XmlUtil\Attributes\XmlProperty;
 
+#[XmlEntity(
+    rootElementName: 'Address',
+    namespaces: [ 'addr' => 'http://www.example.com/address'],
+    preserveCaseName: true,
+    xmlDeclaration: false,
+    addNamespaceRoot: true,
+    usePrefix: 'addr'
+)]
 class ClassAddress
 {
-    #[XmlProperty(elementName: 'Street', isAttribute: true)]
+    #[XmlProperty(elementName: 'Id', isAttribute: true)]
+    private ?string $id;
+
+    #[XmlProperty(elementName: 'Street')]
     private string $street;
-    #[XmlProperty(elementName: 'Number', isAttribute: true)]
+    #[XmlProperty(elementName: 'Number')]
     private int $number;
+
+    public function setId(?string $id): void
+    {
+        $this->id = $id;
+    }
+
+    public function getId(): ?string
+    {
+        return $this->id;
+    }
 
     public function setStreet(string $street): void
     {

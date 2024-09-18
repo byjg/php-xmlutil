@@ -7,7 +7,7 @@ use ByJG\XmlUtil\Attributes\XmlProperty;
 
 #[XmlEntity(
     rootElementName: 'Person',
-    namespaces: ['ns1' => 'http://www.example.com/person'],
+    namespaces: [ '' => 'http://example.com', 'ns1' => 'http://www.example.com/person'],
     preserveCaseName: true,
     xmlDeclaration: false
 )]

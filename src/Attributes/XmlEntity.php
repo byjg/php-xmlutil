@@ -3,7 +3,6 @@
 namespace ByJG\XmlUtil\Attributes;
 
 use Attribute;
-use Closure;
 
 #[Attribute(Attribute::TARGET_CLASS)]
 class XmlEntity
@@ -13,13 +12,17 @@ class XmlEntity
     private array $namespaces;
     private bool $preserveCaseName;
     private bool $xmlDeclaration;
+    private bool $addNamespaceRoot;
+    private ?string $usePrefix;
 
-    public function __construct(?string $rootElementName = null, array $namespaces = [], bool $preserveCaseName = false, bool $xmlDeclaration = true)
+    public function __construct(?string $rootElementName = null, array $namespaces = [], bool $preserveCaseName = false, bool $xmlDeclaration = true, bool $addNamespaceRoot = true, string $usePrefix = null)
     {
         $this->rootElementName = $rootElementName;
         $this->namespaces = $namespaces;
         $this->preserveCaseName = !is_null($rootElementName) || $preserveCaseName;
         $this->xmlDeclaration = $xmlDeclaration;
+        $this->addNamespaceRoot = $addNamespaceRoot;
+        $this->usePrefix = $usePrefix;
     }
 
     public function getRootElementName(): ?string
@@ -42,4 +45,13 @@ class XmlEntity
         return $this->xmlDeclaration;
     }
 
+    public function getAddNamespaceRoot(): bool
+    {
+        return $this->addNamespaceRoot;
+    }
+
+    public function getUsePrefix(): ?string
+    {
+        return $this->usePrefix;
+    }
 }

@@ -9,7 +9,6 @@ use DOMException;
 use ReflectionAttribute;
 use ReflectionClass;
 use stdClass;
-use function Symfony\Component\String\s;
 
 class EntityParser
 {
@@ -25,13 +24,13 @@ class EntityParser
     {
         $classMeta = $this->getReflectionClassMeta($serializable);
 
-        $xml = new XmlDocument("<{$classMeta['name']}></{$classMeta['name']}>");
-        foreach ($classMeta['namespace'] as $prefix => $uri) {
+        $xml = new XmlDocument("<{$classMeta->getRootElementName()}></{$classMeta->getRootElementName()}>");
+        foreach ($classMeta->getNamespaces() as $prefix => $uri) {
             $xml->addNamespace($prefix, $uri);
         }
-        $this->arrayToXml($serializable, $xml);
+        $this->arrayToXml($serializable, $xml, $classMeta);
 
-        if (!$classMeta['header']) {
+        if (!$classMeta->getXmlDeclaration()) {
             return substr($xml->toString(), 39);
         }
         return $xml->toString();
@@ -39,18 +38,15 @@ class EntityParser
 
     /**
      * @param array|object $object
-     * @return array
+     * @return XmlEntity
      * @throws XmlUtilException
      */
-    protected function getReflectionClassMeta(array|object $object): array
+    protected function getReflectionClassMeta(array|object $object): XmlEntity
     {
         $meta = [];
 
         if (is_array($object) || $object instanceof stdClass) {
-            $meta['name'] = 'root';
-            $meta['header'] = true;
-            $meta['namespace'] = [];
-            return $meta;
+            return new XmlEntity(rootElementName: 'root', namespaces: [], xmlDeclaration: true, usePrefix: null);
         }
 
         $reflection = new ReflectionClass($object);
@@ -58,18 +54,19 @@ class EntityParser
         if (count($attributes) > 1) {
             throw new XmlUtilException("Entity '{$reflection->getName()}' has more than one TableAttribute", 258);
         } elseif (count($attributes) == 1) {
+            /** @var XmlEntity $tableAttribute */
             $tableAttribute = $attributes[0]->newInstance();
-            $meta['name'] = $tableAttribute->getRootElementName() ?? $reflection->getShortName();
-            $meta['header'] = $tableAttribute->getXmlDeclaration();
-            $meta['namespace'] = $tableAttribute->getNamespaces();
-            $meta['name'] = $tableAttribute->getPreserveCaseName() ? $meta['name'] : strtolower($meta['name']);
-            return $meta;
+            $name = $tableAttribute->getRootElementName() ?? $reflection->getShortName();
+            return new XmlEntity(
+                rootElementName: $tableAttribute->getPreserveCaseName() ? $name : strtolower($name),
+                namespaces: $tableAttribute->getNamespaces(),
+                preserveCaseName: $tableAttribute->getPreserveCaseName(),
+                xmlDeclaration: $tableAttribute->getXmlDeclaration(),
+                usePrefix: !empty($tableAttribute->getUsePrefix()) ? $tableAttribute->getUsePrefix() . ":" : null
+            );
         } else {
             $classParts = explode('\\', $reflection->getName());
-            $meta['name'] = $reflection->isAnonymous() ? 'root' : strtolower(end($classParts));
-            $meta['header'] = true;
-            $meta['namespace'] = [];
-            return $meta;
+            return new XmlEntity(rootElementName: $reflection->isAnonymous() ? 'root' : strtolower(end($classParts)), namespaces: [], xmlDeclaration: true, usePrefix: null);
         }
     }
 
@@ -104,11 +101,22 @@ class EntityParser
     /**
      * @param object|array $array $array
      * @param XmlNode $xml
+     * @param XmlEntity|null $rootMetadata
      * @throws DOMException
      * @throws XmlUtilException
      */
-    public function arrayToXml(object|array $array, XmlNode $xml): void
+    public function arrayToXml(object|array $array, XmlNode $xml, XmlEntity $rootMetadata = null): void
     {
+        if (empty($rootMetadata)) {
+            $rootMetadata = $this->getReflectionClassMeta($array);
+            foreach ($rootMetadata->getNamespaces() as $prefix => $uri) {
+                $xml->addNamespace($prefix, $uri);
+            }
+            if (!empty($rootMetadata->getUsePrefix())) {
+                $xml->renameNode($rootMetadata->getUsePrefix() . $xml->DOMNode()->nodeName);
+            }
+        }
+
         /** @var XmlProperty[]|null $properties */
         $properties = null;
         if (is_object($array)) {
@@ -144,7 +152,7 @@ class EntityParser
                 if ($isAttribute) {
                     $xml->addAttribute($name, htmlspecialchars("$value"));
                 } else {
-                    $xml->appendChild("$name", htmlspecialchars("$value"));
+                    $xml->appendChild($rootMetadata->getUsePrefix() . $name, htmlspecialchars("$value"));
                 }       
             }
         }

@@ -140,6 +140,7 @@ class EntityParserTest extends TestCase
         $address = new ClassAddress();
         $address->setStreet('Main St');
         $address->setNumber(123);
+        $address->setId('1234');
 
         $entity->setAddress($address);
 
@@ -147,7 +148,13 @@ class EntityParserTest extends TestCase
         $result = $parser->parse($entity);
 
         $this->assertEquals(
-            "<Person xmlns:ns1=\"http://www.example.com/person\" Age=\"30\"><Name>John</Name><Address Street=\"Main St\" Number=\"123\"/></Person>\n",
+            "<Person xmlns=\"http://example.com\" xmlns:ns1=\"http://www.example.com/person\" xmlns:addr=\"http://www.example.com/address\" Age=\"30\">"
+                        . "<Name>John</Name>"
+                        . "<addr:Address Id=\"1234\">"
+                            . "<addr:Street>Main St</addr:Street>"
+                            . "<addr:Number>123</addr:Number>"
+                        . "</addr:Address>"
+                    . "</Person>\n",
             $result
         );
     }

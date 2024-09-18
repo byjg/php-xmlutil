@@ -429,4 +429,36 @@ class XmlUtilTest extends TestCase
         );
         $this->assertTrue($xml->validate(__DIR__ . '/example.xsd'));
     }
+
+    public function testRenameNode()
+    {
+        $xml = new XmlDocument('<root><node>value</node></root>');
+
+        $node = $xml->selectSingleNode('node');
+        $node->renameNode('newnode');
+        $this->assertEquals(
+            self::XML_HEADER . "\n" .
+            '<root>'
+            . '<newnode>value</newnode>'
+            . '</root>'
+            . "\n",
+            $xml->toString()
+        );
+    }
+
+    public function testRenameNodeComplex()
+    {
+        $xml = new XmlDocument('<root><node a="1">value<sub>test</sub><other id="2">foo</other></node></root>');
+
+        $node = $xml->selectSingleNode('node');
+        $node->renameNode('newnode');
+        $this->assertEquals(
+            self::XML_HEADER . "\n" .
+            '<root>'
+            . '<newnode a="1">value<sub>test</sub><other id="2">foo</other></newnode>'
+            . '</root>'
+            . "\n",
+            $xml->toString()
+        );
+    }
 }

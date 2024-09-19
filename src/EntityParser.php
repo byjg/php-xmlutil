@@ -2,6 +2,7 @@
 
 namespace ByJG\XmlUtil;
 
+use ByJG\Serializer\Serialize;
 use ByJG\XmlUtil\Attributes\XmlEntity;
 use ByJG\XmlUtil\Attributes\XmlProperty;
 use ByJG\XmlUtil\Exception\XmlUtilException;
@@ -117,45 +118,37 @@ class EntityParser
             }
         }
 
-        /** @var XmlProperty[]|null $properties */
-        $properties = null;
-        if (is_object($array)) {
-            $properties = $this->parseProperties($array);
-            $array = (array)$array;
-            foreach ($array as $key => $value) {
-                $keyParts = explode("\0", $key);
-                $keyNew = end($keyParts);
-                if ($keyNew == $key) {
-                    continue;
-                }
-                $array[$keyNew] = $value;
-                unset($array[$key]);
-            }
-        }
+        $transformer = function (?XmlProperty $property, $parsedValue, $propertyName) use ($xml, $rootMetadata) {
+            $name = $property?->getElementName() ?? $propertyName;
+            $name = ($property?->getPreserveCaseName() ?? false) ? $name : strtolower($name);
+            $isAttribute = $property?->getIsAttribute();
 
-        foreach ($array as $key => $value) {
-            $name = isset($properties[$key]) ? ($properties[$key]->getElementName() ?? $key) : $key;
-            $name = isset($properties[$key]) ? ($properties[$key]->getPreserveCaseName() ? $name : strtolower($name)) : strtolower($name);
-            $isAttribute = isset($properties[$key]) && $properties[$key]->getIsAttribute();
-                
-            if (is_array($value)) {
-                if (!is_numeric($key)) {
+            if (is_array($parsedValue)) {
+                if (!is_numeric($propertyName)) {
                     $subnode = $xml->appendChild("$name");
                 } else {
                     $subnode = $xml->appendChild("item"  . $name);
                 }
-                $this->arrayToXml($value, $subnode);
-            } elseif (is_object($value)) {
+                $this->arrayToXml($parsedValue, $subnode);
+            } elseif (is_object($parsedValue)) {
                 $subnode = $xml->appendChild("$name");
-                $this->arrayToXml($value, $subnode);
+                $this->arrayToXml($parsedValue, $subnode);
             } else {
                 if ($isAttribute) {
-                    $xml->addAttribute($name, htmlspecialchars("$value"));
+                    $xml->addAttribute($name, htmlspecialchars("$parsedValue"));
                 } else {
-                    $xml->appendChild($rootMetadata->getUsePrefix() . $name, htmlspecialchars("$value"));
-                }       
+                    $xml->appendChild($rootMetadata->getUsePrefix() . $name, htmlspecialchars("$parsedValue"));
+                }
             }
-        }
+        };
+
+        Serialize::from($array)
+            ->withStopAtFirstLevel()
+            ->parseAttributes(
+                XmlProperty::class,
+                ReflectionAttribute::IS_INSTANCEOF,
+                $transformer
+            );
     }
 
 }

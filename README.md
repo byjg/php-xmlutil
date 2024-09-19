@@ -35,6 +35,7 @@ vendor/bin/phpunit
 flowchart TD
     byjg/xmlutil --> ext-simplexml
     byjg/xmlutil --> ext-dom
+    byjg/xmlutil --> byjg/serializer
 ```
 
 

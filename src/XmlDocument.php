@@ -142,10 +142,10 @@ class XmlDocument extends XmlNode
     /**
      * @param string $xsdFilename
      * @param bool $throwError
-     * @return bool
+     * @return ?array
      * @throws XmlUtilException
      */
-    public function validate(string $xsdFilename, bool $throwError = true): bool
+    public function validate(string $xsdFilename, bool $throwError = true): ?array
     {
         return $this->executeLibXmlCommand(
             "XML Document is not valid according to $xsdFilename.",

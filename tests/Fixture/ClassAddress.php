@@ -50,12 +50,12 @@ class ClassAddress
         $this->number = $number;
     }
 
-    public function getStreet(): string
+    public function getStreet(): ?string
     {
         return $this->street;
     }
 
-    public function getNumber(): int
+    public function getNumber(): ?int
     {
         return $this->number;
     }

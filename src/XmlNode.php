@@ -381,10 +381,10 @@ class XmlNode
      * @param string $errorMessage
      * @param Closure $function
      * @param bool $throwError
-     * @return bool
+     * @return array
      * @throws XmlUtilException
      */
-    protected function executeLibXmlCommand(string $errorMessage, Closure $function, bool $throwError = true): bool
+    protected function executeLibXmlCommand(string $errorMessage, Closure $function, bool $throwError = true): ?array
     {
         $restore = libxml_use_internal_errors(true);
 
@@ -399,13 +399,13 @@ class XmlNode
         libxml_use_internal_errors($restore);
 
         if (empty($errorList)) {
-            return true;
+            return null;
         }
 
         if ($throwError) {
             throw new XmlUtilException("$errorMessage\n - " . implode("\n - ", $errorList), 257);
         }
 
-        return false;
+        return $errorList;
     }
 }

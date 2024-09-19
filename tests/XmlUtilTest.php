@@ -415,7 +415,9 @@ class XmlUtilTest extends TestCase
               '<child_integer>Error condition.</child_integer>' .
             '</example>'
         );
-        $this->assertFalse($xml->validate(__DIR__ . '/example.xsd', throwError: false));
+
+        $result = $xml->validate(__DIR__ . '/example.xsd', throwError: false);
+        $this->assertCount(1, $result);
     }
 
     public function testValidateXml(): void
@@ -427,7 +429,8 @@ class XmlUtilTest extends TestCase
             '<child_integer>10</child_integer>' .
             '</example>'
         );
-        $this->assertTrue($xml->validate(__DIR__ . '/example.xsd'));
+        $result = $xml->validate(__DIR__ . '/example.xsd');
+        $this->assertNull($result);
     }
 
     public function testRenameNode()

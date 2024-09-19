@@ -136,11 +136,12 @@ class EntityParser
         $transformer = function (?XmlProperty $property, $parsedValue, $propertyName) use ($xml, $rootMetadata) {
             $name = $property?->getElementName() ?? $propertyName;
             $name = ($property?->getPreserveCaseName() ?? false) ? $name : strtolower($name);
-            $isAttribute = $property?->getIsAttribute() === true ? true : $property?->getIsAttributeOf();
+            $isAttribute = $property?->getIsAttribute();
+            $isAttributeOf = $property?->getIsAttributeOf();
 
             $this->processArray($parsedValue, $propertyName, $name, $xml)
                 || $this->processObject($parsedValue, $name, $xml)
-                || $this->processScalar($parsedValue, $rootMetadata, $isAttribute, $name, $xml);
+                || $this->processScalar($parsedValue, $rootMetadata, $isAttribute, $isAttributeOf, $name, $xml);
         };
 
         Serialize::from($array)
@@ -187,12 +188,12 @@ class EntityParser
         return true;
     }
 
-    protected function processScalar($parsedValue, $rootMetadata, $isAttribute, $name, XmlNode $xml): bool
+    protected function processScalar($parsedValue, $rootMetadata, $isAttribute, $isAttributeOf, $name, XmlNode $xml): bool
     {
         if ($isAttribute === true) {
             $xml->addAttribute($name, htmlspecialchars("$parsedValue"));
-        } else if (!empty($isAttribute)) {
-            $xml->selectSingleNode($isAttribute)?->addAttribute($name, htmlspecialchars("$parsedValue"));
+        } else if (!empty($isAttributeOf)) {
+            $xml->selectSingleNode($isAttributeOf)->addAttribute($name, htmlspecialchars("$parsedValue"));
         } else {
             $xml->appendChild($rootMetadata->getUsePrefix() . $name, htmlspecialchars("$parsedValue"));
         }

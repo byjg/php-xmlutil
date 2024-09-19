@@ -19,9 +19,16 @@ class ClassAddress
     private ?string $id;
 
     #[XmlProperty(elementName: 'Street')]
-    private string $street;
+    private ?string $street;
     #[XmlProperty(elementName: 'Number')]
-    private int $number;
+    private ?int $number;
+
+    public function __construct($id = null, $street = null, $number = null)
+    {
+        $this->id = $id;
+        $this->street = $street;
+        $this->number = $number;
+    }
 
     public function setId(?string $id): void
     {

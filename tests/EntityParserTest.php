@@ -4,6 +4,7 @@ namespace Tests;
 
 use ByJG\XmlUtil\EntityParser;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 use Tests\Fixture\ClassAddress;
 use Tests\Fixture\ClassSample1;
 use Tests\Fixture\ClassSample2;
@@ -13,7 +14,7 @@ class EntityParserTest extends TestCase
 {
     public function testStdClass()
     {
-        $entity = new \stdClass();
+        $entity = new stdClass();
         $entity->name = "John";
         $entity->age = 30;
 
@@ -28,10 +29,10 @@ class EntityParserTest extends TestCase
 
     public function testStdClass2()
     {
-        $entity = new \stdClass();
+        $entity = new stdClass();
         $entity->name = 'John';
         $entity->age = 30;
-        $entity->address = new \stdClass();
+        $entity->address = new stdClass();
         $entity->address->street = 'Main St';
         $entity->address->number = 123;
 
@@ -155,6 +156,94 @@ class EntityParserTest extends TestCase
                             . "<addr:Number>123</addr:Number>"
                         . "</addr:Address>"
                     . "</Person>\n",
+            $result
+        );
+    }
+
+    public function testWithListOfAddresses()
+    {
+        $entity = new stdClass();
+        $entity->name = 'John';
+        $entity->age = 30;
+        $entity->addresses = [
+            new ClassAddress(1, 'Main St', 123),
+            new ClassAddress(2, 'Second St', 456),
+        ];
+
+        $result = (new EntityParser())->parse($entity);
+
+        $this->assertEquals(
+    '<?xml version="1.0" encoding="utf-8"?>' . "\n"
+                . '<root xmlns:addr="http://www.example.com/address">'
+                    . '<name>John</name>'
+                    . '<age>30</age>'
+                    . '<addresses>'
+                        . '<addr:Address Id="1">'
+                            . '<addr:Street>Main St</addr:Street>'
+                            . '<addr:Number>123</addr:Number>'
+                        . '</addr:Address>'
+                        . '<addr:Address Id="2">'
+                            . '<addr:Street>Second St</addr:Street>'
+                            . '<addr:Number>456</addr:Number>'
+                        . '</addr:Address>'
+                    . '</addresses>'
+                . '</root>' . "\n",
+            $result
+        );
+    }
+
+    public function testWithListAssociativeArray()
+    {
+        $entity = new stdClass();
+        $entity->name = 'John';
+        $entity->age = 30;
+        $entity->list = [
+            [ "a" => 1, "b" => 2 ],
+            [ "a" => 3, "b" => 4 ],
+        ];
+
+        $result = (new EntityParser())->parse($entity);
+
+        $this->assertEquals(
+        '<?xml version="1.0" encoding="utf-8"?>' . "\n"
+                . '<root>'
+                    . '<name>John</name>'
+                    . '<age>30</age>'
+                    . '<list>'
+                        . '<item0>'
+                            . '<a>1</a>'
+                            . '<b>2</b>'
+                        . '</item0>'
+                        . '<item1>'
+                            . '<a>3</a>'
+                            . '<b>4</b>'
+                        . '</item1>'
+                    . '</list>'
+                . '</root>' . "\n",
+            $result
+        );
+    }
+
+    public function testWithListArray()
+    {
+        $entity = new stdClass();
+        $entity->name = 'John';
+        $entity->age = 30;
+        $entity->list = [ 'a', 'b', 'c' ];
+
+        $result = (new EntityParser())->parse($entity);
+
+        $this->assertEquals(
+            '<?xml version="1.0" encoding="utf-8"?>' . "\n"
+            . '<root>'
+                . '<name>John</name>'
+                . '<age>30</age>'
+                . '<list>'
+                    . '<item>a</item>'
+                    . '<item>b</item>'
+                    . '<item>c</item>'
+                . '</list>'
+            . '</root>' . "\n",
             $result
         );
     }

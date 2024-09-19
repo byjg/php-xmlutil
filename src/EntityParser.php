@@ -23,15 +23,14 @@ class EntityParser
      */
     public function parse(object|array $serializable): string
     {
-        $classMeta = $this->getReflectionClassMeta($serializable);
+        /** @var XmlDocument $xml */
+        $metadata = $this->getReflectionClassMeta($serializable);
+        $xml = new XmlDocument("<{$metadata->getRootElementName()}></{$metadata->getRootElementName()}>");
+        $this->addNamespaces($xml, $metadata);
 
-        $xml = new XmlDocument("<{$classMeta->getRootElementName()}></{$classMeta->getRootElementName()}>");
-        foreach ($classMeta->getNamespaces() as $prefix => $uri) {
-            $xml->addNamespace($prefix, $uri);
-        }
-        $this->arrayToXml($serializable, $xml, $classMeta);
+        $this->arrayToXml($serializable, $xml, $metadata);
 
-        if (!$classMeta->getXmlDeclaration()) {
+        if (!$metadata->getXmlDeclaration()) {
             return substr($xml->toString(), 39);
         }
         return $xml->toString();
@@ -39,13 +38,13 @@ class EntityParser
 
     /**
      * @param array|object $object
+     * @param XmlNode|null $xml
      * @return XmlEntity
+     * @throws DOMException
      * @throws XmlUtilException
      */
     protected function getReflectionClassMeta(array|object $object): XmlEntity
     {
-        $meta = [];
-
         if (is_array($object) || $object instanceof stdClass) {
             return new XmlEntity(rootElementName: 'root', namespaces: [], xmlDeclaration: true, usePrefix: null);
         }
@@ -68,6 +67,23 @@ class EntityParser
         } else {
             $classParts = explode('\\', $reflection->getName());
             return new XmlEntity(rootElementName: $reflection->isAnonymous() ? 'root' : strtolower(end($classParts)), namespaces: [], xmlDeclaration: true, usePrefix: null);
+        }
+    }
+
+    protected function addNamespaces(XmlNode $xml, XmlEntity $metadata): void
+    {
+        foreach ($metadata->getNamespaces() as $prefix => $uri) {
+            $xml->addNamespace($prefix, $uri);
+        }
+        if (!empty($metadata->getUsePrefix())) {
+            $currentName = $xml->DOMNode()->nodeName;
+            if (str_contains($currentName, ':')) {
+                if (!str_starts_with($currentName, $metadata->getUsePrefix())) {
+                    $xml->renameNode($metadata->getUsePrefix() . substr($currentName, strpos($currentName, ':') + 1));
+                }
+            } else {
+                $xml->renameNode($metadata->getUsePrefix() . $currentName);
+            }
         }
     }
 
@@ -110,12 +126,7 @@ class EntityParser
     {
         if (empty($rootMetadata)) {
             $rootMetadata = $this->getReflectionClassMeta($array);
-            foreach ($rootMetadata->getNamespaces() as $prefix => $uri) {
-                $xml->addNamespace($prefix, $uri);
-            }
-            if (!empty($rootMetadata->getUsePrefix())) {
-                $xml->renameNode($rootMetadata->getUsePrefix() . $xml->DOMNode()->nodeName);
-            }
+            $this->addNamespaces($xml, $rootMetadata);
         }
 
         $transformer = function (?XmlProperty $property, $parsedValue, $propertyName) use ($xml, $rootMetadata) {
@@ -123,23 +134,9 @@ class EntityParser
             $name = ($property?->getPreserveCaseName() ?? false) ? $name : strtolower($name);
             $isAttribute = $property?->getIsAttribute();
 
-            if (is_array($parsedValue)) {
-                if (!is_numeric($propertyName)) {
-                    $subnode = $xml->appendChild("$name");
-                } else {
-                    $subnode = $xml->appendChild("item"  . $name);
-                }
-                $this->arrayToXml($parsedValue, $subnode);
-            } elseif (is_object($parsedValue)) {
-                $subnode = $xml->appendChild("$name");
-                $this->arrayToXml($parsedValue, $subnode);
-            } else {
-                if ($isAttribute) {
-                    $xml->addAttribute($name, htmlspecialchars("$parsedValue"));
-                } else {
-                    $xml->appendChild($rootMetadata->getUsePrefix() . $name, htmlspecialchars("$parsedValue"));
-                }
-            }
+            $this->processArray($parsedValue, $propertyName, $name, $xml)
+                || $this->processObject($parsedValue, $name, $xml)
+                || $this->processScalar($parsedValue, $rootMetadata, $isAttribute, $name, $xml);
         };
 
         Serialize::from($array)
@@ -149,6 +146,52 @@ class EntityParser
                 ReflectionAttribute::IS_INSTANCEOF,
                 $transformer
             );
+    }
+
+    protected function processArray($parsedValue, $propertyName, $name, XmlNode $xml): bool
+    {
+        if (!is_array($parsedValue)) {
+            return false;
+        }
+        if (!is_numeric($propertyName)) {
+            $subnode = $xml->appendChild("$name");
+        } else {
+            $subnode = $xml->appendChild("item"  . $name);
+        }
+        foreach ($parsedValue as $key => $value) {
+            if (is_scalar($value)) {
+                $subnode->appendChild((!is_numeric($key) ? $key : "item"), htmlspecialchars("$value"));
+            } elseif (is_array($value)) {
+                $this->processArray($value, $key, $key, $subnode);
+            } else {
+                $metadata = $this->getReflectionClassMeta($value);
+                $subnodeArray = $subnode->appendChild("{$metadata->getRootElementName()}");
+                $this->arrayToXml($value, $subnodeArray);
+            }
+        }
+        return true;
+    }
+
+    protected function processObject($parsedValue, $name, $xml): bool
+    {
+        if (!is_object($parsedValue)) {
+            return false;
+        }
+        $subnode = $xml->appendChild("$name");
+        $this->arrayToXml($parsedValue, $subnode);
+
+        return true;
+    }
+
+    protected function processScalar($parsedValue, $rootMetadata, $isAttribute, $name, XmlNode $xml): bool
+    {
+        if ($isAttribute) {
+            $xml->addAttribute($name, htmlspecialchars("$parsedValue"));
+        } else {
+            $xml->appendChild($rootMetadata->getUsePrefix() . $name, htmlspecialchars("$parsedValue"));
+        }
+
+        return true;
     }
 
 }

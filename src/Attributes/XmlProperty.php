@@ -12,13 +12,15 @@ class XmlProperty
     private array $namespaces;
     private bool $preserveCaseName;
     private bool $isAttribute;
+    private ?string $isAttributeOf;
 
-    public function __construct(?string $elementName = null, array $namespaces = [], bool $preserveCaseName = false, bool $isAttribute = false)
+    public function __construct(?string $elementName = null, array $namespaces = [], bool $preserveCaseName = false, bool $isAttribute = false, ?string $isAttributeOf = null)
     {
         $this->elementName = $elementName;
         $this->namespaces = $namespaces;
         $this->preserveCaseName = !is_null($elementName) || $preserveCaseName;
-        $this->isAttribute = $isAttribute;
+        $this->isAttributeOf = $isAttributeOf;
+        $this->isAttribute = empty($this->isAttributeOf) && $isAttribute;
     }
 
     public function getElementName(): ?string
@@ -39,6 +41,11 @@ class XmlProperty
     public function getIsAttribute(): bool
     {
         return $this->isAttribute;
+    }
+
+    public function getIsAttributeOf(): ?string
+    {
+        return $this->isAttributeOf;
     }
 
 }

@@ -136,7 +136,7 @@ class EntityParser
         $transformer = function (?XmlProperty $property, $parsedValue, $propertyName) use ($xml, $rootMetadata) {
             $name = $property?->getElementName() ?? $propertyName;
             $name = ($property?->getPreserveCaseName() ?? false) ? $name : strtolower($name);
-            $isAttribute = $property?->getIsAttribute();
+            $isAttribute = $property?->getIsAttribute() === true ? true : $property?->getIsAttributeOf();
 
             $this->processArray($parsedValue, $propertyName, $name, $xml)
                 || $this->processObject($parsedValue, $name, $xml)
@@ -189,8 +189,10 @@ class EntityParser
 
     protected function processScalar($parsedValue, $rootMetadata, $isAttribute, $name, XmlNode $xml): bool
     {
-        if ($isAttribute) {
+        if ($isAttribute === true) {
             $xml->addAttribute($name, htmlspecialchars("$parsedValue"));
+        } else if (!empty($isAttribute)) {
+            $xml->selectSingleNode($isAttribute)?->addAttribute($name, htmlspecialchars("$parsedValue"));
         } else {
             $xml->appendChild($rootMetadata->getUsePrefix() . $name, htmlspecialchars("$parsedValue"));
         }

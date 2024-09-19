@@ -9,6 +9,7 @@ use Tests\Fixture\ClassAddress;
 use Tests\Fixture\ClassSample1;
 use Tests\Fixture\ClassSample2;
 use Tests\Fixture\ClassWithAttributes;
+use Tests\Fixture\ClassWithAttributesOf;
 use Tests\Fixture\ClassWithAttrNamespace;
 
 class EntityParserTest extends TestCase
@@ -157,6 +158,34 @@ class EntityParserTest extends TestCase
                             . "<addr:Number>123</addr:Number>"
                         . "</addr:Address>"
                     . "</Person>\n",
+            $result
+        );
+    }
+
+    public function testClassWithAttributesOf()
+    {
+        $entity = new ClassWithAttributesOf();
+        $entity->setName('John');
+        $entity->setAge(30);
+
+        $address = new ClassAddress();
+        $address->setStreet('Main St');
+        $address->setNumber(123);
+        $address->setId('1234');
+
+        $entity->setAddress($address);
+
+        $parser = new EntityParser();
+        $result = $parser->parse($entity);
+
+        $this->assertEquals(
+            "<Person xmlns=\"http://example.com\" xmlns:ns1=\"http://www.example.com/person\" xmlns:addr=\"http://www.example.com/address\">"
+            . "<Name Age=\"30\">John</Name>"
+            . "<addr:Address Id=\"1234\">"
+            . "<addr:Street>Main St</addr:Street>"
+            . "<addr:Number>123</addr:Number>"
+            . "</addr:Address>"
+            . "</Person>\n",
             $result
         );
     }

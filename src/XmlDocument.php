@@ -2,8 +2,10 @@
 
 namespace ByJG\XmlUtil;
 
+use ByJG\XmlUtil\Exception\FileException;
 use ByJG\XmlUtil\Exception\XmlUtilException;
 use DOMDocument;
+use DOMException;
 use DOMNode;
 
 class XmlDocument extends XmlNode
@@ -23,6 +25,11 @@ class XmlDocument extends XmlNode
     protected DOMDocument $document;
 
     /**
+     * @param string|DOMNode|File|XmlNode|null $source
+     * @param bool $preserveWhiteSpace
+     * @param bool $formatOutput
+     * @param bool $fixAmpersand
+     * @throws FileException
      * @throws XmlUtilException
      */
     public function __construct(string|DOMNode|File|XmlNode|null $source = null, bool $preserveWhiteSpace = false, bool $formatOutput = false, bool $fixAmpersand = false)
@@ -43,6 +50,8 @@ class XmlDocument extends XmlNode
             $this->executeLibXmlCommand("Error loading XML Document.", function () use ($xmlDoc, $xmlFixed) {
                 $xmlDoc->loadXML($xmlFixed);
             });
+        } else if ($source instanceof DOMDocument) {
+            $xmlDoc = $source;
         } else if ($source instanceof XmlNode) {
             $root = $xmlDoc->importNode($source->DOMNode(), true);
             $xmlDoc->appendChild($root);
@@ -54,6 +63,25 @@ class XmlDocument extends XmlNode
         $this->document = $xmlDoc;
 
         parent::__construct($this->document);
+    }
+
+    /**
+     * @throws DOMException
+     * @throws XmlUtilException
+     * @throws FileException
+     */
+    public static function emptyDocument(string $name, ?string $namespace = null): XmlDocument
+    {
+        $xmlDoc = new DOMDocument(self::XML_VERSION, self::XML_ENCODING);
+
+        if (empty($namespace)) {
+            $element = $xmlDoc->createElement($name);
+        } else {
+            $element = $xmlDoc->createElementNS($namespace, $name);
+        }
+        $xmlDoc->appendChild($element);
+
+        return new XmlDocument($xmlDoc);
     }
 
 

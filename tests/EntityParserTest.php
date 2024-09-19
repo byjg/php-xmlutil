@@ -9,6 +9,7 @@ use Tests\Fixture\ClassAddress;
 use Tests\Fixture\ClassSample1;
 use Tests\Fixture\ClassSample2;
 use Tests\Fixture\ClassWithAttributes;
+use Tests\Fixture\ClassWithAttrNamespace;
 
 class EntityParserTest extends TestCase
 {
@@ -246,5 +247,22 @@ class EntityParserTest extends TestCase
             . '</root>' . "\n",
             $result
         );
+    }
+
+    public function testClassAttrWithNamespace()
+    {
+        $entity = new ClassWithAttrNamespace();
+        $entity->setName('John');
+
+        $parser = new EntityParser();
+        $result = $parser->parse($entity);
+
+        $this->assertEquals(
+            "<p:Person xmlns:p=\"http://example.com\">"
+            . "<Name>John</Name>"
+            . "</p:Person>\n",
+            $result
+        );
+
     }
 }

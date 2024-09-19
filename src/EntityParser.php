@@ -25,8 +25,12 @@ class EntityParser
     {
         /** @var XmlDocument $xml */
         $metadata = $this->getReflectionClassMeta($serializable);
-        $xml = new XmlDocument("<{$metadata->getRootElementName()}></{$metadata->getRootElementName()}>");
-        $this->addNamespaces($xml, $metadata);
+        $list = $metadata->getNamespaces();
+        $xml = XmlDocument::emptyDocument($metadata->getRootElementName(), $list[''] ?? null);
+        unset($list['']);
+        foreach ($list as $prefix => $uri) {
+            $xml->addNamespace($prefix, $uri);
+        }
 
         $this->arrayToXml($serializable, $xml, $metadata);
 

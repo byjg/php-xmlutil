@@ -464,4 +464,14 @@ class XmlUtilTest extends TestCase
             $xml->toString()
         );
     }
+
+    public function testCreateXmlDocumentWithNamespace()
+    {
+        $xml = XmlDocument::emptyDocument('root');
+        $this->assertEquals(self::XML_HEADER . "\n<root/>\n", $xml->toString());
+
+        $xml = XmlDocument::emptyDocument('p:root', 'http://example.com');
+        $this->assertEquals(self::XML_HEADER . "\n<p:root xmlns:p=\"http://example.com\"/>\n", $xml->toString());
+
+    }
 }

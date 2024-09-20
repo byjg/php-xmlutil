@@ -240,14 +240,10 @@ class EntityParserTest extends TestCase
                     . '<name>John</name>'
                     . '<age>30</age>'
                     . '<list>'
-                        . '<item0>'
-                            . '<a>1</a>'
-                            . '<b>2</b>'
-                        . '</item0>'
-                        . '<item1>'
-                            . '<a>3</a>'
-                            . '<b>4</b>'
-                        . '</item1>'
+                        . '<a>1</a>'
+                        . '<b>2</b>'
+                        . '<a>3</a>'
+                        . '<b>4</b>'
                     . '</list>'
                 . '</root>' . "\n",
             $result

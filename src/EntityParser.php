@@ -161,7 +161,7 @@ class EntityParser
         if (!is_numeric($propertyName)) {
             $subnode = $xml->appendChild("$name");
         } else {
-            $subnode = $xml->appendChild("item"  . $name);
+            $subnode = $xml;
         }
         foreach ($parsedValue as $key => $value) {
             if (is_scalar($value)) {

@@ -109,7 +109,7 @@ class XmlNode
      */
     public function addText(string $text, bool $escapeChars = false): XmlNode
     {
-        if (empty($text)) {
+        if (trim($text) === "") {
             return $this;
         }
 

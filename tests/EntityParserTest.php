@@ -250,6 +250,82 @@ class EntityParserTest extends TestCase
         );
     }
 
+    public function testWithListAssociativeArrayComplex()
+    {
+        $entity = new stdClass();
+        $entity->name = 'John';
+        $entity->age = 30;
+        $entity->list = [
+            [ "x" => ["a" => 1, "b" => 2] ],
+            [ "x" => ["a" => 3, "b" => 4] ],
+        ];
+
+        $result = (new EntityParser())->parse($entity);
+
+        $this->assertEquals(
+            '<?xml version="1.0" encoding="utf-8"?>' . "\n"
+            . '<root>'
+            . '<name>John</name>'
+            . '<age>30</age>'
+            . '<list>'
+                . '<x>'
+                    . '<a>1</a>'
+                    . '<b>2</b>'
+                . '</x>'
+                . '<x>'
+                    . '<a>3</a>'
+                    . '<b>4</b>'
+                . '</x>'
+            . '</list>'
+            . '</root>' . "\n",
+            $result
+        );
+    }
+
+    public function testWithListOfListArray()
+    {
+        $entity = new stdClass();
+        $entity->name = 'John';
+        $entity->age = 30;
+        $entity->list = [
+            [  1, 2 ],
+            [ "a" => 3, "b" => 4 ],
+        ];
+
+        $result = (new EntityParser())->parse($entity);
+
+        $this->assertEquals(
+            '<?xml version="1.0" encoding="utf-8"?>' . "\n"
+            . '<root>'
+            . '<name>John</name>'
+            . '<age>30</age>'
+            . '<list>'
+                . '<item>1</item>'
+                . '<item>2</item>'
+                . '<a>3</a>'
+                . '<b>4</b>'
+            . '</list>'
+            . '</root>' . "\n",
+            $result
+        );
+    }
+
+    public function testZero()
+    {
+        $address = new ClassAddress();
+        $address->setNumber(0);
+
+        $result = (new EntityParser())->parse($address);
+        $this->assertEquals(
+            '<Address xmlns:addr="http://www.example.com/address" Id="">'
+                   . '<addr:Street/>'
+                   . '<addr:Number>0</addr:Number>'
+                . '</Address>' . "\n",
+            $result
+        );
+
+    }
+
     public function testWithListArray()
     {
         $entity = new stdClass();

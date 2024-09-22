@@ -5,6 +5,7 @@ namespace ByJG\XmlUtil;
 use ByJG\Serializer\Serialize;
 use ByJG\XmlUtil\Attributes\XmlEntity;
 use ByJG\XmlUtil\Attributes\XmlProperty;
+use ByJG\XmlUtil\Exception\FileException;
 use ByJG\XmlUtil\Exception\XmlUtilException;
 use DOMException;
 use ReflectionAttribute;
@@ -17,11 +18,12 @@ class EntityParser
 
     /**
      * @param object|array $serializable
-     * @return string
-     * @throws XmlUtilException
+     * @return XmlDocument
      * @throws DOMException
+     * @throws FileException
+     * @throws XmlUtilException
      */
-    public function parse(object|array $serializable): string
+    public function parse(object|array $serializable): XmlDocument
     {
         /** @var XmlDocument $xml */
         $metadata = $this->getReflectionClassMeta($serializable);
@@ -34,23 +36,18 @@ class EntityParser
 
         $this->arrayToXml($serializable, $xml, $metadata);
 
-        if (!$metadata->getXmlDeclaration()) {
-            return substr($xml->toString(), 39);
-        }
-        return $xml->toString();
+        return $xml;
     }
 
     /**
      * @param array|object $object
-     * @param XmlNode|null $xml
      * @return XmlEntity
-     * @throws DOMException
      * @throws XmlUtilException
      */
     protected function getReflectionClassMeta(array|object $object): XmlEntity
     {
         if (is_array($object) || $object instanceof stdClass) {
-            return new XmlEntity(rootElementName: 'root', namespaces: [], xmlDeclaration: true, usePrefix: null);
+            return new XmlEntity(rootElementName: 'root', namespaces: [], usePrefix: null);
         }
 
         $reflection = new ReflectionClass($object);
@@ -65,12 +62,11 @@ class EntityParser
                 rootElementName: $tableAttribute->getPreserveCaseName() ? $name : strtolower($name),
                 namespaces: $tableAttribute->getNamespaces(),
                 preserveCaseName: $tableAttribute->getPreserveCaseName(),
-                xmlDeclaration: $tableAttribute->getXmlDeclaration(),
                 usePrefix: !empty($tableAttribute->getUsePrefix()) ? $tableAttribute->getUsePrefix() . ":" : null
             );
         } else {
             $classParts = explode('\\', $reflection->getName());
-            return new XmlEntity(rootElementName: $reflection->isAnonymous() ? 'root' : strtolower(end($classParts)), namespaces: [], xmlDeclaration: true, usePrefix: null);
+            return new XmlEntity(rootElementName: $reflection->isAnonymous() ? 'root' : strtolower(end($classParts)), namespaces: [], usePrefix: null);
         }
     }
 

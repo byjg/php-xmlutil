@@ -21,7 +21,7 @@ class EntityParserTest extends TestCase
         $entity->age = 30;
 
         $parser = new EntityParser();
-        $result = $parser->parse($entity);
+        $result = $parser->parse($entity)->toString();
 
         $this->assertEquals(
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<root><name>John</name><age>30</age></root>\n",
@@ -39,7 +39,7 @@ class EntityParserTest extends TestCase
         $entity->address->number = 123;
 
         $parser = new EntityParser();
-        $result = $parser->parse($entity);
+        $result = $parser->parse($entity)->toString();
 
         $this->assertEquals(
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<root><name>John</name><age>30</age><address><street>Main St</street><number>123</number></address></root>\n",
@@ -59,7 +59,7 @@ class EntityParserTest extends TestCase
         ];
 
         $parser = new EntityParser();
-        $result = $parser->parse($entity);
+        $result = $parser->parse($entity)->toString();
 
         $this->assertEquals(
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<root><name>John</name><age>30</age><address><street>Main St</street><number>123</number></address></root>\n",
@@ -75,7 +75,7 @@ class EntityParserTest extends TestCase
         $entity->setAddress((object)['street' => 'Main St', 'number' => 123]);
 
         $parser = new EntityParser();
-        $result = $parser->parse($entity);
+        $result = $parser->parse($entity)->toString();
 
         $this->assertEquals(
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<classsample1><name>John</name><age>30</age><address><street>Main St</street><number>123</number></address></classsample1>\n",
@@ -91,7 +91,7 @@ class EntityParserTest extends TestCase
         $entity->setAddress((object)['street' => 'Main St', 'number' => 123]);
 
         $parser = new EntityParser();
-        $result = $parser->parse($entity);
+        $result = $parser->parse($entity)->toString();
 
         $this->assertEquals(
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<classsample2><name>John</name><age>30</age><address><street>Main St</street><number>123</number></address></classsample2>\n",
@@ -126,7 +126,7 @@ class EntityParserTest extends TestCase
         $entity->setAge(30);
 
         $parser = new EntityParser();
-        $result = $parser->parse($entity);
+        $result = $parser->parse($entity)->toString();
 
         $this->assertEquals(
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<root><name>John</name><age>30</age></root>\n",
@@ -149,6 +149,7 @@ class EntityParserTest extends TestCase
 
         $parser = new EntityParser();
         $result = $parser->parse($entity);
+        $result = $result->toString(noHeader: true);
 
         $this->assertEquals(
             "<Person xmlns=\"http://example.com\" xmlns:ns1=\"http://www.example.com/person\" xmlns:addr=\"http://www.example.com/address\" Age=\"30\">"
@@ -157,7 +158,7 @@ class EntityParserTest extends TestCase
                             . "<addr:Street>Main St</addr:Street>"
                             . "<addr:Number>123</addr:Number>"
                         . "</addr:Address>"
-                    . "</Person>\n",
+                    . "</Person>",
             $result
         );
     }
@@ -176,7 +177,7 @@ class EntityParserTest extends TestCase
         $entity->setAddress($address);
 
         $parser = new EntityParser();
-        $result = $parser->parse($entity);
+        $result = $parser->parse($entity)->toString(noHeader: true);
 
         $this->assertEquals(
             "<Person xmlns=\"http://example.com\" xmlns:ns1=\"http://www.example.com/person\" xmlns:addr=\"http://www.example.com/address\">"
@@ -185,7 +186,7 @@ class EntityParserTest extends TestCase
             . "<addr:Street>Main St</addr:Street>"
             . "<addr:Number>123</addr:Number>"
             . "</addr:Address>"
-            . "</Person>\n",
+            . "</Person>",
             $result
         );
     }
@@ -200,7 +201,7 @@ class EntityParserTest extends TestCase
             new ClassAddress(2, 'Second St', 456),
         ];
 
-        $result = (new EntityParser())->parse($entity);
+        $result = (new EntityParser())->parse($entity)->toString();
 
         $this->assertEquals(
     '<?xml version="1.0" encoding="utf-8"?>' . "\n"
@@ -232,7 +233,7 @@ class EntityParserTest extends TestCase
             [ "a" => 3, "b" => 4 ],
         ];
 
-        $result = (new EntityParser())->parse($entity);
+        $result = (new EntityParser())->parse($entity)->toString();
 
         $this->assertEquals(
         '<?xml version="1.0" encoding="utf-8"?>' . "\n"
@@ -260,7 +261,7 @@ class EntityParserTest extends TestCase
             [ "x" => ["a" => 3, "b" => 4] ],
         ];
 
-        $result = (new EntityParser())->parse($entity);
+        $result = (new EntityParser())->parse($entity)->toString();
 
         $this->assertEquals(
             '<?xml version="1.0" encoding="utf-8"?>' . "\n"
@@ -292,7 +293,7 @@ class EntityParserTest extends TestCase
             [ "a" => 3, "b" => 4 ],
         ];
 
-        $result = (new EntityParser())->parse($entity);
+        $result = (new EntityParser())->parse($entity)->toString();
 
         $this->assertEquals(
             '<?xml version="1.0" encoding="utf-8"?>' . "\n"
@@ -315,12 +316,12 @@ class EntityParserTest extends TestCase
         $address = new ClassAddress();
         $address->setNumber(0);
 
-        $result = (new EntityParser())->parse($address);
+        $result = (new EntityParser())->parse($address)->toString(noHeader: true);
         $this->assertEquals(
             '<Address xmlns:addr="http://www.example.com/address" Id="">'
                    . '<addr:Street/>'
                    . '<addr:Number>0</addr:Number>'
-                . '</Address>' . "\n",
+                . '</Address>',
             $result
         );
 
@@ -333,7 +334,7 @@ class EntityParserTest extends TestCase
         $entity->age = 30;
         $entity->list = [ 'a', 'b', 'c' ];
 
-        $result = (new EntityParser())->parse($entity);
+        $result = (new EntityParser())->parse($entity)->toString();
 
         $this->assertEquals(
             '<?xml version="1.0" encoding="utf-8"?>' . "\n"
@@ -356,12 +357,12 @@ class EntityParserTest extends TestCase
         $entity->setName('John');
 
         $parser = new EntityParser();
-        $result = $parser->parse($entity);
+        $result = $parser->parse($entity)->toString(noHeader: true);
 
         $this->assertEquals(
             "<p:Person xmlns:p=\"http://example.com\">"
             . "<Name>John</Name>"
-            . "</p:Person>\n",
+            . "</p:Person>",
             $result
         );
 

@@ -349,10 +349,10 @@ class XmlNode
      * @param bool $format
      * @return string
      */
-    public function toString(bool $format = false): string
+    public function toString(bool $format = false, bool $noHeader = false): string
     {
         if ($this->node instanceof DOMDocument) {
-            return $this->_toString($this->node, $format);
+            return $this->_toString($this->node, $format, $noHeader ? $this->node->documentElement : null);
         }
 
         return $this->_toString($this->DOMDocument(), $format, $this->node);

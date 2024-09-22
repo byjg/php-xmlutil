@@ -11,16 +11,14 @@ class XmlEntity
     private ?string $rootElementName;
     private array $namespaces;
     private bool $preserveCaseName;
-    private bool $xmlDeclaration;
     private bool $addNamespaceRoot;
     private ?string $usePrefix;
 
-    public function __construct(?string $rootElementName = null, array $namespaces = [], bool $preserveCaseName = false, bool $xmlDeclaration = true, bool $addNamespaceRoot = true, string $usePrefix = null)
+    public function __construct(?string $rootElementName = null, array $namespaces = [], bool $preserveCaseName = false, bool $addNamespaceRoot = true, string $usePrefix = null)
     {
         $this->rootElementName = $rootElementName;
         $this->namespaces = $namespaces;
         $this->preserveCaseName = !is_null($rootElementName) || $preserveCaseName;
-        $this->xmlDeclaration = $xmlDeclaration;
         $this->addNamespaceRoot = $addNamespaceRoot;
         $this->usePrefix = $usePrefix;
     }
@@ -38,11 +36,6 @@ class XmlEntity
     public function getPreserveCaseName(): bool
     {
         return $this->preserveCaseName;
-    }
-
-    public function getXmlDeclaration(): bool
-    {
-        return $this->xmlDeclaration;
     }
 
     public function getAddNamespaceRoot(): bool

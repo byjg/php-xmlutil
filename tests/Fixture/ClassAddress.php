@@ -9,7 +9,6 @@ use ByJG\XmlUtil\Attributes\XmlProperty;
     rootElementName: 'Address',
     namespaces: [ 'addr' => 'http://www.example.com/address'],
     preserveCaseName: true,
-    xmlDeclaration: false,
     addNamespaceRoot: true,
     usePrefix: 'addr'
 )]

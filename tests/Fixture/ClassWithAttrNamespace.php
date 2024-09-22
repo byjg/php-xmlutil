@@ -8,8 +8,7 @@ use ByJG\XmlUtil\Attributes\XmlProperty;
 #[XmlEntity(
     rootElementName: 'p:Person',
     namespaces: [ 'p' => 'http://example.com' ],
-    preserveCaseName: true,
-    xmlDeclaration: false
+    preserveCaseName: true
 )]
 class ClassWithAttrNamespace
 {

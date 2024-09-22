@@ -28,8 +28,14 @@ class EntityParser
         /** @var XmlDocument $xml */
         $metadata = $this->getReflectionClassMeta($serializable);
         $list = $metadata->getNamespaces();
-        $xml = XmlDocument::emptyDocument($metadata->getRootElementName(), $list[''] ?? null);
-        unset($list['']);
+        $nodeRootParts = explode(':', $metadata->getRootElementName());
+        if (count($nodeRootParts) === 1) {
+            $namespace = null;
+        } else if (isset($list[$nodeRootParts[0]])) {
+            $namespace = $list[$nodeRootParts[0]];
+            unset($list[$nodeRootParts[0]]);
+        }
+        $xml = XmlDocument::emptyDocument($metadata->getRootElementName(), $namespace);
         foreach ($list as $prefix => $uri) {
             $xml->addNamespace($prefix, $uri);
         }

@@ -149,9 +149,8 @@ class EntityParser
         Serialize::from($array)
             ->withStopAtFirstLevel()
             ->parseAttributes(
-                XmlProperty::class,
-                ReflectionAttribute::IS_INSTANCEOF,
-                $transformer
+                $transformer,
+                XmlProperty::class
             );
     }
 

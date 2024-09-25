@@ -338,6 +338,47 @@ class XmlUtilTest extends TestCase
         );
     }
 
+    public function testSelectNodesNamespaceFromNewDoc(): void
+    {
+        $document = XmlDocument::emptyDocument("e:root", "http://example.com");
+        $document->appendChild("e:node", "value");
+
+        $nodes = $document->selectSingleNode("e:node", ["e" => "http://example.com"]);
+
+        $this->assertEquals("value", $nodes->DOMNode()->textContent);
+    }
+
+    public function testSelectNodesNamespaceFromNewDocError(): void
+    {
+        $document = XmlDocument::emptyDocument("e:root");
+        $document->appendChild("e:node", "value");
+
+        $this->expectException(XmlUtilException::class);
+        $this->expectExceptionMessage('Node not found');
+
+        $nodes = $document->selectSingleNode("e:node", ["e" => "http://example.com"]);
+
+        $this->assertEquals("value", $nodes->DOMNode()->textContent);
+    }
+
+    public function testAppendNewNode(): void
+    {
+        $document = XmlDocument::emptyDocument("e:root", "http://example.com");
+        $document->appendChild("f:node", "value", "http://example.com/2");
+
+        $nodes = $document->selectSingleNode("f:node", ["f" => "http://example.com/2"]);
+        $this->assertEquals("value", $nodes->DOMNode()->textContent);
+
+        $this->assertEquals(
+            self::XML_HEADER . "\n" .
+            '<e:root xmlns:e="http://example.com">'
+            . '<node xmlns="http://example.com/2">value</node>'
+            . '</e:root>'
+            . "\n",
+            $document->toString()
+        );
+    }
+
     public function testAddNamespace(): void
     {
         $xmlStr = '<root/>';

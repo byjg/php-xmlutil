@@ -37,6 +37,15 @@ class XmlNode
     {
         $owner = $this->DOMDocument();
 
+        $nameParts = explode(':', $name);
+        if (count($nameParts) === 2) {
+            $name = $nameParts[1];
+            $uriFound = $owner->lookupNamespaceUri($nameParts[0]);
+            if (!empty($uriFound)) {
+                $uri = $uriFound;
+            }
+        }
+
         if (empty($uri)) {
             // @todo: check if namespace is defined.
             $newNode = $owner->createElement(preg_replace('/[^\w:]/', '_', $name));
@@ -188,7 +197,11 @@ class XmlNode
     {
         $rNodeList = $this->selectNodes($xPath, $arNamespace);
 
-        return new XmlNode($rNodeList->item(0));
+        $response = $rNodeList->item(0);
+        if ($response === null) {
+            throw new XmlUtilException("Node not found", 259);
+        }
+        return new XmlNode($response);
     }
 
     /**

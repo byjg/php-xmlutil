@@ -130,6 +130,7 @@ class EntityParser
      */
     public function arrayToXml(object|array $array, XmlNode $xml, XmlEntity $rootMetadata = null): void
     {
+        // The main Root document is not empty
         if (empty($rootMetadata)) {
             $rootMetadata = $this->getReflectionClassMeta($array);
             $this->addNamespaces($xml, $rootMetadata);

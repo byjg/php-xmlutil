@@ -26,6 +26,14 @@ class XmlNode
         return new self($node);
     }
 
+    public function parentNode(): ?XmlNode
+    {
+        if ($this->DOMNode()->parentElement === null) {
+            return null;
+        }
+        return new XmlNode($this->DOMNode()->parentElement);
+    }
+
     /**
      * @param string $name
      * @param string $uri

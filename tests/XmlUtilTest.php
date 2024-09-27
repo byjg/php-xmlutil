@@ -515,4 +515,22 @@ class XmlUtilTest extends TestCase
         $this->assertEquals(self::XML_HEADER . "\n<p:root xmlns:p=\"http://example.com\"/>\n", $xml->toString());
 
     }
+
+    public function testParentNode()
+    {
+        $xml = new XmlDocument('<root><node><subnode>a</subnode></node></root>');
+
+        $subNode = $xml->selectSingleNode('//subnode');
+        $this->assertEquals('subnode', $subNode->DOMNode()->nodeName);
+
+        $parentNode = $subNode->parentNode();
+        $this->assertEquals('node', $parentNode->DOMNode()->nodeName);
+
+        $rootNode = $parentNode->parentNode();
+        $this->assertEquals('root', $rootNode->DOMNode()->nodeName);
+
+        $this->assertNull($rootNode->parentNode());
+
+
+    }
 }

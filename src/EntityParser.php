@@ -165,9 +165,16 @@ class EntityParser
         } else {
             $subnode = $xml;
         }
+        $createAgain = false;
         foreach ($parsedValue as $key => $value) {
-            if (is_scalar($value)) {
-                $subnode->appendChild((!is_numeric($key) ? $key : "item"), htmlspecialchars("$value"));
+            if (is_scalar($value) && !is_numeric($key)) {
+                $subnode->appendChild($key, htmlspecialchars("$value"));
+            } elseif (is_scalar($value) && is_numeric($key)) {
+                if ($createAgain) {
+                    $subnode = $subnode->parentNode()->appendChild($subnode->DOMNode()->nodeName);
+                }
+                $subnode->addText(htmlspecialchars("$value"));
+                $createAgain = true;
             } elseif (is_array($value)) {
                 $this->processArray($value, $key, $key, $subnode);
             } else {

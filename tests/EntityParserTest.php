@@ -300,12 +300,11 @@ class EntityParserTest extends TestCase
             . '<root>'
             . '<name>John</name>'
             . '<age>30</age>'
-            . '<list>'
-                . '<item>1</item>'
-                . '<item>2</item>'
+            . '<list>1'
                 . '<a>3</a>'
                 . '<b>4</b>'
             . '</list>'
+            . '<list>2</list>'
             . '</root>' . "\n",
             $result
         );
@@ -341,11 +340,9 @@ class EntityParserTest extends TestCase
             . '<root>'
                 . '<name>John</name>'
                 . '<age>30</age>'
-                . '<list>'
-                    . '<item>a</item>'
-                    . '<item>b</item>'
-                    . '<item>c</item>'
-                . '</list>'
+                . '<list>a</list>'
+                . '<list>b</list>'
+                . '<list>c</list>'
             . '</root>' . "\n",
             $result
         );

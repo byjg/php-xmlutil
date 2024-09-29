@@ -28,16 +28,9 @@ class XmlNode
 
     public function parentNode(): ?XmlNode
     {
-        if (version_compare(PHP_VERSION, '8.3.0', '>=')) {
-            $parentNode = $this->DOMNode()->parentElement;
-            if ($parentNode === null) {
-                return null;
-            }
-        } else {
-            $parentNode = $this->DOMNode()->parentNode;
-            if ($parentNode === null || $parentNode instanceof DOMDocument) {
-                return null;
-            }
+        $parentNode = $this->DOMNode()->parentNode;
+        if ($parentNode === null || $parentNode instanceof DOMDocument) {
+            return null;
         }
         return new XmlNode($parentNode);
     }

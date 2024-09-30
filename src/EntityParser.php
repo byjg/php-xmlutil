@@ -93,34 +93,6 @@ class EntityParser
         }
     }
 
-    protected function parseProperties(object $object): ?array
-    {
-        if ($object instanceof stdClass) {
-            return null;
-        }
-
-        if (isset($this->properties[get_class($object)])) {
-            return $this->properties[get_class($object)];
-        }
-
-        $this->properties[get_class($object)] = [];
-
-        $reflection = new ReflectionClass($object);
-        if ($reflection->isAnonymous()) {
-            return null;
-        }
-
-        foreach ($reflection->getProperties() as $property) {
-            $attributes = $property->getAttributes(XmlProperty::class, ReflectionAttribute::IS_INSTANCEOF);
-            if (count($attributes) == 0) {
-                continue;
-            }
-            $this->properties[get_class($object)][$property->getName()] = $attributes[0]->newInstance();
-        }
-
-        return $this->properties[get_class($object)];
-    }
-
     /**
      * @param object|array $array $array
      * @param XmlNode $xml

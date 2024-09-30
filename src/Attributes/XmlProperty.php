@@ -7,20 +7,21 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class XmlProperty
 {
-
     private ?string $elementName;
     private array $namespaces;
     private bool $preserveCaseName;
     private bool $isAttribute;
     private ?string $isAttributeOf;
+    private ?bool $ignore = false;
 
-    public function __construct(?string $elementName = null, array $namespaces = [], bool $preserveCaseName = false, bool $isAttribute = false, ?string $isAttributeOf = null)
+    public function __construct(?string $elementName = null, array $namespaces = [], bool $preserveCaseName = false, bool $isAttribute = false, ?string $isAttributeOf = null, bool $ignore = false)
     {
         $this->elementName = $elementName;
         $this->namespaces = $namespaces;
         $this->preserveCaseName = !is_null($elementName) || $preserveCaseName;
         $this->isAttributeOf = $isAttributeOf;
         $this->isAttribute = empty($this->isAttributeOf) && $isAttribute;
+        $this->ignore = $ignore;
     }
 
     public function getElementName(): ?string
@@ -48,4 +49,8 @@ class XmlProperty
         return $this->isAttributeOf;
     }
 
+    public function getIgnore(): bool
+    {
+        return $this->ignore;
+    }
 }

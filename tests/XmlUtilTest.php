@@ -90,16 +90,32 @@ class XmlUtilTest extends TestCase
         if (file_exists($filename)) {
             unlink($filename);
         }
-        $this->assertFalse(file_exists($filename));
 
+        // Save without format
+        $this->assertFalse(file_exists($filename));
         $xml->save($filename);
         $this->assertTrue(file_exists($filename));
-
         $contents = file_get_contents($filename);
         $this->assertEquals(self::XML_HEADER . "\n<root><node><subnode>value</subnode></node></root>\n", $contents);
-
         unlink($filename);
+
+        // Save with format
+        $this->assertFalse(file_exists($filename));
+        $xml->save($filename, true);
+        $this->assertTrue(file_exists($filename));
+        $contents = file_get_contents($filename);
+        $this->assertEquals(
+            self::XML_HEADER . "\n"
+            . "<root>\n"
+            . "  <node>\n"
+            . "    <subnode>value</subnode>\n"
+            . "  </node>\n"
+            . "</root>\n",
+            $contents);
+        unlink($filename);
+
     }
+
 
     public function testGetFormattedDocument(): void
     {

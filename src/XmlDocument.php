@@ -159,11 +159,12 @@ class XmlDocument extends XmlNode
      * @param string $filename
      * @throws XmlUtilException
      */
-    public function save(string $filename): void
+    public function save(string $filename, bool $format = false): void
     {
-        $ret = $this->document->save($filename);
-        if ($ret === false) {
-            throw new XmlUtilException("Cannot save XML Document in $filename.", 256);
+        try {
+            file_put_contents($filename, $this->toString($format));
+        } catch (\Exception $ex) {
+            throw new XmlUtilException("Cannot save XML Document in $filename.", 256, $ex);
         }
     }
 

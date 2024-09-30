@@ -16,6 +16,8 @@ class EntityParser
 {
     protected array $properties = [];
 
+    protected bool $explicityMap = false;
+
     /**
      * @param object|array $serializable
      * @return XmlDocument
@@ -40,6 +42,8 @@ class EntityParser
             $xml->addNamespace($prefix, $uri);
         }
 
+        $this->explicityMap = $metadata->getExplicityMap();
+
         $this->arrayToXml($serializable, $xml, $metadata);
 
         return $xml;
@@ -50,7 +54,7 @@ class EntityParser
      * @return XmlEntity
      * @throws XmlUtilException
      */
-    protected function getReflectionClassMeta(array|object $object): XmlEntity
+    protected function getReflectionClassMeta(array|object $object): ?XmlEntity
     {
         if (is_array($object) || $object instanceof stdClass) {
             return new XmlEntity(rootElementName: 'root', namespaces: [], usePrefix: null);
@@ -68,7 +72,8 @@ class EntityParser
                 rootElementName: $tableAttribute->getPreserveCaseName() ? $name : strtolower($name),
                 namespaces: $tableAttribute->getNamespaces(),
                 preserveCaseName: $tableAttribute->getPreserveCaseName(),
-                usePrefix: !empty($tableAttribute->getUsePrefix()) ? $tableAttribute->getUsePrefix() . ":" : null
+                usePrefix: !empty($tableAttribute->getUsePrefix()) ? $tableAttribute->getUsePrefix() . ":" : null,
+                explicityMap: $tableAttribute->getExplicityMap()
             );
         } else {
             $classParts = explode('\\', $reflection->getName());
@@ -105,6 +110,9 @@ class EntityParser
         // The main Root document is not empty
         if (empty($rootMetadata)) {
             $rootMetadata = $this->getReflectionClassMeta($array);
+            if (empty($rootMetadata)) {
+                throw new XmlUtilException("The root element must be defined", 258);
+            }
             $this->addNamespaces($xml, $rootMetadata);
         }
 
@@ -113,8 +121,16 @@ class EntityParser
             $name = ($property?->getPreserveCaseName() ?? false) ? $name : strtolower($name);
             $isAttribute = $property?->getIsAttribute();
             $isAttributeOf = $property?->getIsAttributeOf();
+            $hasAttribute = !is_null($property?->getElementName());
 
-            $this->processArray($parsedValue, $propertyName, $name, $xml)
+            if ($property?->getIgnore() ?? false) {
+                return false;
+            }
+            if (!$hasAttribute && $this->explicityMap) {
+                return false;
+            }
+
+            return $this->processArray($parsedValue, $propertyName, $name, $xml)
                 || $this->processObject($parsedValue, $name, $xml)
                 || $this->processScalar($parsedValue, $rootMetadata, $isAttribute, $isAttributeOf, $name, $xml);
         };

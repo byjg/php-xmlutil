@@ -8,18 +8,14 @@ use ByJG\XmlUtil\Attributes\XmlProperty;
 #[XmlEntity(
     rootElementName: 'Person',
     namespaces: [ '' => 'http://example.com', 'ns1' => 'http://www.example.com/person'],
-    preserveCaseName: true
+    preserveCaseName: true,
+    explicityMap: true
 )]
-class ClassWithAttributes
+class ClassWithAttributesExplicity
 {
     #[XmlProperty(elementName: 'Name')]
     private string $name;
-    #[XmlProperty(elementName: 'Age', isAttribute: true)]
     private int $age;
-    #[XmlProperty(elementName: 'Address')]
-    private ClassAddress $address;
-    #[XmlProperty(ignore: true)]
-    private string $shouldBeIgnored;
 
 
     public function setName(string $name): void
@@ -37,11 +33,6 @@ class ClassWithAttributes
         $this->address = $address;
     }
 
-    public function setShouldBeIgnored(string $shouldBeIgnored): void
-    {
-        $this->shouldBeIgnored = $shouldBeIgnored;
-    }
-
     public function getName(): string
     {
         return $this->name;
@@ -52,14 +43,10 @@ class ClassWithAttributes
         return $this->age;
     }
 
+
     public function getAddress(): ClassAddress
     {
         return $this->address;
-    }
-
-    public function getShouldBeIgnored(): string
-    {
-        return $this->shouldBeIgnored;
     }
 
 }

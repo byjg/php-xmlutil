@@ -13,14 +13,16 @@ class XmlEntity
     private bool $preserveCaseName;
     private bool $addNamespaceRoot;
     private ?string $usePrefix;
+    private bool $explicityMap = false;
 
-    public function __construct(?string $rootElementName = null, array $namespaces = [], bool $preserveCaseName = false, bool $addNamespaceRoot = true, string $usePrefix = null)
+    public function __construct(?string $rootElementName = null, array $namespaces = [], bool $preserveCaseName = false, bool $addNamespaceRoot = true, string $usePrefix = null, bool $explicityMap = false)
     {
         $this->rootElementName = $rootElementName;
         $this->namespaces = $namespaces;
         $this->preserveCaseName = !is_null($rootElementName) || $preserveCaseName;
         $this->addNamespaceRoot = $addNamespaceRoot;
         $this->usePrefix = $usePrefix;
+        $this->explicityMap = $explicityMap;
     }
 
     public function getRootElementName(): ?string
@@ -46,5 +48,10 @@ class XmlEntity
     public function getUsePrefix(): ?string
     {
         return $this->usePrefix;
+    }
+
+    public function getExplicityMap(): bool
+    {
+        return $this->explicityMap;
     }
 }

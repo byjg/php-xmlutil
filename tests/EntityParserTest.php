@@ -9,6 +9,7 @@ use Tests\Fixture\ClassAddress;
 use Tests\Fixture\ClassSample1;
 use Tests\Fixture\ClassSample2;
 use Tests\Fixture\ClassWithAttributes;
+use Tests\Fixture\ClassWithAttributesExplicity;
 use Tests\Fixture\ClassWithAttributesOf;
 use Tests\Fixture\ClassWithAttrNamespace;
 
@@ -139,6 +140,7 @@ class EntityParserTest extends TestCase
         $entity = new ClassWithAttributes();
         $entity->setName('John');
         $entity->setAge(30);
+        $entity->setShouldBeIgnored('This should be rendered');
 
         $address = new ClassAddress();
         $address->setStreet('Main St');
@@ -159,6 +161,24 @@ class EntityParserTest extends TestCase
                             . "<addr:Number>123</addr:Number>"
                         . "</addr:Address>"
                     . "</Person>",
+            $result
+        );
+    }
+
+    public function testClassWithAttributesExplicitly()
+    {
+        $entity = new ClassWithAttributesExplicity();
+        $entity->setName('John');
+        $entity->setAge(30);
+
+        $parser = new EntityParser();
+        $result = $parser->parse($entity);
+        $result = $result->toString(noHeader: true);
+
+        $this->assertEquals(
+            "<Person xmlns=\"http://example.com\" xmlns:ns1=\"http://www.example.com/person\">"
+            . "<Name>John</Name>"
+            . "</Person>",
             $result
         );
     }

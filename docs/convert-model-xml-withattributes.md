@@ -67,16 +67,24 @@ The output will be:
 
 Properties:
 
-- `rootElementName`: The name of the root element. Default is the class name.
-- `preserveCase`: Preserve the case of the element name. Default is false.
-- `namespace`: The namespace of the element. Need to an associative array with prefix as key and namespace as value. Default is empty.
-- `xmlDeclaration`: Add the XML declaration. Default is true.
+| Property           | Description                                                                                                         | Default        |
+|--------------------|---------------------------------------------------------------------------------------------------------------------|----------------|
+| `rootElementName`  | The name of the root element.                                                                                       | The class name |
+| `preserveCaseName` | Preserve the case of the element name.                                                                              | false          |
+| `namespaces`       | Array with the namespace of the element. Need to be an associative array with prefix as key and namespace as value. | []             |
+| `addNamespaceRoot` | Add the namespace to the root element if the object is a child.                                                     | true           |
+| `usePrefix`        | Force use the prefix in the element name.                                                                           | empty          |
+| `explicityMap`     | If true, only the properties with XmlProperty will be mapped.                                                       | false          |
 
 ## The XmlProperty Attribute
 
 Properties:
 
-- `elementName`: The name of the element. Default is the property name.
-- `preserveCase`: Preserve the case of the element name. Default is false.
-- `namespace`: The namespace of the element. Need to an associative array with prefix as key and namespace as value. Default is empty.
-- `isAttribute`: If the element is an attribute instead of a node. Default is false.
+| Property        | Description                                                                                              | Default           |
+|-----------------|----------------------------------------------------------------------------------------------------------|-------------------|
+| `elementName`   | The name of the element different from the property name.                                                | The property name |
+| `preserveCase`  | Preserve the case of the element name, if false, all elements will be lowercase.                         | false             |
+| `namespaces`    | The namespace of the element. Need to be an associative array with prefix as key and namespace as value. | empty             |
+| `isAttribute`   | If the element is an attribute of the parent node instead of a node.                                     | false             |
+| `isAttributeOf` | The name of the sibling node that will receive the attribute.                                            | empty             |
+| `ignore`        | If true, the property will not be parsed.                                                                | false             |

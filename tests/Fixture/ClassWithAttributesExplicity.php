@@ -28,11 +28,6 @@ class ClassWithAttributesExplicity
         $this->age = $age;
     }
 
-    public function setAddress(ClassAddress $address): void
-    {
-        $this->address = $address;
-    }
-
     public function getName(): string
     {
         return $this->name;
@@ -42,11 +37,4 @@ class ClassWithAttributesExplicity
     {
         return $this->age;
     }
-
-
-    public function getAddress(): ClassAddress
-    {
-        return $this->address;
-    }
-
 }

@@ -12,7 +12,7 @@ class XmlProperty
     private bool $preserveCaseName;
     private bool $isAttribute;
     private ?string $isAttributeOf;
-    private ?bool $ignore = false;
+    private bool $ignore;
 
     public function __construct(?string $elementName = null, array $namespaces = [], bool $preserveCaseName = false, bool $isAttribute = false, ?string $isAttributeOf = null, bool $ignore = false)
     {

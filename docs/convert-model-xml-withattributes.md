@@ -87,4 +87,6 @@ Properties:
 | `namespaces`    | The namespace of the element. Need to be an associative array with prefix as key and namespace as value. | empty             |
 | `isAttribute`   | If the element is an attribute of the parent node instead of a node.                                     | false             |
 | `isAttributeOf` | The name of the sibling node that will receive the attribute.                                            | empty             |
-| `ignore`        | If true, the property will not be parsed.                                                                | false             |
+| `isChildOf`     | The name of the sibling node that will receive the child node.                                           | empty             |
+| `ignore`        | If true, the property will not be parsed.                                                                | false             | 
+| `ignoreEmpty`   | If true will ignore empty strings                                                                        | empty             |

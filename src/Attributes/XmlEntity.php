@@ -11,6 +11,8 @@ class XmlEntity
     private ?string $rootElementName;
     private array $namespaces;
     private bool $preserveCaseName;
+    private bool $preserveCaseNameChild;
+
     private bool $addNamespaceRoot;
     private ?string $usePrefix;
     private bool $explicityMap = false;
@@ -19,7 +21,8 @@ class XmlEntity
     {
         $this->rootElementName = $rootElementName;
         $this->namespaces = $namespaces;
-        $this->preserveCaseName = $preserveCaseName;
+        $this->preserveCaseNameChild = $preserveCaseName;
+        $this->preserveCaseName = (!empty($rootElementName) || $preserveCaseName);
         $this->addNamespaceRoot = $addNamespaceRoot;
         $this->usePrefix = $usePrefix;
         $this->explicityMap = $explicityMap;
@@ -38,6 +41,11 @@ class XmlEntity
     public function getPreserveCaseName(): bool
     {
         return $this->preserveCaseName;
+    }
+
+    public function getPreserveCaseNameChild(): bool
+    {
+        return $this->preserveCaseNameChild;
     }
 
     public function getAddNamespaceRoot(): bool

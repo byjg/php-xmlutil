@@ -405,7 +405,7 @@ class EntityParserTest extends TestCase
     {
         $entity = new ClassWithAttrNamespace();
         $entity->setName('John');
-        $entity->setShouldNotAllowEmpty(0);
+        $entity->setShouldNotAllowEmpty('0');
 
         $parser = new EntityParser();
         $result = $parser->parse($entity)->toString(noHeader: true);

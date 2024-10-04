@@ -12,6 +12,7 @@ use Tests\Fixture\ClassWithAttributes;
 use Tests\Fixture\ClassWithAttributesExplicity;
 use Tests\Fixture\ClassWithAttributesOf;
 use Tests\Fixture\ClassWithAttrNamespace;
+use Tests\Fixture\ClassWithChildOf;
 
 class EntityParserTest extends TestCase
 {
@@ -207,6 +208,27 @@ class EntityParserTest extends TestCase
             . "<addr:Number>123</addr:Number>"
             . "</addr:Address>"
             . "</Person>",
+            $result
+        );
+    }
+
+    public function testClassWithChildOf()
+    {
+        $entity = new ClassWithChildOf();
+        $entity->setName('John');
+        $entity->setProfessionName('Analist');
+
+        $parser = new EntityParser();
+        $result = $parser->parse($entity)->toString(noHeader: true);
+
+        $this->assertEquals(
+            "<Person xmlns=\"http://example.com\" xmlns:ns1=\"http://www.example.com/person\">"
+            . "<Name>John"
+                . "<Profession>"
+                . "<Name>Analist</Name>"
+                . "</Profession>"
+            . '</Name>'
+            . '</Person>',
             $result
         );
     }

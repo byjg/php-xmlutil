@@ -119,9 +119,10 @@ class EntityParser
         $transformer = function (?XmlProperty $property, $parsedValue, $propertyName) use ($xml, $rootMetadata) {
             $name = $property?->getElementName() ?? $propertyName;
             $name = (($property?->getPreserveCaseName() ?? false) || $rootMetadata->getPreserveCaseNameChild()) ? $name : strtolower($name);
-            $isAttribute = $property?->getIsAttribute();
+            $isAttribute = $property?->isAttribute();
             $isAttributeOf = $property?->getIsAttributeOf();
             $hasAttribute = !is_null($property?->getElementName());
+            $isChildOf = $property?->getChildOf();
 
             if ($property?->getIgnore() ?? false) {
                 return false;
@@ -136,8 +137,8 @@ class EntityParser
             }
 
             return $this->processArray($parsedValue, $propertyName, $name, $xml)
-                || $this->processObject($parsedValue, $name, $xml)
-                || $this->processScalar($parsedValue, $rootMetadata, $isAttribute, $isAttributeOf, $name, $xml);
+                || $this->processObject($parsedValue, $name, $isChildOf, $xml)
+                || $this->processScalar($parsedValue, $rootMetadata, $isAttribute, $isAttributeOf, $name, $isChildOf, $xml);
         };
 
         Serialize::from($array)
@@ -179,21 +180,28 @@ class EntityParser
         return true;
     }
 
-    protected function processObject($parsedValue, $name, $xml): bool
+    protected function processObject($parsedValue, $name, $isChildOf, $xml): bool
     {
         if (!is_object($parsedValue)) {
             return false;
         }
-        $subnode = $xml->appendChild("$name");
+
+        if (!empty($isChildOf)) {
+            $subnode = $xml->selectSingleNode($isChildOf)->appendChild($name);
+        } else {
+            $subnode = $xml->appendChild($name);
+        }
         $this->arrayToXml($parsedValue, $subnode);
 
         return true;
     }
 
-    protected function processScalar($parsedValue, $rootMetadata, $isAttribute, $isAttributeOf, $name, XmlNode $xml): bool
+    protected function processScalar($parsedValue, $rootMetadata, $isAttribute, $isAttributeOf, $name, $isChildOf, XmlNode $xml): bool
     {
         if ($isAttribute === true) {
             $xml->addAttribute($name, htmlspecialchars("$parsedValue"));
+        } else if (!empty($isChildOf)) {
+            $xml->selectSingleNode($isChildOf)->appendChild($name, htmlspecialchars("$parsedValue"));
         } else if (!empty($isAttributeOf)) {
             $xml->selectSingleNode($isAttributeOf)->addAttribute($name, htmlspecialchars("$parsedValue"));
         } else {

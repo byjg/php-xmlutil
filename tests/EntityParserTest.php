@@ -214,21 +214,40 @@ class EntityParserTest extends TestCase
 
     public function testClassWithChildOf()
     {
-        $entity = new ClassWithChildOf();
-        $entity->setName('John');
-        $entity->setProfessionName('Analist');
+        $entity1 = new ClassWithChildOf();
+        $entity1->setName('John');
+        $entity1->setProfessionName('Analist');
+
+        $entity2 = new ClassWithChildOf();
+        $entity2->setName('Gilbert');
+        $entity2->setProfessionName('Engineer');
+
+        $classes = [
+            [
+                $entity1,
+                $entity2
+            ]
+        ];
 
         $parser = new EntityParser();
-        $result = $parser->parse($entity)->toString(noHeader: true);
+        $result = $parser->parse($classes)->toString(noHeader: true);
 
         $this->assertEquals(
-            "<Person xmlns=\"http://example.com\" xmlns:ns1=\"http://www.example.com/person\">"
-            . "<Name>John"
-                . "<Profession>"
-                . "<Name>Analist</Name>"
-                . "</Profession>"
-            . '</Name>'
-            . '</Person>',
+            "<root xmlns=\"http://example.com\" xmlns:ns1=\"http://www.example.com/person\">"
+            . '<Person>'
+                . "<Name>John"
+                    . "<Profession>"
+                    . "<Title>Analist</Title>"
+                    . "</Profession>"
+                . '</Name>'
+            . '</Person><Person>'
+                . "<Name>Gilbert"
+                    . "<Profession>"
+                    . "<Title>Engineer</Title>"
+                    . "</Profession>"
+                . '</Name>'
+            . '</Person>'
+            . '</root>',
             $result
         );
     }

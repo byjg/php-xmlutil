@@ -14,11 +14,9 @@ class ClassWithChildOf
 {
     #[XmlProperty(elementName: 'Name')]
     private string $name;
-    #[XmlProperty(elementName: 'Address', isChildOf: "Name")]
-    private ClassAddress $address;
     #[XmlProperty(elementName: 'Profession', isChildOf: "Name")]
     public string $profession = '';
-    #[XmlProperty(elementName: 'Name', isChildOf: "//Profession")]
+    #[XmlProperty(elementName: 'Title', isChildOf: "(//Profession)[last()]")]
     private string $professionName;
 
 

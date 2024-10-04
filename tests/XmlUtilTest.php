@@ -562,7 +562,7 @@ class XmlUtilTest extends TestCase
         $class->Name = 'John';
         $class->age = 30;
         $class->city = '';
-        $class->address = []
+        $class->addresses = [];
 
         $node->appendObject($class);
 

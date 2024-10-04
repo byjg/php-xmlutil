@@ -15,6 +15,9 @@ class ClassWithAttrNamespace
     #[XmlProperty(elementName: 'Name')]
     private string $name;
 
+    #[XmlProperty(ignoreEmpty: true)]
+    private string $shouldNotAllowEmpty = '';
+
 
     public function setName(string $name): void
     {
@@ -24,5 +27,15 @@ class ClassWithAttrNamespace
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function setShouldNotAllowEmpty(string $shouldNotAllowEmpty): void
+    {
+        $this->shouldNotAllowEmpty = $shouldNotAllowEmpty;
+    }
+
+    public function getShouldNotAllowEmpty(): string
+    {
+        return $this->shouldNotAllowEmpty;
     }
 }

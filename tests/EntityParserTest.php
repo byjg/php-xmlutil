@@ -382,6 +382,58 @@ class EntityParserTest extends TestCase
             . "</p:Person>",
             $result
         );
+    }
 
+    public function testClassAttrWithNamespaceDontEmptySpaces()
+    {
+        $entity = new ClassWithAttrNamespace();
+        $entity->setName('John');
+        $entity->setShouldNotAllowEmpty(' ');
+
+        $parser = new EntityParser();
+        $result = $parser->parse($entity)->toString(noHeader: true);
+
+        $this->assertEquals(
+            "<p:Person xmlns:p=\"http://example.com\">"
+            . "<Name>John</Name>"
+            . "</p:Person>",
+            $result
+        );
+    }
+
+    public function testClassAttrWithNamespaceAllowZero()
+    {
+        $entity = new ClassWithAttrNamespace();
+        $entity->setName('John');
+        $entity->setShouldNotAllowEmpty(0);
+
+        $parser = new EntityParser();
+        $result = $parser->parse($entity)->toString(noHeader: true);
+
+        $this->assertEquals(
+            "<p:Person xmlns:p=\"http://example.com\">"
+            . "<Name>John</Name>"
+            . "<shouldNotAllowEmpty>0</shouldNotAllowEmpty>"
+            . "</p:Person>",
+            $result
+        );
+    }
+
+    public function testClassAttrWithNamespaceAllowNotEmpty()
+    {
+        $entity = new ClassWithAttrNamespace();
+        $entity->setName('John');
+        $entity->setShouldNotAllowEmpty('1');
+
+        $parser = new EntityParser();
+        $result = $parser->parse($entity)->toString(noHeader: true);
+
+        $this->assertEquals(
+            "<p:Person xmlns:p=\"http://example.com\">"
+            . "<Name>John</Name>"
+            . "<shouldNotAllowEmpty>1</shouldNotAllowEmpty>"
+            . "</p:Person>",
+            $result
+        );
     }
 }

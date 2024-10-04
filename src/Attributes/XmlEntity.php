@@ -19,7 +19,7 @@ class XmlEntity
     {
         $this->rootElementName = $rootElementName;
         $this->namespaces = $namespaces;
-        $this->preserveCaseName = !is_null($rootElementName) || $preserveCaseName;
+        $this->preserveCaseName = $preserveCaseName;
         $this->addNamespaceRoot = $addNamespaceRoot;
         $this->usePrefix = $usePrefix;
         $this->explicityMap = $explicityMap;

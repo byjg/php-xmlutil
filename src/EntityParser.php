@@ -118,13 +118,18 @@ class EntityParser
 
         $transformer = function (?XmlProperty $property, $parsedValue, $propertyName) use ($xml, $rootMetadata) {
             $name = $property?->getElementName() ?? $propertyName;
-            $name = ($property?->getPreserveCaseName() ?? false) ? $name : strtolower($name);
+            $name = (($property?->getPreserveCaseName() ?? false) || ($rootMetadata?->getPreserveCaseName() ?? false)) ? $name : strtolower($name);
             $isAttribute = $property?->getIsAttribute();
             $isAttributeOf = $property?->getIsAttributeOf();
             $hasAttribute = !is_null($property?->getElementName());
 
             if ($property?->getIgnore() ?? false) {
                 return false;
+            }
+            if ($property?->getIgnoreEmpty() ?? false) {
+                if (!is_numeric($parsedValue) && empty(trim($parsedValue))) {
+                    return false;
+                }
             }
             if (!$hasAttribute && $this->explicityMap) {
                 return false;

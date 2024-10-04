@@ -13,8 +13,9 @@ class XmlProperty
     private bool $isAttribute;
     private ?string $isAttributeOf;
     private bool $ignore;
+    private bool $ignoreEmpty;
 
-    public function __construct(?string $elementName = null, array $namespaces = [], bool $preserveCaseName = false, bool $isAttribute = false, ?string $isAttributeOf = null, bool $ignore = false)
+    public function __construct(?string $elementName = null, array $namespaces = [], bool $preserveCaseName = false, bool $isAttribute = false, ?string $isAttributeOf = null, bool $ignore = false, bool $ignoreEmpty = false)
     {
         $this->elementName = $elementName;
         $this->namespaces = $namespaces;
@@ -22,6 +23,7 @@ class XmlProperty
         $this->isAttributeOf = $isAttributeOf;
         $this->isAttribute = empty($this->isAttributeOf) && $isAttribute;
         $this->ignore = $ignore;
+        $this->ignoreEmpty = $ignoreEmpty;
     }
 
     public function getElementName(): ?string
@@ -52,5 +54,10 @@ class XmlProperty
     public function getIgnore(): bool
     {
         return $this->ignore;
+    }
+
+    public function getIgnoreEmpty(): bool
+    {
+        return $this->ignoreEmpty;
     }
 }

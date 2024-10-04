@@ -8,6 +8,7 @@ use ByJG\XmlUtil\XmlDocument;
 use ByJG\XmlUtil\XmlNode;
 use PHPUnit\Framework\TestCase;
 use Tests\Fixture\ClassSample1;
+use Tests\Fixture\ClassSampleWithArrayElement;
 
 class XmlUtilTest extends TestCase
 {
@@ -546,7 +547,36 @@ class XmlUtilTest extends TestCase
         $this->assertEquals('root', $rootNode->DOMNode()->nodeName);
 
         $this->assertNull($rootNode->parentNode());
+    }
 
+    public function testShouldAcceptPropertyIgnoreEmptyOnArray()
+    {
 
+        $xmlStr = '<root/>';
+        $xml = new XmlDocument($xmlStr);
+
+        $xml->appendChild('test', 'value');
+        $node = $xml->appendChild('test2', 'value2');
+
+        $class = new ClassSampleWithArrayElement();
+        $class->Name = 'John';
+        $class->age = 30;
+        $class->city = '';
+        $class->addresses = [];
+
+        $node->appendObject($class);
+
+        $this->assertEquals(
+            self::XML_HEADER . "\n" .
+            '<root>'
+            . '<test>value</test>'
+            . '<test2>value2'
+            .   '<name>John</name>'
+            .   '<age>30</age>'
+            . '</test2>'
+            . '</root>'
+            . "\n",
+            $xml->toString()
+        );
     }
 }

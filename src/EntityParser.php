@@ -128,8 +128,14 @@ class EntityParser
                 return false;
             }
             if ($property?->getIgnoreEmpty() ?? false) {
-                if (!is_numeric($parsedValue) && empty(trim($parsedValue))) {
-                    return false;
+                if (!is_numeric($parsedValue)) {
+                    if (is_string($parsedValue)) {
+                        $parsedValue = trim($parsedValue);
+                    }
+
+                    if (empty($parsedValue)) {
+                        return false;
+                    }
                 }
             }
             if (!$hasAttribute && $this->explicityMap) {

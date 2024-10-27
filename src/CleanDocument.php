@@ -1,17 +1,17 @@
 <?php
 
-namespace ByJG\Util;
+namespace ByJG\XmlUtil;
 
 class CleanDocument
 {
-    protected $document;
+    protected string $document;
 
-    public function __construct($document)
+    public function __construct(string $document)
     {
         $this->document = $document;
     }
 
-    public function stripAllTags()
+    public function stripAllTags(): string
     {
         return strip_tags($this->document);
     }
@@ -20,28 +20,28 @@ class CleanDocument
      * @param array $allowedTags
      * @return $this
      */
-    public function stripTagsExcept(array $allowedTags)
+    public function stripTagsExcept(array $allowedTags): self
     {
         $this->document = strip_tags($this->document, '<' . implode('><', $allowedTags) . '>');
         return $this;
     }
 
     /**
-     * @param $property
+     * @param string $property
      * @return $this
      */
-    public function removeContentByProperty($property)
+    public function removeContentByProperty(string $property): self
     {
         $this->removeContentByTag('\w', $property);
         return $this;
     }
 
     /**
-     * @param $tag
+     * @param string $tag
      * @param string $property
      * @return $this
      */
-    public function removeContentByTag($tag, $property = '')
+    public function removeContentByTag(string $tag, string $property = ''): self
     {
         $pattern = '~<(' . $tag . ')\b\s[^>]*>.*?</\1>~';
         if (!empty($property)) {
@@ -52,18 +52,18 @@ class CleanDocument
     }
 
     /**
-     * @param $tag
+     * @param string $tag
      * @param string $property
      * @return $this
      */
-    public function removeContentByTagWithoutProperty($tag, $property)
+    public function removeContentByTagWithoutProperty(string $tag, string $property): self
     {
-        $pattern = '~<(' . $tag . ')\b\s(?![^>]*' . $property . '\s*?=?)[^>]*>.*?<\/\1>~';
+        $pattern = '~<(' . $tag . ')\b\s(?![^>]*' . $property . '\s*?=?)[^>]*>.*?</\1>~';
         $this->document = preg_replace($pattern, '', $this->document);
         return $this;
     }
 
-    public function get()
+    public function get(): string
     {
         return $this->document;
     }

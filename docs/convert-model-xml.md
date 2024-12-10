@@ -1,3 +1,7 @@
+---
+sidebar_position: 4
+---
+
 # Convert a model to XML
 
 You can convert any model to XML by using the class EntityParser. 

@@ -1,3 +1,7 @@
+---
+sidebar_position: 3
+---
+
 # Querying a Document
 
 ## Select a single node based on XPath

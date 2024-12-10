@@ -1,3 +1,7 @@
+---
+sidebar_position: 2
+---
+
 # Working with xml namespaces
 
 Add a namespace to the document

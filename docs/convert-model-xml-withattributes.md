@@ -1,3 +1,7 @@
+---
+sidebar_position: 5
+---
+
 # Convert a model to XML with Attributes
 
 You can add PHP attributes to your model to help the EntityParser to convert the model to XML. 

@@ -88,12 +88,16 @@ class XmlDocument extends XmlNode
     /**
      * Adjust xml string to the proper format
      *
-     * @param string $string - XML string document
+     * @param string|bool $string $string - XML string document
      * @return string - Return the string converted
      * @throws XmlUtilException
      */
-    protected function fixXmlHeader(string $string): string
+    protected function fixXmlHeader(string|bool $string): string
     {
+        if ($string === false) {
+            throw new XmlUtilException("Error loading XML Document.", 250);
+        }
+
         $string = $this->removeBom($string);
 
         if (str_contains($string, "<?xml")) {
@@ -149,8 +153,11 @@ class XmlDocument extends XmlNode
         }
     }
 
-    protected function removeBom(string $xmlStr): string
+    protected function removeBom(string|bool $xmlStr): string|null
     {
+        if ($xmlStr === false) {
+            throw new XmlUtilException("Error loading XML Document.", 250);
+        }
         return preg_replace('/^\xEF\xBB\xBF/', '', $xmlStr);
     }
 

@@ -13,5 +13,5 @@ $node = $xml->selectSingleNode('//subnode');
 ## Select all nodes based on XPath
 
 ```php
-$nodeList = $xml->selectNodes($myNode, '//subnode');
+$nodeList = $xml->selectNodes('//subnode');
 ```

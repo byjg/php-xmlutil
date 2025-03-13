@@ -11,8 +11,8 @@ Example:
 <?php
 
 use ByJG\XmlUtil\EntityParser;
-use ByJG\XmlUtil\XmlMapping\XmlEntity;
-use ByJG\XmlUtil\XmlMapping\XmlProperty;
+use ByJG\XmlUtil\Attributes\XmlEntity;
+use ByJG\XmlUtil\Attributes\XmlProperty;
 
 #[XmlEntity(
     rootElementName: 'Person',

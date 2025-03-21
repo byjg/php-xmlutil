@@ -28,8 +28,11 @@ use ByJG\XmlUtil\XmlDocument;
 
 $file = new File('/path/to/file.xml');
 
-// Get the file contents
+// Get the file contents (returns string|bool)
 $contents = $file->getContents();
+if ($contents === false) {
+    // Handle error
+}
 
 // Create an XmlDocument from the file
 $xml = new XmlDocument($file);

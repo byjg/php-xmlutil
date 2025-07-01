@@ -263,7 +263,9 @@ class XmlNode
 
     public function toArray(Closure $func = null): array
     {
-        return $this->_toArray($this->DOMNode(), $func);
+        $sxml = simplexml_import_dom($this->DOMNode());
+
+        return [$sxml->getName() => $this->_toArray($sxml, $func)];
     }
 
     protected function _toArray(SimpleXMLElement|DOMNode|array $arr, Closure|null $func): array

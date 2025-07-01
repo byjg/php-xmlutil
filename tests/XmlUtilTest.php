@@ -316,7 +316,7 @@ class XmlUtilTest extends TestCase
         $xml = new XmlDocument($file, preserveWhiteSpace: false);
 
         $array = $xml->toArray();
-        $this->assertEquals([ "node" => [ "subnode" => "value"]], $array);
+        $this->assertEquals(['root' => [ "node" => [ "subnode" => "value"]]], $array);
     }
 
     public function testXml2Array2(): void
@@ -324,7 +324,7 @@ class XmlUtilTest extends TestCase
         $xml = new XmlDocument('<root><node param="pval">value</node></root>');
 
         $array = $xml->toArray();
-        $this->assertEquals([ "node" => "value"], $array);
+        $this->assertEquals(['root' => [ "node" => "value"]], $array);
     }
 
     public function testSelectNodesNamespace(): void

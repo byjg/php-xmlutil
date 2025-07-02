@@ -261,7 +261,7 @@ class XmlNode
     }
 
 
-    public function toArray(Closure $func = null): array
+    public function toArray(?Closure $func = null): array
     {
         $sxml = simplexml_import_dom($this->DOMNode());
         return [$sxml->getName() => $this->_toArray($sxml)];
@@ -396,7 +396,7 @@ class XmlNode
         return $this->_toString($this->DOMDocument(), $format, $this->node);
     }
 
-    protected function _toString(DOMDocument $domDocument, bool $format = false, DOMNode $node = null): string
+    protected function _toString(DOMDocument $domDocument, bool $format = false, ?DOMNode $node = null): string
     {
         if (!$format) {
             return $domDocument->saveXML($node);

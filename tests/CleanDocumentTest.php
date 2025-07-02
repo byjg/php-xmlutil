@@ -3,12 +3,14 @@
 namespace Tests;
 
 use ByJG\XmlUtil\CleanDocument;
+use Override;
 use PHPUnit\Framework\TestCase;
 
 class CleanDocumentTest extends TestCase
 {
     protected CleanDocument $object;
 
+    #[Override]
     public function setUp(): void
     {
         $this->object = new CleanDocument(

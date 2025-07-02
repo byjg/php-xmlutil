@@ -269,37 +269,41 @@ class XmlNode
 
     protected function _toArray(SimpleXMLElement $node): array|string
     {
+        $hasAttributes = (count($node->attributes()) > 0);
+        $hasChildren = (count($node->children()) > 0);
+        $textValue = trim((string)$node);
+        $hasText = (strlen($textValue) > 0);
+
+        if (!$hasAttributes && !$hasChildren) {
+            return $textValue;
+        }
+
         $output = [];
 
-        foreach ($node->attributes() as $attrName => $attrValue) {
-            $output['@attributes'][$attrName] = (string)$attrValue;
+        if ($hasAttributes) {
+            foreach ($node->attributes() as $attrName => $attrValue) {
+                $output['@attributes'][$attrName] = (string)$attrValue;
+            }
         }
 
-        foreach ($node->children() as $child) {
-            $childName = $child->getName();
-            $childData = $this->_toArray($child);
+        if ($hasChildren) {
+            foreach ($node->children() as $child) {
+                $childName = $child->getName();
+                $childData = $this->_toArray($child);
 
-            if (isset($output[$childName])) {
-                if (!is_array($output[$childName]) || !isset($output[$childName][0])) {
-                    $output[$childName] = [$output[$childName]];
+                if (isset($output[$childName])) {
+                    if (!is_array($output[$childName]) || !isset($output[$childName][0])) {
+                        $output[$childName] = [$output[$childName]];
+                    }
+                    $output[$childName][] = $childData;
+                } else {
+                    $output[$childName] = $childData;
                 }
-                $output[$childName][] = $childData;
-            } else {
-                $output[$childName] = $childData;
             }
         }
 
-        $text = trim((string)$node);
-        if (strlen($text) > 0) {
-            if (!empty($output)) {
-                $output['@value'] = $text;
-            } else {
-                $output = $text;
-            }
-        }
-
-        if (is_array($output) && empty($output)) {
-            return '';
+        if ($hasText) {
+            $output['@value'] = $textValue;
         }
 
         return $output;

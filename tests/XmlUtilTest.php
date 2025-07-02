@@ -352,6 +352,29 @@ class XmlUtilTest extends TestCase
         $this->assertEquals($expected, $array);
     }
 
+    public function testXmlToArrayWithMixedContent(): void
+    {
+        $xmlString = '<root><node param="pval">value<other>value</other><node2 a="2"></node2></node></root>';
+        $xml = new XmlDocument($xmlString);
+        $array = $xml->toArray();
+
+        $expected = [
+            'root' => [
+                'node' => [
+                    '@attributes' => ['param' => 'pval'],
+                    '@value' => 'value',
+                    'other' => 'value',
+                    'node2' => [
+                        '@attributes' => ['a' => '2']
+                    ]
+                ]
+            ]
+        ];
+
+        $this->assertEquals($expected, $array);
+    }
+
+
     public function testSelectNodesNamespace(): void
     {
         $file = new File(__DIR__ . '/feed-atom.txt');

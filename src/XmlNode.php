@@ -263,34 +263,50 @@ class XmlNode
 
     public function toArray(Closure $func = null): array
     {
-        return $this->_toArray($this->DOMNode(), $func);
+        $sxml = simplexml_import_dom($this->DOMNode());
+        return [$sxml->getName() => $this->_toArray($sxml)];
     }
 
-    protected function _toArray(SimpleXMLElement|DOMNode|array $arr, Closure|null $func): array
+    protected function _toArray(SimpleXMLElement $node): array|string
     {
-        if ($arr instanceof SimpleXMLElement) {
-            return $this->_toArray((array) $arr, $func);
+        $hasAttributes = (count($node->attributes()) > 0);
+        $hasChildren = (count($node->children()) > 0);
+        $textValue = trim((string)$node);
+        $hasText = (strlen($textValue) > 0);
+
+        if (!$hasAttributes && !$hasChildren) {
+            return $textValue;
         }
 
-        if ($arr instanceof DOMNode) {
-            return $this->_toArray((array) simplexml_import_dom($arr), $func);
-        }
+        $output = [];
 
-        $newArr = array();
-        if (!empty($arr)) {
-            foreach ($arr as $key => $value) {
-                $newArr[$key] =
-                    (
-                    is_array($value)
-                    || ($value instanceof DOMNode)
-                    || ($value instanceof SimpleXMLElement)
-                        ? $this->_toArray($value, $func)
-                        : (!empty($func) ? $func($value) : $value)
-                    );
+        if ($hasAttributes) {
+            foreach ($node->attributes() as $attrName => $attrValue) {
+                $output['@attributes'][$attrName] = (string)$attrValue;
             }
         }
 
-        return $newArr;
+        if ($hasChildren) {
+            foreach ($node->children() as $child) {
+                $childName = $child->getName();
+                $childData = $this->_toArray($child);
+
+                if (isset($output[$childName])) {
+                    if (!is_array($output[$childName]) || !isset($output[$childName][0])) {
+                        $output[$childName] = [$output[$childName]];
+                    }
+                    $output[$childName][] = $childData;
+                } else {
+                    $output[$childName] = $childData;
+                }
+            }
+        }
+
+        if ($hasText) {
+            $output['@value'] = $textValue;
+        }
+
+        return $output;
     }
 
     /**

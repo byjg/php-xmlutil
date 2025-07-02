@@ -310,22 +310,70 @@ class XmlUtilTest extends TestCase
 
     }
 
-    public function testXml2Array1(): void
+    public function testXml2Array(): void
     {
         $file = new File(__DIR__ . '/buggy.xml');
         $xml = new XmlDocument($file, preserveWhiteSpace: false);
 
         $array = $xml->toArray();
-        $this->assertEquals([ "node" => [ "subnode" => "value"]], $array);
+        $this->assertEquals(['root' => [ "node" => [ "subnode" => "value"]]], $array);
     }
 
-    public function testXml2Array2(): void
+    public function testXmlToArrayWithAttributeAndNoText(): void
+    {
+        $xml = new XmlDocument('<root><node param="pval"/></root>');
+        $array = $xml->toArray();
+
+        $expected = [
+            'root' => [
+                'node' => [
+                    '@attributes' => ['param' => 'pval']
+                ]
+            ]
+        ];
+
+        $this->assertEquals($expected, $array);
+    }
+
+    public function testXmlToArrayWithAttributeAndText(): void
     {
         $xml = new XmlDocument('<root><node param="pval">value</node></root>');
-
         $array = $xml->toArray();
-        $this->assertEquals([ "node" => "value"], $array);
+
+        $expected = [
+            'root' => [
+                'node' => [
+                    '@attributes' => ['param' => 'pval'],
+                    '@value' => 'value'
+                ]
+            ]
+        ];
+
+        $this->assertEquals($expected, $array);
     }
+
+    public function testXmlToArrayWithMixedContent(): void
+    {
+        $xmlString = '<root><node param="pval">value<other>value</other><node2 a="2"></node2></node></root>';
+        $xml = new XmlDocument($xmlString);
+        $array = $xml->toArray();
+
+        $expected = [
+            'root' => [
+                'node' => [
+                    '@attributes' => ['param' => 'pval'],
+                    '@value' => 'value',
+                    'other' => 'value',
+                    'node2' => [
+                        '@attributes' => ['a' => '2']
+                    ]
+                ]
+            ]
+        ];
+
+        $this->assertEquals($expected, $array);
+    }
+
 
     public function testSelectNodesNamespace(): void
     {

@@ -310,19 +310,36 @@ class XmlUtilTest extends TestCase
 
     }
 
-    public function testXml2Array(): void
+    public function testXml2Array1(): void
     {
         $file = new File(__DIR__ . '/buggy.xml');
         $xml = new XmlDocument($file, preserveWhiteSpace: false);
 
         $array = $xml->toArray();
+        $this->assertEquals([ "node" => [ "subnode" => "value"]], $array);
+    }
+
+    public function testXml2Array2(): void
+    {
+        $xml = new XmlDocument('<root><node param="pval">value</node></root>');
+
+        $array = $xml->toArray();
+        $this->assertEquals([ "node" => "value"], $array);
+    }
+
+    public function testXml2FullArray(): void
+    {
+        $file = new File(__DIR__ . '/buggy.xml');
+        $xml = new XmlDocument($file, preserveWhiteSpace: false);
+
+        $array = $xml->toFullArray();
         $this->assertEquals(['root' => [ "node" => [ "subnode" => "value"]]], $array);
     }
 
     public function testXmlToArrayWithAttributeAndNoText(): void
     {
         $xml = new XmlDocument('<root><node param="pval"/></root>');
-        $array = $xml->toArray();
+        $array = $xml->toFullArray();
 
         $expected = [
             'root' => [
@@ -338,7 +355,7 @@ class XmlUtilTest extends TestCase
     public function testXmlToArrayWithAttributeAndText(): void
     {
         $xml = new XmlDocument('<root><node param="pval">value</node></root>');
-        $array = $xml->toArray();
+        $array = $xml->toFullArray();
 
         $expected = [
             'root' => [
@@ -356,7 +373,7 @@ class XmlUtilTest extends TestCase
     {
         $xmlString = '<root><node param="pval">value<other>value</other><node2 a="2"></node2></node></root>';
         $xml = new XmlDocument($xmlString);
-        $array = $xml->toArray();
+        $array = $xml->toFullArray();
 
         $expected = [
             'root' => [

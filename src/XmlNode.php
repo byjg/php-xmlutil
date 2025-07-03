@@ -260,14 +260,13 @@ class XmlNode
         }
     }
 
-
-    public function toArray(Closure $func = null): array
+    public function toFullArray(): array
     {
         $sxml = simplexml_import_dom($this->DOMNode());
-        return [$sxml->getName() => $this->_toArray($sxml)];
+        return [$sxml->getName() => $this->_toFullArray($sxml)];
     }
 
-    protected function _toArray(SimpleXMLElement $node): array|string
+    protected function _toFullArray(SimpleXMLElement $node): array|string
     {
         $hasAttributes = (count($node->attributes()) > 0);
         $hasChildren = (count($node->children()) > 0);
@@ -289,7 +288,7 @@ class XmlNode
         if ($hasChildren) {
             foreach ($node->children() as $child) {
                 $childName = $child->getName();
-                $childData = $this->_toArray($child);
+                $childData = $this->_toFullArray($child);
 
                 if (isset($output[$childName])) {
                     if (!is_array($output[$childName]) || !isset($output[$childName][0])) {
@@ -308,6 +307,39 @@ class XmlNode
 
         return $output;
     }
+
+    public function toArray(Closure $func = null): array
+    {
+        return $this->_toArray($this->DOMNode(), $func);
+    }
+
+    protected function _toArray(SimpleXMLElement|DOMNode|array $arr, Closure|null $func = null): array
+    {
+        if ($arr instanceof SimpleXMLElement) {
+            return $this->_toArray((array) $arr, $func);
+        }
+
+        if ($arr instanceof DOMNode) {
+            return $this->_toArray((array) simplexml_import_dom($arr), $func);
+        }
+
+        $newArr = array();
+        if (!empty($arr)) {
+            foreach ($arr as $key => $value) {
+                $newArr[$key] =
+                    (
+                    is_array($value)
+                    || ($value instanceof DOMNode)
+                    || ($value instanceof SimpleXMLElement)
+                        ? $this->_toArray($value, $func)
+                        : (!empty($func) ? $func($value) : $value)
+                    );
+            }
+        }
+
+        return $newArr;
+    }
+
 
     /**
      * @param string|null $prefix

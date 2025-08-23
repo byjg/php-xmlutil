@@ -17,7 +17,7 @@ class XmlEntity
     private ?string $usePrefix;
     private bool $explicityMap = false;
 
-    public function __construct(?string $rootElementName = null, array $namespaces = [], bool $preserveCaseName = false, bool $addNamespaceRoot = true, string $usePrefix = null, bool $explicityMap = false)
+    public function __construct(?string $rootElementName = null, array $namespaces = [], bool $preserveCaseName = false, bool $addNamespaceRoot = true, ?string $usePrefix = null, bool $explicityMap = false)
     {
         $this->rootElementName = $rootElementName;
         $this->namespaces = $namespaces;

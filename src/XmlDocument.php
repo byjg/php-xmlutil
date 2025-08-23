@@ -88,75 +88,108 @@ class XmlDocument extends XmlNode
     /**
      * Adjust xml string to the proper format
      *
-     * @param string $string - XML string document
-     * @return string - Return the string converted
+     * @param string $string XML string document
+     * @return string Return the string converted
      * @throws XmlUtilException
      */
     protected function fixXmlHeader(string $string): string
     {
         $string = $this->removeBom($string);
 
-        if (str_contains($string, "<?xml")) {
-            $xmlTagEnd = strpos($string, "?>");
-            if ($xmlTagEnd !== false) {
-                $xmlTagEnd += 2;
-                $xmlHeader = substr($string, 0, $xmlTagEnd);
-
-                if ($xmlHeader == "<?xml?>") {
-                    $xmlHeader = "<?xml ?>";
-                }
-            } else {
-                throw new XmlUtilException("XML header bad formatted.", 251);
-            }
-
-            // Complete header elements
-            $count = 0;
-            $xmlHeader = preg_replace(
-                "/version=([\"'][\w\-.]+[\"'])/",
-                "version=\"".self::XML_VERSION."\"",
-                $xmlHeader,
-                1,
-                $count
-            );
-            if ($count == 0) {
-                $xmlHeader = substr($xmlHeader, 0, 6)."version=\"".self::XML_VERSION."\" ".substr($xmlHeader, 6);
-            }
-            $count = 0;
-            $xmlHeader = preg_replace(
-                "/encoding=([\"'][\w\-.]+[\"'])/",
-                "encoding=\"".self::XML_ENCODING."\"",
-                $xmlHeader,
-                1,
-                $count
-            );
-            if ($count == 0) {
-                $xmlHeader = substr($xmlHeader, 0, 6)."encoding=\"".self::XML_ENCODING."\" ".substr($xmlHeader, 6);
-            }
-
-            // Fix header position (first version, after encoding)
-            $xmlHeader = preg_replace(
-                "/<\?([\w\W]*)\s+(encoding=([\"'][\w\-.]+[\"']))\s+(version=([\"'][\w\-.]+[\"']))\s*\?>/",
-                "<?\\1 \\4 \\2?>",
-                $xmlHeader,
-                1,
-                $count
-            );
-
-            return $xmlHeader.substr($string, $xmlTagEnd);
-        } else {
-            $xmlHeader = '<?xml version="'.self::XML_VERSION.'" encoding="'.self::XML_ENCODING.'"?>';
-            return $xmlHeader.$string;
+        // If no XML declaration exists, add one
+        if (strncmp($string, '<?xml', 5) !== 0) {
+            return '<?xml version="' . self::XML_VERSION . '" encoding="' . self::XML_ENCODING . '"?>' . $string;
         }
+
+        // Find the end of XML declaration
+        $xmlTagEnd = strpos($string, "?>");
+        if ($xmlTagEnd === false) {
+            throw new XmlUtilException("XML header bad formatted.", 251);
+        }
+        $xmlTagEnd += 2;
+
+        // Extract header content
+        $xmlHeader = substr($string, 0, $xmlTagEnd);
+
+        // Handle empty XML declaration
+        if ($xmlHeader === '<?xml?>') {
+            return '<?xml version="' . self::XML_VERSION . '" encoding="' . self::XML_ENCODING . '"?>' . substr($string, $xmlTagEnd);
+        }
+
+        // Parse all attributes
+        $attributes = [];
+        $attributeOrder = [];
+        
+        // Match all attributes and their order, handling malformed declarations
+        if (preg_match_all('/(\w+)\s*=\s*(["\']?)([^"\'\s?>]+)\\2/', $xmlHeader, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $match) {
+                $name = $match[1];
+                $value = $match[3];
+                
+                if ($name === 'version') {
+                    // Only allow version 1.0 or 1.1
+                    $attributes[$name] = ($value === '1.0' || $value === '1.1') ? $value : self::XML_VERSION;
+                } elseif ($name === 'encoding') {
+                    // Normalize encoding value
+                    $value = strtolower($value);
+                    $attributes[$name] = ($value === 'utf8') ? 'utf-8' : $value;
+                } elseif ($name === 'standalone') {
+                    // Handle standalone attribute
+                    $value = strtolower($value);
+                    if ($value === 'yes' || $value === 'no') {
+                        $attributes[$name] = $value;
+                    }
+                }
+                
+                // Keep track of attribute order
+                $attributeOrder[] = $name;
+            }
+        }
+
+        // If no attributes were found in a malformed declaration, use defaults
+        if (empty($attributes)) {
+            return '<?xml version="' . self::XML_VERSION . '" encoding="' . self::XML_ENCODING . '"?>' . substr($string, $xmlTagEnd);
+        }
+
+        // Build the header preserving original attribute order
+        $headerParts = [];
+
+        // Always add version first
+        $headerParts[] = 'version="' . (isset($attributes['version']) ? $attributes['version'] : self::XML_VERSION) . '"';
+
+        // Add encoding if not present
+        if (!isset($attributes['encoding'])) {
+            $headerParts[] = 'encoding="' . self::XML_ENCODING . '"';
+        } else {
+            $headerParts[] = 'encoding="' . $attributes['encoding'] . '"';
+        }
+
+        // Add standalone if it was present in the original
+        if (isset($attributes['standalone'])) {
+            $headerParts[] = 'standalone="' . $attributes['standalone'] . '"';
+        }
+
+        $xmlHeader = '<?xml ' . implode(' ', $headerParts) . '?>';
+
+        return $xmlHeader . substr($string, $xmlTagEnd);
     }
 
+    /**
+     * Remove BOM from XML string if present
+     *
+     * @param string $xmlStr XML string to process
+     * @return string Processed string without BOM
+     */
     protected function removeBom(string $xmlStr): string
     {
-        return preg_replace('/^\xEF\xBB\xBF/', '', $xmlStr);
+        return str_starts_with($xmlStr, "\xEF\xBB\xBF") ? substr($xmlStr, 3) : $xmlStr;
     }
 
     /**
      *
      * @param string $filename
+     * @param bool $format
+     * @param bool $noHeader
      * @throws XmlUtilException
      */
     public function save(string $filename, bool $format = false, bool $noHeader = false): void

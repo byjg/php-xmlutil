@@ -260,13 +260,60 @@ class XmlNode
         }
     }
 
+    public function toFullArray(): array
+    {
+        $sxml = simplexml_import_dom($this->DOMNode());
+        return [$sxml->getName() => $this->_toFullArray($sxml)];
+    }
+
+    protected function _toFullArray(SimpleXMLElement $node): array|string
+    {
+        $hasAttributes = (count($node->attributes()) > 0);
+        $hasChildren = (count($node->children()) > 0);
+        $textValue = trim((string)$node);
+        $hasText = (strlen($textValue) > 0);
+
+        if (!$hasAttributes && !$hasChildren) {
+            return $textValue;
+        }
+
+        $output = [];
+
+        if ($hasAttributes) {
+            foreach ($node->attributes() as $attrName => $attrValue) {
+                $output['@attributes'][$attrName] = (string)$attrValue;
+            }
+        }
+
+        if ($hasChildren) {
+            foreach ($node->children() as $child) {
+                $childName = $child->getName();
+                $childData = $this->_toFullArray($child);
+
+                if (isset($output[$childName])) {
+                    if (!is_array($output[$childName]) || !isset($output[$childName][0])) {
+                        $output[$childName] = [$output[$childName]];
+                    }
+                    $output[$childName][] = $childData;
+                } else {
+                    $output[$childName] = $childData;
+                }
+            }
+        }
+
+        if ($hasText) {
+            $output['@value'] = $textValue;
+        }
+
+        return $output;
+    }
 
     public function toArray(?Closure $func = null): array
     {
         return $this->_toArray($this->DOMNode(), $func);
     }
 
-    protected function _toArray(SimpleXMLElement|DOMNode|array $arr, Closure|null $func): array
+    protected function _toArray(SimpleXMLElement|DOMNode|array $arr, Closure|null $func = null): array
     {
         if ($arr instanceof SimpleXMLElement) {
             return $this->_toArray((array) $arr, $func);
@@ -292,6 +339,7 @@ class XmlNode
 
         return $newArr;
     }
+
 
     /**
      * @param string|null $prefix

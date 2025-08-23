@@ -349,6 +349,71 @@ class XmlUtilTest extends TestCase
         $this->assertEquals([ "node" => "value"], $array);
     }
 
+    public function testXml2FullArray(): void
+    {
+        $file = new File(__DIR__ . '/buggy.xml');
+        $xml = new XmlDocument($file, preserveWhiteSpace: false);
+
+        $array = $xml->toFullArray();
+        $this->assertEquals(['root' => [ "node" => [ "subnode" => "value"]]], $array);
+    }
+
+    public function testXmlToArrayWithAttributeAndNoText(): void
+    {
+        $xml = new XmlDocument('<root><node param="pval"/></root>');
+        $array = $xml->toFullArray();
+
+        $expected = [
+            'root' => [
+                'node' => [
+                    '@attributes' => ['param' => 'pval']
+                ]
+            ]
+        ];
+
+        $this->assertEquals($expected, $array);
+    }
+
+    public function testXmlToArrayWithAttributeAndText(): void
+    {
+        $xml = new XmlDocument('<root><node param="pval">value</node></root>');
+        $array = $xml->toFullArray();
+
+        $expected = [
+            'root' => [
+                'node' => [
+                    '@attributes' => ['param' => 'pval'],
+                    '@value' => 'value'
+                ]
+            ]
+        ];
+
+        $this->assertEquals($expected, $array);
+    }
+
+    public function testXmlToArrayWithMixedContent(): void
+    {
+        $xmlString = '<root><node param="pval">value<other>value</other><node2 a="2"></node2></node></root>';
+        $xml = new XmlDocument($xmlString);
+        $array = $xml->toFullArray();
+
+        $expected = [
+            'root' => [
+                'node' => [
+                    '@attributes' => ['param' => 'pval'],
+                    '@value' => 'value',
+                    'other' => 'value',
+                    'node2' => [
+                        '@attributes' => ['a' => '2']
+                    ]
+                ]
+            ]
+        ];
+
+        $this->assertEquals($expected, $array);
+    }
+
+
     public function testSelectNodesNamespace(): void
     {
         $file = new File(__DIR__ . '/feed-atom.txt');

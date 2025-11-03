@@ -4,10 +4,10 @@ sidebar_position: 4
 
 # Convert a model to XML
 
-You can convert any model to XML by using the class EntityParser. 
+You can convert any model to XML by using the class EntityParser.
 
 Example:
-```php
+```php title="Converting a PHP model to XML"
 <?php
 
 use ByJG\XmlUtil\EntityParser;
@@ -17,12 +17,12 @@ class MyModel
     public $name;
     public $age;
     private $year;
-    
+
     public function getYear()
     {
         return $this->year;
     }
-    
+
     public function setYear($year)
     {
         $this->year = $year;
@@ -56,7 +56,7 @@ The output will be:
 You can add an object to the XML using the API.
 
 Example:
-```php
+```php title="Adding an object to an XML node"
 <?php
 use ByJG\XmlUtil\XmlDocument;
 

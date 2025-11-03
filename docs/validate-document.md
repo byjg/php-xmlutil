@@ -8,7 +8,7 @@ XmlUtil provides a way to validate XML documents against XSD schemas.
 
 ## Validating an XML document
 
-```php
+```php title="Validating against XSD schema"
 <?php
 use ByJG\XmlUtil\XmlDocument;
 
@@ -25,7 +25,7 @@ try {
 
 ## Getting validation errors without throwing exceptions
 
-```php
+```php title="Getting validation errors"
 <?php
 use ByJG\XmlUtil\XmlDocument;
 

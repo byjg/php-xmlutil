@@ -10,7 +10,7 @@ The XmlUtil library provides a simple but powerful API for working with XML docu
 
 ### From a string
 
-```php
+```php title="Creating from an XML string"
 <?php
 use ByJG\XmlUtil\XmlDocument;
 
@@ -20,7 +20,7 @@ $xml = new XmlDocument('<root />');
 
 ### From a file
 
-```php
+```php title="Creating from a file"
 <?php
 use ByJG\XmlUtil\XmlDocument;
 use ByJG\XmlUtil\File;
@@ -32,7 +32,7 @@ $xml = new XmlDocument($file);
 
 ### Create an empty document
 
-```php
+```php title="Creating an empty document"
 <?php
 use ByJG\XmlUtil\XmlDocument;
 
@@ -45,7 +45,7 @@ $xml = XmlDocument::emptyDocument('root', 'http://www.example.com/ns');
 
 ## Building XML Structure
 
-```php
+```php title="Building XML structure programmatically"
 <?php
 use ByJG\XmlUtil\XmlDocument;
 
@@ -66,7 +66,7 @@ echo $xml->toString(format: true);
 
 Output:
 
-```xml
+```xml title="Resulting XML"
 <?xml version="1.0" encoding="utf-8"?>
 <root>
   <mynode>
@@ -81,7 +81,7 @@ Output:
 
 ### Adding Text
 
-```php
+```php title="Adding text and CDATA"
 $node = $xml->appendChild('node');
 $node->addText('Some text');
 
@@ -91,20 +91,20 @@ $node->addText('This is <CDATA> content', true);
 
 ### Inserting Nodes
 
-```php
+```php title="Inserting nodes before the current node"
 // Insert a node before the current node
 $newNode = $node->insertBefore('newnode', 'new node text');
 ```
 
 ### Getting the Parent Node
 
-```php
+```php title="Getting the parent node"
 $parent = $node->parentNode();
 ```
 
 ### Renaming Nodes
 
-```php
+```php title="Renaming nodes"
 // Rename the current node
 $node->renameNode('newName');
 
@@ -114,7 +114,7 @@ $node->renameNode('prefix:newName');
 
 ### Removing Nodes
 
-```php
+```php title="Removing nodes"
 // Remove the current node
 $node->removeNode();
 
@@ -124,7 +124,7 @@ $xml->removeTagName('tagToRemove');
 
 ### Adding objects
 
-```php
+```php title="Adding PHP objects to XML"
 // Add a PHP object or array to the XML structure
 $object = new stdClass();
 $object->property = 'value';
@@ -133,7 +133,7 @@ $node->appendObject($object);
 
 ### Importing nodes from another document
 
-```php
+```php title="Importing nodes from another document"
 // Import nodes from another document or file
 $node->importNodes($otherXmlNode, 'nodeToImport');
 ```
@@ -142,13 +142,13 @@ $node->importNodes($otherXmlNode, 'nodeToImport');
 
 ### Convert to Array
 
-```php
+```php title="Converting XML to array"
 $array = $xml->toArray();
 ```
 
 ### Convert to String
 
-```php
+```php title="Converting XML to string"
 // Default output
 $string = $xml->toString();
 
@@ -161,7 +161,7 @@ $string = $xml->toString(noHeader: true);
 
 ## Accessing DOM Objects
 
-```php
+```php title="Accessing underlying DOM objects"
 // Get the underlying DOMNode
 $domNode = $xml->DOMNode();
 
@@ -171,7 +171,7 @@ $domDocument = $xml->DOMDocument();
 
 ## Saving XML
 
-```php
+```php title="Saving XML to file"
 // Save to a file
 $xml->save('/path/to/output.xml');
 

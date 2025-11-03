@@ -8,7 +8,7 @@ XmlUtil provides a dedicated `CleanDocument` class for selectively removing spec
 
 ## Basic Usage
 
-```php
+```php title="Basic document cleaning example"
 <?php
 
 $document = new \ByJG\XmlUtil\CleanDocument($documentXmlOrHtml);
@@ -26,7 +26,7 @@ $document
 
 Removes all HTML/XML tags from the document.
 
-```php
+```php title="Removing all tags"
 $document = new \ByJG\XmlUtil\CleanDocument($html);
 $plainText = $document->stripAllTags();
 ```
@@ -35,7 +35,7 @@ $plainText = $document->stripAllTags();
 
 Strips all HTML/XML tags except those specified in the array.
 
-```php
+```php title="Keeping only specific tags"
 $document = new \ByJG\XmlUtil\CleanDocument($html);
 $cleanHtml = $document->stripTagsExcept(['p', 'div', 'span'])->get();
 ```
@@ -44,7 +44,7 @@ $cleanHtml = $document->stripTagsExcept(['p', 'div', 'span'])->get();
 
 Removes content from any tag that contains the specified property.
 
-```php
+```php title="Removing tags by property"
 $document = new \ByJG\XmlUtil\CleanDocument($html);
 // Removes all tags containing the "style" property and their content
 $cleanHtml = $document->removeContentByProperty('style')->get();
@@ -54,7 +54,7 @@ $cleanHtml = $document->removeContentByProperty('style')->get();
 
 Removes content from the specified tag, optionally filtering by a property.
 
-```php
+```php title="Removing specific tags"
 $document = new \ByJG\XmlUtil\CleanDocument($html);
 // Removes all <script> tags and their content
 $cleanHtml = $document->removeContentByTag('script')->get();
@@ -67,7 +67,7 @@ $cleanHtml = $document->removeContentByTag('a', 'onclick')->get();
 
 Removes content from the specified tag that does NOT have the specified property.
 
-```php
+```php title="Removing tags without specific property"
 $document = new \ByJG\XmlUtil\CleanDocument($html);
 // Removes all <a> tags that don't have an "href" property
 $cleanHtml = $document->removeContentByTagWithoutProperty('a', 'href')->get();
@@ -77,7 +77,7 @@ $cleanHtml = $document->removeContentByTagWithoutProperty('a', 'href')->get();
 
 Returns the cleaned document as a string.
 
-```php
+```php title="Getting the cleaned result"
 $document = new \ByJG\XmlUtil\CleanDocument($html);
 // Apply cleaning operations
 $document->removeContentByTag('script');

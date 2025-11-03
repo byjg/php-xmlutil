@@ -7,7 +7,7 @@ sidebar_position: 5
 You can add PHP attributes to your model to help the EntityParser to convert the model to XML. This provides precise control over the XML serialization process.
 
 Example:
-```php
+```php title="Using PHP attributes to control XML output"
 <?php
 
 use ByJG\XmlUtil\EntityParser;
@@ -23,22 +23,22 @@ class MyModel
         elementName: 'Name',
     )]
     public $name;
-    
+
     #[XmlProperty(
         elementName: 'Age',
     )]
     public $age;
-    
+
     #[XmlProperty(
         elementName: 'Year',
     )]
     private $year;
-    
+
     public function getYear()
     {
         return $this->year;
     }
-    
+
     public function setYear($year)
     {
         $this->year = $year;
@@ -71,16 +71,16 @@ The output will be:
 
 You can also map properties to XML attributes instead of elements:
 
-```php
+```php title="Mapping properties to XML attributes"
 #[XmlEntity(rootElementName: 'Person', preserveCaseName: true)]
 class PersonWithAttributes
 {
     #[XmlProperty(elementName: 'Name', preserveCaseName: true)]
     public $name;
-    
+
     #[XmlProperty(isAttribute: true)]
     public $id;
-    
+
     #[XmlProperty(isAttributeOf: 'Name')]
     public $type;
 }

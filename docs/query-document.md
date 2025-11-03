@@ -8,20 +8,20 @@ XmlUtil provides powerful XPath functionality to query XML documents.
 
 ## Select a single node based on XPath
 
-```php
+```php title="Selecting a single node with XPath"
 $node = $xml->selectSingleNode('//subnode');
 ```
 
 ## Select all nodes based on XPath
 
-```php
+```php title="Selecting multiple nodes with XPath"
 $nodeList = $xml->selectNodes('//subnode');
 
 // Iterate through the results
 foreach ($nodeList as $node) {
     // Create an XmlNode instance from each DOMNode
     $xmlNode = new \ByJG\XmlUtil\XmlNode($node);
-    
+
     // Now you can use all XmlNode methods
     echo $xmlNode->innerText();
 }
@@ -31,7 +31,7 @@ foreach ($nodeList as $node) {
 
 If your XML document uses namespaces, you can include them in your XPath queries:
 
-```php
+```php title="XPath queries with namespaces"
 // Create a namespace array
 $namespaces = [
     'ns1' => 'http://www.example.com/namespace1',
@@ -47,7 +47,7 @@ $nodeList = $xml->selectNodes('//ns2:element', $namespaces);
 
 After selecting a node, you can manipulate it using all XmlNode methods:
 
-```php
+```php title="Manipulating selected nodes"
 // Get a node
 $node = $xml->selectSingleNode('//element');
 
@@ -74,7 +74,7 @@ $node->renameNode('newName');
 
 You can create more complex XPath queries:
 
-```php
+```php title="Complex XPath examples"
 // Find all elements with a specific attribute
 $nodes = $xml->selectNodes('//element[@attr="value"]');
 

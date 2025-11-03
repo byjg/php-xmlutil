@@ -8,7 +8,7 @@ XmlUtil provides a simple File class for handling XML files.
 
 ## Creating a File instance
 
-```php
+```php title="Creating File instances"
 <?php
 use ByJG\XmlUtil\File;
 
@@ -21,7 +21,7 @@ $file = new File('/path/to/newfile.xml', true);
 
 ## Reading a file
 
-```php
+```php title="Reading XML from file"
 <?php
 use ByJG\XmlUtil\File;
 use ByJG\XmlUtil\XmlDocument;
@@ -40,7 +40,7 @@ $xml = new XmlDocument($file);
 
 ## Saving a file
 
-```php
+```php title="Saving XML to file"
 <?php
 use ByJG\XmlUtil\File;
 use ByJG\XmlUtil\XmlDocument;
@@ -56,7 +56,7 @@ $file->save($xml->toString());
 
 ## Getting the filename
 
-```php
+```php title="Getting the filename"
 <?php
 use ByJG\XmlUtil\File;
 

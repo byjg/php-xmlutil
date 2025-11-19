@@ -27,10 +27,10 @@ class File
     }
 
     /**
-     * @return string
-     * @throws FileException
+     * @return string|false Returns file contents as string on success, false if reading fails
+     * @throws FileException when file does not exist
      */
-    public function getContents(): string
+    public function getContents(): string|false
     {
         if (!file_exists($this->filename)) {
             throw new FileException('File not found');

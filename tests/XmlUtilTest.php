@@ -28,40 +28,62 @@ class XmlUtilTest extends TestCase
         $this->assertEquals(self::XML_HEADER . "\n<root><node><subnode>value</subnode></node></root>\n", $xml->toString());
     }
 
-    public function testCreateXmlDocumentFromStr(): void
+    /**
+     * Data provider for XML declaration tests
+     *
+     * @return array
+     */
+    public static function xmlDeclarationProvider(): array
     {
-        $xmlStr = '<root/>';
-        $xml = new XmlDocument($xmlStr);
-        $this->assertEquals(self::XML_HEADER . "\n<root/>\n", $xml->toString());
+        return [
+            'no declaration' => [
+                'input' => '<root/>',
+                'expected' => self::XML_HEADER . "\n<root/>\n"
+            ],
+            'empty declaration' => [
+                'input' => '<?xml?><root/>',
+                'expected' => self::XML_HEADER . "\n<root/>\n"
+            ],
+            'only version' => [
+                'input' => '<?xml version="1.0"?><root/>',
+                'expected' => self::XML_HEADER . "\n<root/>\n"
+            ],
+            'only encoding utf8' => [
+                'input' => '<?xml encoding="utf8"?><root/>',
+                'expected' => self::XML_HEADER . "\n<root/>\n"
+            ],
+            'only encoding ascii' => [
+                'input' => '<?xml encoding="ascii"?><root/>',
+                'expected' => '<?xml version="1.0" encoding="ascii"?>' . "\n<root/>\n"
+            ],
+            'invalid version' => [
+                'input' => '<?xml version="9.0"encoding="ascii"?><root/>',
+                'expected' => '<?xml version="1.0" encoding="ascii"?>' . "\n<root/>\n"
+            ],
+            'different attribute order' => [
+                'input' => '<?xml encoding="ascii" version="1.0"?><root/>',
+                'expected' => '<?xml version="1.0" encoding="ascii"?>' . "\n<root/>\n"
+            ],
+            'with standalone' => [
+                'input' => '<?xml version="1.0" encoding="ascii" standalone="yes"?><root/>',
+                'expected' => '<?xml version="1.0" encoding="ascii" standalone="yes"?>' . "\n<root/>\n"
+            ],
+            'with only standalone' => [
+                'input' => '<?xml standalone="yes"?><root/>',
+                'expected' => '<?xml version="1.0" encoding="utf-8" standalone="yes"?>' . "\n<root/>\n"
+            ],
+            'with invalid attribute' => [
+                'input' => '<?xml abc="test"?><root/>',
+                'expected' => self::XML_HEADER . "\n<root/>\n"
+            ]
+        ];
     }
 
-    public function testCreateXmlDocumentFromStr2(): void
+    #[\PHPUnit\Framework\Attributes\DataProvider('xmlDeclarationProvider')]
+    public function testCreateXmlDocumentFromStr(string $input, string $expected): void
     {
-        $xmlStr = '<?xml?><root/>';
-        $xml = new XmlDocument($xmlStr);
-        $this->assertEquals(self::XML_HEADER . "\n<root/>\n", $xml->toString());
-    }
-
-
-    public function testCreateXmlDocumentFromStr3(): void
-    {
-        $xmlStr = '<?xml version="1.0"?><root/>';
-        $xml = new XmlDocument($xmlStr);
-        $this->assertEquals(self::XML_HEADER . "\n<root/>\n", $xml->toString());
-    }
-
-    public function testCreateXmlDocumentFromStr4(): void
-    {
-        $xmlStr = '<?xml encoding="utf8"?><root/>';
-        $xml = new XmlDocument($xmlStr);
-        $this->assertEquals(self::XML_HEADER . "\n<root/>\n", $xml->toString());
-    }
-
-    public function testCreateXmlDocumentFromStr5(): void
-    {
-        $xmlStr = '<?xml encoding="ascii"?><root/>';
-        $xml = new XmlDocument($xmlStr);
-        $this->assertEquals(self::XML_HEADER . "\n<root/>\n", $xml->toString());
+        $xml = new XmlDocument($input);
+        $this->assertEquals($expected, $xml->toString());
     }
 
     public function testCreateDocumentFromNode(): void

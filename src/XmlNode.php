@@ -57,7 +57,11 @@ class XmlNode
 
         if (empty($uri)) {
             // @todo: check if namespace is defined.
-            $newNode = $owner->createElement(preg_replace('/[^\w:]/', '_', $name));
+            $sanitizedName = preg_replace('/[^\w:]/', '_', $name);
+            if ($sanitizedName === null) {
+                throw new XmlUtilException("Failed to sanitize node name", 258);
+            }
+            $newNode = $owner->createElement($sanitizedName);
         } else {
             $newNode = $owner->createElementNS($uri, $name);
         }
@@ -114,6 +118,9 @@ class XmlNode
         $nodeWorking = $this->createChildNode($nodeName);
         $nodeWorking->addText($nodeText);
         $rootNode = $this->DOMNode()->parentNode;
+        if ($rootNode === null) {
+            throw new XmlUtilException("Parent node cannot be null", 258);
+        }
         $rootNode->insertBefore($nodeWorking->DOMNode(), $this->DOMNode());
         return $nodeWorking;
     }
@@ -238,6 +245,9 @@ class XmlNode
     public function removeNode(): XmlNode
     {
         $nodeParent = $this->DOMNode()->parentNode;
+        if ($nodeParent === null) {
+            throw new XmlUtilException("Cannot remove node without parent", 258);
+        }
         $nodeParent->removeChild($this->DOMNode());
 
         return new XmlNode($nodeParent);
@@ -253,7 +263,11 @@ class XmlNode
     {
         $nodeList = $this->DOMDocument()->getElementsByTagName($tagName);
         if ($nodeList->length > 0) {
-            XmlNode::instance($nodeList->item(0))->removeNode();
+            $node = $nodeList->item(0);
+            if ($node === null) {
+                return false;
+            }
+            XmlNode::instance($node)->removeNode();
             return true;
         } else {
             return false;
@@ -263,13 +277,18 @@ class XmlNode
     public function toFullArray(): array
     {
         $sxml = simplexml_import_dom($this->DOMNode());
+        if ($sxml === null) {
+            throw new XmlUtilException("Failed to import DOM node", 258);
+        }
         return [$sxml->getName() => $this->_toFullArray($sxml)];
     }
 
     protected function _toFullArray(SimpleXMLElement $node): array|string
     {
-        $hasAttributes = (count($node->attributes()) > 0);
-        $hasChildren = (count($node->children()) > 0);
+        $attributes = $node->attributes() ?? new SimpleXMLElement('<x/>');
+        $children = $node->children() ?? new SimpleXMLElement('<x/>');
+        $hasAttributes = (count($attributes) > 0);
+        $hasChildren = (count($children) > 0);
         $textValue = trim((string)$node);
         $hasText = (strlen($textValue) > 0);
 
@@ -280,13 +299,15 @@ class XmlNode
         $output = [];
 
         if ($hasAttributes) {
-            foreach ($node->attributes() as $attrName => $attrValue) {
-                $output['@attributes'][$attrName] = (string)$attrValue;
+            foreach ($attributes as $attrName => $attrValue) {
+                if ($attrName !== null) {
+                    $output['@attributes'][$attrName] = (string)$attrValue;
+                }
             }
         }
 
         if ($hasChildren) {
-            foreach ($node->children() as $child) {
+            foreach ($children as $child) {
                 $childName = $child->getName();
                 $childData = $this->_toFullArray($child);
 
@@ -367,7 +388,11 @@ class XmlNode
     {
         $sourceDoc = new XmlDocument($source);
 
-        $nodes = $sourceDoc->DOMDocument()->getElementsByTagName($nodeToAdd)->item(0)->childNodes;
+        $element = $sourceDoc->DOMDocument()->getElementsByTagName($nodeToAdd)->item(0);
+        if ($element === null) {
+            throw new XmlUtilException("Element '$nodeToAdd' not found", 258);
+        }
+        $nodes = $element->childNodes;
         foreach ($nodes as $node) {
             $newNode = $this->DOMDocument()->importNode($node, true);
             $this->DOMNode()->appendChild($newNode);
@@ -381,15 +406,20 @@ class XmlNode
     public function renameNode(string $newName): XmlNode
     {
         $newNode = $this->node->ownerDocument->createElement($newName);
-        if ($this->node->attributes->length) {
-            foreach ($this->node->attributes as $attribute) {
-                $newNode->setAttribute($attribute->nodeName, $attribute->nodeValue);
+        $attributes = $this->node->attributes;
+        if ($attributes !== null && $attributes->length) {
+            foreach ($attributes as $attribute) {
+                $newNode->setAttribute($attribute->nodeName, $attribute->nodeValue ?? '');
             }
         }
         while ($this->node->firstChild) {
             $newNode->appendChild($this->node->firstChild);
         }
-        $this->node->parentNode->replaceChild($newNode, $this->node);
+        $parentNode = $this->node->parentNode;
+        if ($parentNode === null) {
+            throw new XmlUtilException("Cannot rename node without parent", 258);
+        }
+        $parentNode->replaceChild($newNode, $this->node);
 
         $this->node = $newNode;
         return $this;

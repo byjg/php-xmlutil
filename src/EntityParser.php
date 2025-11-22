@@ -43,15 +43,21 @@ class EntityParser
     {
         /** @var XmlDocument $xml */
         $metadata = $this->getReflectionClassMeta($serializable);
+        if ($metadata === null) {
+            throw new XmlUtilException("Unable to get metadata for the serializable object", 258);
+        }
         $list = $metadata->getNamespaces();
-        $nodeRootParts = explode(':', $metadata->getRootElementName());
-        if (count($nodeRootParts) === 1) {
-            $namespace = null;
-        } else if (isset($list[$nodeRootParts[0]])) {
+        $rootElementName = $metadata->getRootElementName();
+        if ($rootElementName === null) {
+            throw new XmlUtilException("Root element name cannot be null", 258);
+        }
+        $nodeRootParts = explode(':', $rootElementName);
+        $namespace = null;
+        if (count($nodeRootParts) !== 1 && isset($list[$nodeRootParts[0]])) {
             $namespace = $list[$nodeRootParts[0]];
             unset($list[$nodeRootParts[0]]);
         }
-        $xml = XmlDocument::emptyDocument($metadata->getRootElementName(), $namespace);
+        $xml = XmlDocument::emptyDocument($rootElementName, $namespace);
         foreach ($list as $prefix => $uri) {
             $xml->addNamespace($prefix, $uri);
         }
@@ -65,7 +71,7 @@ class EntityParser
 
     /**
      * @param array|object $object
-     * @return XmlEntity
+     * @return XmlEntity|null
      * @throws XmlUtilException
      */
     protected function getReflectionClassMeta(array|object $object): ?XmlEntity
@@ -100,14 +106,18 @@ class EntityParser
         foreach ($metadata->getNamespaces() as $prefix => $uri) {
             $xml->addNamespace($prefix, $uri);
         }
-        if (!empty($metadata->getUsePrefix())) {
+        $usePrefix = $metadata->getUsePrefix();
+        if (!empty($usePrefix)) {
             $currentName = $xml->DOMNode()->nodeName;
             if (str_contains($currentName, ':')) {
-                if (!str_starts_with($currentName, $metadata->getUsePrefix())) {
-                    $xml->renameNode($metadata->getUsePrefix() . substr($currentName, strpos($currentName, ':') + 1));
+                if (!str_starts_with($currentName, $usePrefix)) {
+                    $colonPos = strpos($currentName, ':');
+                    if ($colonPos !== false) {
+                        $xml->renameNode($usePrefix . substr($currentName, $colonPos + 1));
+                    }
                 }
             } else {
-                $xml->renameNode($metadata->getUsePrefix() . $currentName);
+                $xml->renameNode($usePrefix . $currentName);
             }
         }
     }
@@ -139,7 +149,7 @@ class EntityParser
         }
 
         // Define property transformer function
-        $transformer = function (?XmlProperty $property, $parsedValue, $propertyName) use ($xml, $rootMetadata) {
+        $transformer = function (?XmlProperty $property, $parsedValue, $propertyName) use ($xml, $rootMetadata): bool {
             // Skip processing if needed
             if ($this->shouldSkipProperty($property, $parsedValue)) {
                 return false;
@@ -308,7 +318,14 @@ class EntityParser
             } else {
                 // Handle objects in array
                 $metadata = $this->getReflectionClassMeta($value);
-                $subnodeArray = $subnode->appendChild("{$metadata->getRootElementName()}");
+                if ($metadata === null) {
+                    throw new XmlUtilException("Unable to get metadata for object in array", 258);
+                }
+                $rootElementName = $metadata->getRootElementName();
+                if ($rootElementName === null) {
+                    throw new XmlUtilException("Root element name cannot be null for object in array", 258);
+                }
+                $subnodeArray = $subnode->appendChild("{$rootElementName}");
                 $this->arrayToXml($value, $subnodeArray);
             }
         }
@@ -330,14 +347,18 @@ class EntityParser
     private function processScalarArrayItem(mixed $key, mixed $value, XmlNode $subnode, bool &$createAgain): void
     {
         $safeValue = htmlspecialchars("$value");
-        
+
         if (!is_numeric($key)) {
             // For associative arrays, create key-named elements
             $subnode->appendChild($key, $safeValue);
         } else {
             // For numeric keys, add content to parent or create new element
             if ($createAgain) {
-                $subnode = $subnode->parentNode()->appendChild($subnode->DOMNode()->nodeName);
+                $parentNode = $subnode->parentNode();
+                if ($parentNode === null) {
+                    throw new XmlUtilException("Parent node cannot be null", 258);
+                }
+                $subnode = $parentNode->appendChild($subnode->DOMNode()->nodeName);
             }
             $subnode->addText($safeValue);
         }

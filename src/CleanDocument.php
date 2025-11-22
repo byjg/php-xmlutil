@@ -47,7 +47,7 @@ class CleanDocument
         if (!empty($property)) {
             $pattern = '~<(' . $tag . ')\b\s[^>]*' . $property . '\s*?=?[^>]*>.*?</\1>~';
         }
-        $this->document = preg_replace($pattern, '', $this->document);
+        $this->document = preg_replace($pattern, '', $this->document) ?? $this->document;
         return $this;
     }
 
@@ -59,7 +59,7 @@ class CleanDocument
     public function removeContentByTagWithoutProperty(string $tag, string $property): self
     {
         $pattern = '~<(' . $tag . ')\b\s(?![^>]*' . $property . '\s*?=?)[^>]*>.*?</\1>~';
-        $this->document = preg_replace($pattern, '', $this->document);
+        $this->document = preg_replace($pattern, '', $this->document) ?? $this->document;
         return $this;
     }
 

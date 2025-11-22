@@ -39,9 +39,13 @@ class XmlDocument extends XmlNode
         $xmlDoc->formatOutput = $formatOutput;
 
         if ($source instanceof File || is_string($source)) {
-            $contents = $source;
-            if (!is_string($contents)) {
+            if (is_string($source)) {
+                $contents = $source;
+            } else {
                 $contents = $source->getContents();
+            }
+            if ($contents === false) {
+                throw new XmlUtilException("Failed to get file contents", 258);
             }
             $xmlFixed = $this->fixXmlHeader($contents);
             if ($fixAmpersand) {

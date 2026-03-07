@@ -1,3 +1,7 @@
+---
+tags: [php, text-manipulation]
+---
+
 # XML Utility
 
 A powerful and intuitive PHP library for working with XML documents. This utility makes XML manipulation, querying,
@@ -66,14 +70,14 @@ Output:
 
 The library is fully documented with detailed guides and examples for each feature:
 
-- [Creating XML Documents](docs/using-api.md): Learn how to create and manipulate XML documents using the API
-- [Working with Namespaces](docs/namespaces.md): Guide to handling XML namespaces properly
-- [Querying with XPath](docs/query-document.md): How to use XPath expressions to query XML documents
-- [PHP Models to XML](docs/convert-model-xml.md): Converting PHP objects to XML and vice versa
-- [Attribute-Based Mapping](docs/convert-model-xml-withattributes.md): Using PHP attributes to control XML serialization
-- [Cleaning Documents](docs/clean-document.md): Removing specific tags from XML documents
-- [File Operations](docs/file-handling.md): Loading and saving XML from/to files
-- [XML Validation](docs/validate-document.md): Validating XML documents against schemas
+- [Creating XML Documents](using-api): Learn how to create and manipulate XML documents using the API
+- [Working with Namespaces](namespaces): Guide to handling XML namespaces properly
+- [Querying with XPath](query-document): How to use XPath expressions to query XML documents
+- [PHP Models to XML](convert-model-xml): Converting PHP objects to XML and vice versa
+- [Attribute-Based Mapping](convert-model-xml-withattributes): Using PHP attributes to control XML serialization
+- [Cleaning Documents](clean-document): Removing specific tags from XML documents
+- [File Operations](file-handling): Loading and saving XML from/to files
+- [XML Validation](validate-document): Validating XML documents against schemas
 
 ## Installation
 

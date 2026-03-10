@@ -1,7 +1,13 @@
+---
+sidebar_key: xmlutil
+tags: [php, text-manipulation]
+---
+
 # XML Utility
 
 A powerful and intuitive PHP library for working with XML documents. This utility makes XML manipulation, querying,
 and conversion simple and straightforward in PHP.
+
 
 [![Sponsor](https://img.shields.io/badge/Sponsor-%23ea4aaa?logo=githubsponsors&logoColor=white&labelColor=0d1117)](https://github.com/sponsors/byjg)
 [![Build Status](https://github.com/byjg/php-xmlutil/actions/workflows/phpunit.yml/badge.svg?branch=master)](https://github.com/byjg/php-xmlutil/actions/workflows/phpunit.yml)

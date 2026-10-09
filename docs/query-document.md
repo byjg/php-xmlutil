@@ -27,6 +27,23 @@ foreach ($nodeList as $node) {
 }
 ```
 
+## Querying from a node
+
+`selectSingleNode()` and `selectNodes()` also exist on any `XmlNode`, and evaluate the query with
+that node as the context. A query starting with `//` still searches the **whole document**,
+though: to stay inside the node, start the query with `./` (children) or `.//` (descendants).
+
+```php title="Absolute and relative queries from a node"
+$xml = new \ByJG\XmlUtil\XmlDocument('<root />');
+$node = $xml->appendChild('node');
+$node->appendChild('item', 'inside');
+$xml->appendChild('item', 'outside');
+
+$node->selectNodes('//item');   // inside, outside — the whole document
+$node->selectNodes('./item');   // inside — children of $node
+$node->selectNodes('.//item');  // inside — any descendant of $node
+```
+
 ## Working with namespaces in XPath queries
 
 If your XML document uses namespaces, you can include them in your XPath queries:

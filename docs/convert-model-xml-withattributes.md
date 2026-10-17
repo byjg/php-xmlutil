@@ -107,7 +107,7 @@ Properties:
 
 | Property           | Description                                                                                                         | Default        |
 |--------------------|---------------------------------------------------------------------------------------------------------------------|----------------|
-| `rootElementName`  | The name of the root element.                                                                                       | The class name |
+| `rootElementName`  | The name of the root element. When set, its case is preserved.                                                      | The class name |
 | `preserveCaseName` | Preserve the case of the element name.                                                                              | false          |
 | `namespaces`       | Array with the namespace of the element. Need to be an associative array with prefix as key and namespace as value. | []             |
 | `addNamespaceRoot` | Add the namespace to the root element if the object is a child.                                                     | true           |
@@ -120,7 +120,7 @@ Properties:
 
 | Property           | Description                                                                                              | Default           |
 |--------------------|----------------------------------------------------------------------------------------------------------|-------------------|
-| `elementName`      | The name of the element different from the property name.                                                | The property name |
+| `elementName`      | The name of the element different from the property name. When set, its case is preserved.             | The property name |
 | `preserveCaseName` | Preserve the case of the element name, if false, all elements will be lowercase.                         | false             |
 | `namespaces`       | The namespace of the element. Need to be an associative array with prefix as key and namespace as value. | empty             |
 | `isAttribute`      | If the element is an attribute of the parent node instead of a node.                                     | false             |

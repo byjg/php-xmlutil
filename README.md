@@ -94,9 +94,5 @@ composer require "byjg/xmlutil"
 vendor/bin/phpunit
 ```
 
-## License
-
-MIT
-
 ----
 [Open source ByJG](https://opensource.byjg.com)

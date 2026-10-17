@@ -42,3 +42,4 @@ While 7.0 is unreleased these resolve to `7.0.x-dev` from each component's
 ## Housekeeping
 
 - `phpunit.xml.dist` renamed to `phpunit.xml`.
+- Removed `example.php`; the examples are in the README and `docs/`.

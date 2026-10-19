@@ -42,7 +42,7 @@ $cleanHtml = $document->stripTagsExcept(['p', 'div', 'span'])->get();
 
 ### removeContentByProperty(string $property)
 
-Removes content from any tag that contains the specified property.
+Removes content from any tag (of any name) that contains the specified property.
 
 ```php title="Removing tags by property"
 $document = new \ByJG\XmlUtil\CleanDocument($html);
@@ -53,6 +53,7 @@ $cleanHtml = $document->removeContentByProperty('style')->get();
 ### removeContentByTag(string $tag, string $property = '')
 
 Removes content from the specified tag, optionally filtering by a property.
+The tag is matched with or without attributes, and its content may span several lines.
 
 ```php title="Removing specific tags"
 $document = new \ByJG\XmlUtil\CleanDocument($html);
@@ -65,7 +66,8 @@ $cleanHtml = $document->removeContentByTag('a', 'onclick')->get();
 
 ### removeContentByTagWithoutProperty(string $tag, string $property)
 
-Removes content from the specified tag that does NOT have the specified property.
+Removes content from the specified tag that does NOT have the specified property
+(a tag without any attributes is also removed).
 
 ```php title="Removing tags without specific property"
 $document = new \ByJG\XmlUtil\CleanDocument($html);

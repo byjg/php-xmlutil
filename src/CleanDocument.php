@@ -32,7 +32,7 @@ class CleanDocument
      */
     public function removeContentByProperty(string $property): self
     {
-        $this->removeContentByTag('\w', $property);
+        $this->removeContentByTag('\w+', $property);
         return $this;
     }
 
@@ -43,9 +43,9 @@ class CleanDocument
      */
     public function removeContentByTag(string $tag, string $property = ''): self
     {
-        $pattern = '~<(' . $tag . ')\b\s[^>]*>.*?</\1>~';
+        $pattern = '~<(' . $tag . ')\b[^>]*>.*?</\1>~s';
         if (!empty($property)) {
-            $pattern = '~<(' . $tag . ')\b\s[^>]*' . $property . '\s*?=?[^>]*>.*?</\1>~';
+            $pattern = '~<(' . $tag . ')\b\s[^>]*' . $property . '\s*?=?[^>]*>.*?</\1>~s';
         }
         $this->document = preg_replace($pattern, '', $this->document) ?? $this->document;
         return $this;
@@ -58,7 +58,7 @@ class CleanDocument
      */
     public function removeContentByTagWithoutProperty(string $tag, string $property): self
     {
-        $pattern = '~<(' . $tag . ')\b\s(?![^>]*' . $property . '\s*?=?)[^>]*>.*?</\1>~';
+        $pattern = '~<(' . $tag . ')\b(?![^>]*' . $property . '\s*?=?)[^>]*>.*?</\1>~s';
         $this->document = preg_replace($pattern, '', $this->document) ?? $this->document;
         return $this;
     }

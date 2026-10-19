@@ -5,7 +5,17 @@
 
 ## Breaking Changes
 
-- None.
+- `CleanDocument` now removes more content than before, because of the bug fixes below:
+  `removeContentByTag()` and `removeContentByTagWithoutProperty()` also match tags without
+  attributes and content spanning several lines, and `removeContentByProperty()` matches tags
+  of any name, not just one-letter tags.
+
+## Bug Fixes
+
+- `CleanDocument::removeContentByTag()` did not match a tag without attributes (e.g. `<script>`)
+  nor content spanning several lines. `removeContentByTagWithoutProperty()` had the same problem.
+- `CleanDocument::removeContentByProperty()` only matched one-letter tags: `<a style>` was
+  removed but `<div style>` was not.
 
 ## Requirements
 

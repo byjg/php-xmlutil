@@ -118,7 +118,7 @@ $node->renameNode('prefix:newName');
 // Remove the current node
 $node->removeNode();
 
-// Remove all nodes with a specific tag name
+// Remove the first node with a specific tag name (returns false when there is none)
 $xml->removeTagName('tagToRemove');
 ```
 
@@ -144,6 +144,12 @@ $node->importNodes($otherXmlNode, 'nodeToImport');
 
 ```php title="Converting XML to array"
 $array = $xml->toArray();
+
+// Optionally transform every leaf value
+$array = $xml->toArray(fn($value) => trim($value));
+
+// Keyed by the root element name; text next to child nodes or attributes goes under '@value'
+$array = $xml->toFullArray();
 ```
 
 ### Convert to String

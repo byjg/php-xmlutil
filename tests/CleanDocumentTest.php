@@ -4,6 +4,7 @@ namespace Tests;
 
 use ByJG\XmlUtil\CleanDocument;
 use Override;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class CleanDocumentTest extends TestCase
@@ -156,4 +157,32 @@ class CleanDocumentTest extends TestCase
         );
     }
 
+    public static function removeContentByTagWithoutAttributesProvider(): array
+    {
+        return [
+            'no attributes' => ['a<script>alert(1)</script>b', 'ab'],
+            'multi-line content' => ["a<script type=\"text/javascript\">\nalert(1);\n</script>b", 'ab'],
+            'same prefix tag is kept' => ['a<scripts>x</scripts>b', 'a<scripts>x</scripts>b'],
+        ];
+    }
+
+    #[DataProvider('removeContentByTagWithoutAttributesProvider')]
+    public function testRemoveContentByTagWithoutAttributes(string $document, string $expected): void
+    {
+        $this->assertEquals($expected, (new CleanDocument($document))->removeContentByTag('script')->get());
+    }
+
+    public function testRemoveContentByPropertyMultiCharTag(): void
+    {
+        $document = new CleanDocument('a<a style="x">1</a><div style="x">2</div><div>3</div>b');
+
+        $this->assertEquals('a<div>3</div>b', $document->removeContentByProperty('style')->get());
+    }
+
+    public function testRemoveContentByTagWithoutPropertyNoAttributes(): void
+    {
+        $document = new CleanDocument('a<a>1</a><a href="x">2</a>b');
+
+        $this->assertEquals('a<a href="x">2</a>b', $document->removeContentByTagWithoutProperty('a', 'href')->get());
+    }
 }

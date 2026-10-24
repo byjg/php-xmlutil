@@ -10,6 +10,11 @@
   attributes and content spanning several lines, and `removeContentByProperty()` matches tags
   of any name, not just one-letter tags.
 
+- `XmlNode::toFullArray()` is now done by byjg/serializer (`XmlFormatter::parse()`, the
+  reader behind `Serialize::fromXml()`), so XML read here and there gives the same array. The
+  output is unchanged. The protected `_toFullArray()` was removed; a subclass that overrode
+  it should override `toFullArray()`.
+
 ## Bug Fixes
 
 - `CleanDocument::removeContentByTag()` did not match a tag without attributes (e.g. `<script>`)

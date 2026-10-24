@@ -2,6 +2,7 @@
 
 namespace ByJG\XmlUtil;
 
+use ByJG\Serializer\Formatter\XmlFormatter;
 use ByJG\XmlUtil\Exception\XmlUtilException;
 use Closure;
 use DOMDocument;
@@ -274,59 +275,19 @@ class XmlNode
         }
     }
 
+    /**
+     * The node as an array, with its name as the single key. Attributes are under
+     * `@attributes`, the text of an element that also has attributes or children under
+     * `@value`, and repeated elements become a list. byjg/serializer reads it, with the same
+     * conventions as Serialize::fromXml().
+     */
     public function toFullArray(): array
     {
         $sxml = simplexml_import_dom($this->DOMNode());
         if ($sxml === null) {
             throw new XmlUtilException("Failed to import DOM node", 258);
         }
-        return [$sxml->getName() => $this->_toFullArray($sxml)];
-    }
-
-    protected function _toFullArray(SimpleXMLElement $node): array|string
-    {
-        $attributes = $node->attributes() ?? new SimpleXMLElement('<x/>');
-        $children = $node->children() ?? new SimpleXMLElement('<x/>');
-        $hasAttributes = (count($attributes) > 0);
-        $hasChildren = (count($children) > 0);
-        $textValue = trim((string)$node);
-        $hasText = (strlen($textValue) > 0);
-
-        if (!$hasAttributes && !$hasChildren) {
-            return $textValue;
-        }
-
-        $output = [];
-
-        if ($hasAttributes) {
-            foreach ($attributes as $attrName => $attrValue) {
-                if ($attrName !== null) {
-                    $output['@attributes'][$attrName] = (string)$attrValue;
-                }
-            }
-        }
-
-        if ($hasChildren) {
-            foreach ($children as $child) {
-                $childName = $child->getName();
-                $childData = $this->_toFullArray($child);
-
-                if (isset($output[$childName])) {
-                    if (!is_array($output[$childName]) || !isset($output[$childName][0])) {
-                        $output[$childName] = [$output[$childName]];
-                    }
-                    $output[$childName][] = $childData;
-                } else {
-                    $output[$childName] = $childData;
-                }
-            }
-        }
-
-        if ($hasText) {
-            $output['@value'] = $textValue;
-        }
-
-        return $output;
+        return (new XmlFormatter())->withListElement(null)->parse($sxml, withRoot: true);
     }
 
     public function toArray(?Closure $func = null): array

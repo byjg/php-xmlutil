@@ -5,8 +5,7 @@ tags: [php, text-manipulation]
 
 # XML Utility
 
-A powerful and intuitive PHP library for working with XML documents. This utility makes XML manipulation, querying,
-and conversion simple and straightforward in PHP.
+Build, query and convert XML without fighting DOM: a fluent API, XPath with namespaces, and PHP models mapped to XML with attributes.
 
 
 [![Sponsor](https://img.shields.io/badge/Sponsor-%23ea4aaa?logo=githubsponsors&logoColor=white&labelColor=0d1117)](https://github.com/sponsors/byjg)
@@ -16,6 +15,29 @@ and conversion simple and straightforward in PHP.
 [![GitHub source](https://img.shields.io/badge/Github-source-informational?logo=github)](https://github.com/byjg/php-xmlutil/)
 [![GitHub license](https://img.shields.io/github/license/byjg/php-xmlutil.svg)](https://opensource.byjg.com/license/)
 [![GitHub release](https://img.shields.io/github/release/byjg/php-xmlutil.svg)](https://github.com/byjg/php-xmlutil/releases/)
+
+## Why
+
+PHP's DOM is complete but verbose: creating a node, adding a namespace or running an XPath
+query takes several objects and many lines, and turning a PHP object into XML is left to you.
+
+XML Util wraps it in a small API, and maps a model to XML from attributes on the class:
+
+```php
+#[XmlEntity(rootElementName: 'Person')]
+class Person
+{
+    #[XmlProperty(elementName: 'Name')]
+    public string $name;
+}
+
+echo (new EntityParser())->parse($person)->toString(format: true);
+```
+
+- **Fluent building and XPath** (`appendChild()`, `selectNodes()`), with namespaces.
+- **Models to XML by attributes**, instead of hand-written serialization.
+- **XML to arrays** with the same rules as [byjg/serializer](https://github.com/byjg/php-serializer)
+  (`toFullArray()`).
 
 ## Overview
 
